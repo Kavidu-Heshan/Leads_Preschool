@@ -6,6 +6,7 @@ const cors = require("cors");
 // --- MODELS ---
 const ChildModel = require("./models/Child.js");
 const NewChildPwdModel = require("./models/NewChildPwd.js");
+const StudentProfileModel = require("./models/StudentProfile.js");
 
 const app = express();
 app.use(express.json());
@@ -92,7 +93,7 @@ app.get("/children", async (req, res) => {
   }
 });
 
-// 3. CHILD ENROLLMENT (LOGIN) - Now checks both original name and new password
+// 3. CHILD ENROLLMENT (LOGIN)
 app.post("/child-enroll", async (req, res) => {
   try {
     const { childId, childName } = req.body;
@@ -108,7 +109,6 @@ app.post("/child-enroll", async (req, res) => {
       return res.status(400).json({ error: "Password is required", field: "childName" });
     }
 
-    // First, check if the child has a new password set
     const childWithNewPwd = await NewChildPwdModel.findOne({
       childId: { $regex: new RegExp(`^${trimmedId}$`, 'i') }
     });
@@ -117,24 +117,20 @@ app.post("/child-enroll", async (req, res) => {
     let usingNewPassword = false;
 
     if (childWithNewPwd) {
-      // Child has changed password - check using new password
       child = await ChildModel.findOne({
         childId: { $regex: new RegExp(`^${trimmedId}$`, 'i') }
       });
 
-      // Verify the new password matches
       if (child && childWithNewPwd.newPassword.toLowerCase() === trimmedName.toLowerCase()) {
         usingNewPassword = true;
-        // Update last used time for the new password
         await NewChildPwdModel.updateOne(
           { _id: childWithNewPwd._id },
           { $set: { lastUsed: new Date() } }
         );
       } else {
-        child = null; // Password doesn't match
+        child = null; 
       }
     } else {
-      // No new password set - check using original child name
       child = await ChildModel.findOne({
         childId: { $regex: new RegExp(`^${trimmedId}$`, 'i') },
         childName: { $regex: new RegExp(`^${trimmedName}$`, 'i') }
@@ -148,7 +144,6 @@ app.post("/child-enroll", async (req, res) => {
       });
     }
 
-    // Update last login time
     const loginTime = new Date();
     await ChildModel.updateOne(
       { _id: child._id }, 
@@ -173,7 +168,7 @@ app.post("/child-enroll", async (req, res) => {
   }
 });
 
-// 4. CHANGE PASSWORD - Store new password in separate collection (ONE-TIME ONLY)
+// 4. CHANGE PASSWORD
 app.post("/change-password", async (req, res) => {
   try {
     const { childId, currentPassword, newPassword, confirmNewPassword } = req.body;
@@ -183,7 +178,6 @@ app.post("/change-password", async (req, res) => {
     const trimmedNewPwd = newPassword?.trim();
     const trimmedConfirmPwd = confirmNewPassword?.trim();
 
-    // Validation
     if (!trimmedId || !trimmedCurrentPwd || !trimmedNewPwd || !trimmedConfirmPwd) {
       return res.status(400).json({ 
         error: "All fields are required",
@@ -206,7 +200,6 @@ app.post("/change-password", async (req, res) => {
       });
     }
 
-    // Find the child
     const child = await ChildModel.findOne({
       childId: { $regex: new RegExp(`^${trimmedId}$`, 'i') }
     });
@@ -218,7 +211,6 @@ app.post("/change-password", async (req, res) => {
       });
     }
 
-    // CRITICAL CHECK: Verify if this child has already changed password
     const existingNewPwd = await NewChildPwdModel.findOne({
       childId: { $regex: new RegExp(`^${trimmedId}$`, 'i') }
     });
@@ -230,7 +222,6 @@ app.post("/change-password", async (req, res) => {
       });
     }
 
-    // Check current password against child's name
     if (child.childName.toLowerCase() !== trimmedCurrentPwd.toLowerCase()) {
       return res.status(401).json({ 
         error: "Current password is incorrect",
@@ -238,7 +229,6 @@ app.post("/change-password", async (req, res) => {
       });
     }
 
-    // Check if new password is same as current password
     if (child.childName.toLowerCase() === trimmedNewPwd.toLowerCase()) {
       return res.status(400).json({
         error: "New password cannot be the same as your name",
@@ -246,7 +236,6 @@ app.post("/change-password", async (req, res) => {
       });
     }
 
-    // Save the new password in the separate collection (ONE-TIME ONLY)
     const newChildPwd = new NewChildPwdModel({
       childId: child.childId,
       childName: child.childName,
@@ -307,10 +296,8 @@ app.get("/children-with-status", async (req, res) => {
   try {
     const children = await ChildModel.find().sort({ registeredDate: -1 });
     
-    // Get all password changes
     const passwordChanges = await NewChildPwdModel.find();
     
-    // Create a map for quick lookup
     const passwordChangeMap = {};
     passwordChanges.forEach(change => {
       passwordChangeMap[change.childId.toLowerCase()] = {
@@ -320,7 +307,6 @@ app.get("/children-with-status", async (req, res) => {
       };
     });
     
-    // Combine the data
     const childrenWithStatus = children.map(child => ({
       ...child.toObject(),
       passwordStatus: passwordChangeMap[child.childId.toLowerCase()] || {
@@ -334,6 +320,96 @@ app.get("/children-with-status", async (req, res) => {
   } catch (err) {
     console.error("Error fetching children with status:", err);
     res.status(500).json({ error: "Failed to fetch children data" });
+  }
+});
+
+// 7. GET CHILD NAME BY ID
+app.get("/child-name/:childId", async (req, res) => {
+  try {
+    const { childId } = req.params;
+    const child = await ChildModel.findOne({ 
+      childId: { $regex: new RegExp(`^${childId}$`, 'i') }
+    });
+    
+    if (!child) {
+      return res.status(404).json({ error: "Child not found" });
+    }
+    
+    res.json({ childName: child.childName });
+  } catch (err) {
+    console.error("Error fetching child name:", err);
+    res.status(500).json({ error: "Failed to fetch child name" });
+  }
+});
+
+// 8. CHECK IF PROFILE EXISTS
+app.get("/check-profile/:childId", async (req, res) => {
+  try {
+    const { childId } = req.params;
+    const profile = await StudentProfileModel.findOne({ 
+      childId: { $regex: new RegExp(`^${childId}$`, 'i') }
+    });
+    
+    res.json({ 
+      exists: !!profile,
+      profile: profile || null
+    });
+  } catch (err) {
+    console.error("Error checking profile:", err);
+    res.status(500).json({ error: "Failed to check profile status" });
+  }
+});
+
+// 9. CREATE STUDENT PROFILE
+app.post("/student-profile", async (req, res) => {
+  try {
+    const profileData = req.body;
+
+    // Check if profile already exists for this childId
+    const existingProfile = await StudentProfileModel.findOne({ 
+      childId: { $regex: new RegExp(`^${profileData.childId}$`, 'i') } 
+    });
+
+    if (existingProfile) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "A profile already exists for this Student ID." 
+      });
+    }
+
+    const newProfile = new StudentProfileModel(profileData);
+    await newProfile.save();
+
+    res.status(201).json({ 
+      success: true, 
+      message: "Student profile saved successfully!" 
+    });
+
+  } catch (err) {
+    console.error("Error creating student profile:", err);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to save profile. Please make sure all fields are correctly filled." 
+    });
+  }
+});
+
+// 10. GET STUDENT PROFILE BY CHILD ID
+app.get("/student-profile/:childId", async (req, res) => {
+  try {
+    const { childId } = req.params;
+    const profile = await StudentProfileModel.findOne({ 
+      childId: { $regex: new RegExp(`^${childId}$`, 'i') } 
+    });
+    
+    if (!profile) {
+      return res.status(404).json({ error: "Profile not found" });
+    }
+    
+    res.json(profile);
+  } catch (err) {
+    console.error("Error fetching profile:", err);
+    res.status(500).json({ error: "Failed to fetch profile" });
   }
 });
 

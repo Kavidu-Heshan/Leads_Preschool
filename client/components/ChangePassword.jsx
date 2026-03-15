@@ -56,17 +56,33 @@ const ChangePassword = () => {
       
       setHasChangedPassword(response.data.hasChangedPassword);
       
-      // If already changed password, redirect to dashboard after showing message
+      // If already changed password, check profile status and redirect accordingly
       if (response.data.hasChangedPassword) {
-        setError("You have already changed your password. Password can only be changed once.");
-        setTimeout(() => {
-          navigate("/child-dashboard");
-        }, 3000);
+        checkProfileStatus(childId);
       }
     } catch (err) {
       console.error("Error checking password status:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const checkProfileStatus = async (childId) => {
+    try {
+      const response = await axios.get(`http://localhost:3002/check-profile/${childId}`);
+      
+      if (response.data.exists) {
+        // Profile exists, go to dashboard
+        navigate("/child-dashboard");
+      } else {
+        // Profile doesn't exist, show message and then go to profile form
+        setError("You have already changed your password. Please complete your profile.");
+        setTimeout(() => {
+          navigate("/studentprofileform");
+        }, 3000);
+      }
+    } catch (err) {
+      console.error("Error checking profile status:", err);
     }
   };
 
@@ -183,10 +199,7 @@ const ChangePassword = () => {
     
     // Double check if already changed password
     if (hasChangedPassword) {
-      setError("You have already changed your password. Password can only be changed once.");
-      setTimeout(() => {
-        navigate("/child-dashboard");
-      }, 2000);
+      checkProfileStatus(childData.childId);
       return;
     }
     
@@ -237,9 +250,9 @@ const ChangePassword = () => {
           confirmNewPassword: false
         });
         
-        // Redirect after 2 seconds
+        // Check profile status and redirect accordingly
         setTimeout(() => {
-          navigate("/child-dashboard");
+          checkProfileStatus(childData.childId);
         }, 2000);
       }
     } catch (err) {
@@ -280,7 +293,7 @@ const ChangePassword = () => {
     );
   }
 
-  // If already changed password, show message and redirect
+  // If already changed password, show message and redirect based on profile status
   if (hasChangedPassword) {
     return (
       <div className="password-change-container">
@@ -294,7 +307,7 @@ const ChangePassword = () => {
               You have already changed your password. Password can only be changed once.
             </p>
             <p className="redirect-message">
-              Redirecting to dashboard...
+              Checking your profile status...
             </p>
           </div>
         </div>

@@ -7,6 +7,7 @@ import HomePage from "../pages/HomePage";
 import AdminAddChild from "../admin_pages/AdminAddChild";
 import ChildEnroll from "../pages/ChildEnroll";
 import ChangePassword from "../components/ChangePassword";
+import StudentProfileForm from "../pages/StudentProfileForm";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="/adminaddchild" element={<AdminAddChild />} />
           <Route path="/childenroll" element={<ChildEnroll />} />
           <Route path="/changepwd" element={<ChangePassword />} />
+          <Route path="/studentprofileform" element={<StudentProfileForm />} />
 
         </Routes>
       </BrowserRouter>

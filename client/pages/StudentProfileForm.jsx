@@ -18,6 +18,8 @@ const StudentProfileForm = () => {
     gender: "",
     dob: "",
     age: "",
+    class: "",
+    includeDaycare: false,
     bloodType: "",
     guardianName: "",
     email: "",
@@ -26,8 +28,8 @@ const StudentProfileForm = () => {
 
   const [contactNumbers, setContactNumbers] = useState([""]);
   const [profilePhoto, setProfilePhoto] = useState("");
+  const [availableClasses, setAvailableClasses] = useState([]);
   
-  // Validation errors state
   const [validationErrors, setValidationErrors] = useState({
     contactNumbers: [],
     age: "",
@@ -39,11 +41,7 @@ const StudentProfileForm = () => {
     if (storedChild) {
       const parsedChild = JSON.parse(storedChild);
       setChildId(parsedChild.childId);
-      
-      // Check if profile already exists
       checkExistingProfile(parsedChild.childId);
-      
-      // Fetch child name from server
       fetchChildName(parsedChild.childId);
     } else {
       navigate("/child-enroll");
@@ -53,16 +51,11 @@ const StudentProfileForm = () => {
   const checkExistingProfile = async (id) => {
     try {
       const response = await axios.get(`http://localhost:3002/check-profile/${id}`);
-      
       if (response.data.exists) {
-        // Profile already exists, redirect to dashboard
-        setSuccess("Profile already exists! Redirecting to dashboard...");
-        setTimeout(() => {
-          navigate("/child-dashboard");
-        }, 2000);
+        navigate("/child-dashboard");
       }
     } catch (err) {
-      console.error("Error checking profile:", err);
+      console.error(err);
     } finally {
       setCheckingProfile(false);
     }
@@ -74,14 +67,13 @@ const StudentProfileForm = () => {
       setChildName(response.data.childName);
       setFormData(prev => ({
         ...prev,
-        fullName: response.data.childName // Auto-fill full name with child's name
+        fullName: response.data.childName
       }));
     } catch (err) {
       console.error("Error fetching child name:", err);
     }
   };
 
-  // Update profile photo based on gender selection
   useEffect(() => {
     if (formData.gender === "Male") {
       setProfilePhoto("👦");
@@ -91,6 +83,28 @@ const StudentProfileForm = () => {
       setProfilePhoto("");
     }
   }, [formData.gender]);
+
+  // Update available classes based on age
+  useEffect(() => {
+    const age = parseInt(formData.age);
+    let classes = [];
+    
+    if (age === 3) {
+      classes = ["Daycare"];
+      setFormData(prev => ({ ...prev, class: "Daycare", includeDaycare: false }));
+    } else if (age === 4) {
+      classes = ["Daycare", "LKG"];
+      setFormData(prev => ({ ...prev, class: "" }));
+    } else if (age === 5) {
+      classes = ["Daycare", "UKG"];
+      setFormData(prev => ({ ...prev, class: "" }));
+    } else {
+      classes = [];
+      setFormData(prev => ({ ...prev, class: "" }));
+    }
+    
+    setAvailableClasses(classes);
+  }, [formData.age]);
 
   const calculateAge = (dobString) => {
     if (!dobString) return "";
@@ -106,45 +120,26 @@ const StudentProfileForm = () => {
     return ageCalc;
   };
 
-  // Validate phone number: must be 10 digits and start with 0
   const validatePhoneNumber = (phone) => {
-    const phoneRegex = /^0\d{9}$/; // Starts with 0, followed by exactly 9 digits
+    const phoneRegex = /^0\d{9}$/;
     return phoneRegex.test(phone);
   };
 
-  // Validate all contact numbers
-  // eslint-disable-next-line no-unused-vars
-  const validateContactNumbers = (contacts) => {
-    const errors = contacts.map(contact => {
-      if (contact.trim() === "") return "Contact number is required";
-      if (!validatePhoneNumber(contact.trim())) {
-        return "Phone number must be 10 digits and start with 0";
-      }
-      return "";
-    });
-    return errors;
-  };
-
-  // Validate age (must be 3 or above)
-  const validateAge = (age) => {
-    if (age === "") return "Age is required";
-    if (age < 3) return "Child must be at least 3 years old";
-    return "";
-  };
-
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     
-    if (name === "dob") {
+    if (type === "checkbox") {
+      setFormData({ ...formData, [name]: checked });
+    } else if (name === "dob") {
       const calculatedAge = calculateAge(value);
       setFormData({ ...formData, dob: value, age: calculatedAge });
       
-      // Validate age
-      const ageError = validateAge(calculatedAge);
+      const ageError = calculatedAge < 3 ? "Child must be at least 3 years old" : 
+                      calculatedAge > 5 ? "Child cannot be older than 5 years" : "";
       setValidationErrors(prev => ({
         ...prev,
         age: ageError,
-        dob: ageError ? "Child must be at least 3 years old" : ""
+        dob: ageError
       }));
     } else {
       setFormData({ ...formData, [name]: value });
@@ -156,7 +151,6 @@ const StudentProfileForm = () => {
     newContacts[index] = value;
     setContactNumbers(newContacts);
     
-    // Validate the changed contact number
     const newErrors = [...validationErrors.contactNumbers];
     if (value.trim() === "") {
       newErrors[index] = "Contact number is required";
@@ -195,74 +189,40 @@ const StudentProfileForm = () => {
     }
   };
 
-  // Validate email format
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
-  // Validate all fields before submission
-  const validateForm = () => {
-    let isValid = true;
-    const newErrors = {
-      contactNumbers: [],
-      age: "",
-      dob: ""
-    };
-
-    // Validate contact numbers
-    newErrors.contactNumbers = contactNumbers.map(contact => {
-      if (contact.trim() === "") return "Contact number is required";
-      if (!validatePhoneNumber(contact.trim())) {
-        return "Phone number must be 10 digits and start with 0";
-      }
-      return "";
-    });
-
-    // Check if any contact number has error
-    if (newErrors.contactNumbers.some(error => error !== "")) {
-      isValid = false;
-    }
-
-    // Validate age
-    const ageError = validateAge(formData.age);
-    if (ageError) {
-      newErrors.age = ageError;
-      newErrors.dob = "Child must be at least 3 years old";
-      isValid = false;
-    }
-
-    // Validate email
-    if (!validateEmail(formData.email)) {
-      setError("Please enter a valid email address");
-      isValid = false;
-    }
-
-    // Validate other required fields
-    if (!formData.fullName) {
-      setError("Full name is required");
-      isValid = false;
-    } else if (!formData.gender) {
-      setError("Gender is required");
-      isValid = false;
-    } else if (!formData.bloodType) {
-      setError("Blood type is required");
-      isValid = false;
-    } else if (!formData.guardianName) {
-      setError("Guardian name is required");
-      isValid = false;
-    }
-
-    setValidationErrors(newErrors);
-    return isValid;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate form before submission
-    if (!validateForm()) {
-      setIsSubmitting(false);
+    const phoneValid = contactNumbers.every(num => /^0\d{9}$/.test(num));
+    if (!phoneValid) {
+      setError("All phone numbers must be 10 digits starting with 0");
+      return;
+    }
+    
+    if (formData.age < 3 || formData.age > 5) {
+      setError("Child must be between 3 and 5 years old");
+      return;
+    }
+
+    if (!formData.class) {
+      setError("Please select a class");
+      return;
+    }
+
+    if (formData.age === 4 && formData.class === "LKG" && !formData.includeDaycare) {
+      // LKG without daycare is allowed
+    }
+
+    if (formData.age === 5 && formData.class === "UKG" && !formData.includeDaycare) {
+      // UKG without daycare is allowed
+    }
+
+    if (!validateEmail(formData.email)) {
+      setError("Please enter a valid email address");
       return;
     }
 
@@ -283,14 +243,18 @@ const StudentProfileForm = () => {
       const response = await axios.post("http://localhost:3002/student-profile", submissionData);
 
       if (response.data.success) {
-        setSuccess("Profile saved successfully! Redirecting to dashboard...");
+        setSuccess("✓ Profile Saved! Redirecting to dashboard...");
         
         const storedChild = JSON.parse(localStorage.getItem("currentChild"));
+        const classDisplay = formData.includeDaycare ? 
+          `${formData.class} + Daycare` : formData.class;
+        
         localStorage.setItem("currentChild", JSON.stringify({
           ...storedChild,
           profilePhoto: profilePhoto,
           gender: formData.gender,
           fullName: formData.fullName,
+          class: classDisplay,
           profileCompleted: true
         }));
         
@@ -300,13 +264,12 @@ const StudentProfileForm = () => {
       }
     } catch (err) {
       console.error("Profile submission error:", err);
-      setError(err.response?.data?.error || "Failed to save profile. Please try again.");
+      setError(err.response?.data?.error || "Failed to save profile.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Show loading while checking profile
   if (checkingProfile) {
     return (
       <div className="profile-container">
@@ -350,7 +313,6 @@ const StudentProfileForm = () => {
           <p className="header-subtitle">Please fill out your details to continue.</p>
         </div>
 
-        {/* Profile Photo Preview with Emoji */}
         {profilePhoto && (
           <div className="profile-photo-preview">
             <div className="avatar-circle">
@@ -494,6 +456,130 @@ const StudentProfileForm = () => {
             </div>
           </div>
 
+          {/* Class Selection */}
+          {formData.age >= 3 && formData.age <= 5 && (
+            <div className="form-row">
+              <div className="form-group">
+                <label>Class *</label>
+                {formData.age === 3 ? (
+                  <input 
+                    type="text" 
+                    value="Daycare" 
+                    readOnly 
+                    style={{
+                      backgroundColor: '#F1F8E9',
+                      borderColor: '#4CAF50',
+                      color: '#33691E',
+                      fontWeight: '600'
+                    }}
+                  />
+                ) : (
+                  <select 
+                    name="class" 
+                    value={formData.class} 
+                    onChange={handleInputChange}
+                    required
+                    style={{
+                      borderColor: formData.class ? '#4CAF50' : '#C8E6C9'
+                    }}
+                  >
+                    <option value="">Select Class</option>
+                    {availableClasses.map(className => (
+                      <option key={className} value={className}>
+                        {className}
+                      </option>
+                    ))}
+                  </select>
+                )}
+                
+                {/* Daycare Add-on Option for LKG and UKG */}
+                {formData.age >= 4 && formData.class && formData.class !== "Daycare" && (
+                  <div style={{
+                    marginTop: '15px',
+                    padding: '15px',
+                    background: '#F1F8E9',
+                    borderRadius: '12px',
+                    border: '1px solid #4CAF50'
+                  }}>
+                    <label style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      cursor: 'pointer'
+                    }}>
+                      <input
+                        type="checkbox"
+                        name="includeDaycare"
+                        checked={formData.includeDaycare}
+                        onChange={handleInputChange}
+                        style={{
+                          width: '20px',
+                          height: '20px',
+                          cursor: 'pointer',
+                          accentColor: '#4CAF50'
+                        }}
+                      />
+                      <span style={{
+                        color: '#2E7D32',
+                        fontWeight: '500',
+                        fontSize: '0.95rem'
+                      }}>
+                        Add Daycare to {formData.class}
+                      </span>
+                    </label>
+                    <p style={{
+                      marginTop: '8px',
+                      color: '#558B2F',
+                      fontSize: '0.85rem',
+                      paddingLeft: '30px'
+                    }}>
+                      ✓ Select if you want {formData.class} with Daycare facilities
+                    </p>
+                  </div>
+                )}
+
+                {/* Class Information based on age */}
+                <div style={{
+                  marginTop: '15px',
+                  padding: '12px',
+                  background: '#E3F2FD',
+                  borderRadius: '10px',
+                  border: '1px solid #64B5F6'
+                }}>
+                  <p style={{
+                    color: '#1565C0',
+                    fontWeight: '500',
+                    fontSize: '0.9rem',
+                    marginBottom: '5px'
+                  }}>
+                    📚 Available Options for Age {formData.age}:
+                  </p>
+                  <ul style={{
+                    paddingLeft: '20px',
+                    color: '#0D47A1',
+                    fontSize: '0.85rem'
+                  }}>
+                    {formData.age === 3 && (
+                      <li>✓ Daycare only</li>
+                    )}
+                    {formData.age === 4 && (
+                      <>
+                        <li>• Daycare only</li>
+                        <li>• LKG (with option to add Daycare)</li>
+                      </>
+                    )}
+                    {formData.age === 5 && (
+                      <>
+                        <li>• Daycare only</li>
+                        <li>• UKG (with option to add Daycare)</li>
+                      </>
+                    )}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="form-row">
             <div className="form-group">
               <label>Guardian Name *</label>
@@ -592,11 +678,13 @@ const StudentProfileForm = () => {
           </div>
 
           {/* Validation Summary */}
-          {(validationErrors.age || validationErrors.contactNumbers.some(e => e)) && (
+          {(validationErrors.age || validationErrors.contactNumbers.some(e => e) || (formData.age && (formData.age < 3 || formData.age > 5))) && (
             <div className="validation-summary">
               <p>⚠️ Please fix the following errors:</p>
               <ul>
-                {validationErrors.age && <li>• Child must be at least 3 years old</li>}
+                {validationErrors.age && <li>• {validationErrors.age}</li>}
+                {formData.age < 3 && <li>• Child must be at least 3 years old</li>}
+                {formData.age > 5 && <li>• Child cannot be older than 5 years</li>}
                 {validationErrors.contactNumbers.map((error, index) => 
                   error && <li key={index}>• Contact {index + 1}: {error}</li>
                 )}
@@ -607,7 +695,7 @@ const StudentProfileForm = () => {
           <button 
             type="submit" 
             className={`submit-button ${isSubmitting ? 'submitting' : ''}`}
-            disabled={isSubmitting}
+            disabled={isSubmitting || (formData.age && (formData.age < 3 || formData.age > 5))}
           >
             {isSubmitting ? (
               <>

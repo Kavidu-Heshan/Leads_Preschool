@@ -23,9 +23,17 @@ const StudentProfileSchema = new mongoose.Schema(
     profilePhoto: {
       type: String,
       default: function() {
-        // Simple emoji avatar based on gender
         return this.gender === "Male" ? "👦" : "👧";
       }
+    },
+    class: {
+      type: String,
+      required: [true, "Class is required"],
+      enum: ["Daycare", "LKG", "UKG"]
+    },
+    includeDaycare: {
+      type: Boolean,
+      default: false
     },
     dob: {
       type: Date,
@@ -33,7 +41,9 @@ const StudentProfileSchema = new mongoose.Schema(
     },
     age: {
       type: Number,
-      required: [true, "Age is required"]
+      required: [true, "Age is required"],
+      min: [3, "Child must be at least 3 years old"],
+      max: [5, "Child cannot be older than 5 years"]
     },
     bloodType: {
       type: String,
@@ -49,14 +59,26 @@ const StudentProfileSchema = new mongoose.Schema(
       {
         type: String,
         required: [true, "At least one contact number is required"],
-        trim: true
+        trim: true,
+        validate: {
+          validator: function(v) {
+            return /^0\d{9}$/.test(v);
+          },
+          message: props => `${props.value} is not a valid phone number! Must be 10 digits starting with 0`
+        }
       }
     ],
     email: {
       type: String,
       required: [true, "Email is required"],
       trim: true,
-      lowercase: true
+      lowercase: true,
+      validate: {
+        validator: function(v) {
+          return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+        },
+        message: props => `${props.value} is not a valid email address!`
+      }
     },
     medicalInformation: {
       type: String,

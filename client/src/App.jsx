@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import HomePage from "../pages/HomePage";  
 import AdminAddChild from "../admin_pages/AdminAddChild";
 import ChildEnroll from "../pages/ChildEnroll";
+import ChangePassword from "../components/ChangePassword";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/adminaddchild" element={<AdminAddChild />} />
           <Route path="/childenroll" element={<ChildEnroll />} />
+          <Route path="/changepwd" element={<ChangePassword />} />
 
         </Routes>
       </BrowserRouter>

@@ -39,7 +39,7 @@ const ChildEnroll = () => {
 
   const validateChildName = (name) => {
     if (!name || name.trim() === "") {
-      return "Child Name is required";
+      return "Password is required";
     }
     return "";
   };
@@ -101,11 +101,12 @@ const ChildEnroll = () => {
         localStorage.setItem("currentChild", JSON.stringify({
           childId: response.data.child.childId,
           childName: response.data.child.childName,
-          enrolledAt: new Date().toISOString()
+          enrolledAt: new Date().toISOString(),
+          hasChangedPassword: response.data.hasChangedPassword || false
         }));
 
         setTimeout(() => {
-          navigate("/child-dashboard");
+          navigate("/changepwd");
         }, 2000);
       }
     } catch (err) {
@@ -114,7 +115,7 @@ const ChildEnroll = () => {
       if (err.response) {
         switch (err.response.status) {
           case 401:
-            setError("❌ Invalid Child ID or Name. Please try again.");
+            setError("❌ Invalid Child ID or Password. Please try again.");
             break;
           case 404:
             setError("❌ Child not found. Please check your credentials.");
@@ -136,7 +137,7 @@ const ChildEnroll = () => {
   };
 
   const handleForgotCredentials = () => {
-    setError("Please contact your administrator to retrieve your Child ID and Name.");
+    setError("Please contact your administrator to retrieve your Child ID and reset your password.");
   };
 
   return (
@@ -154,8 +155,8 @@ const ChildEnroll = () => {
           <div className="header-icon">
             <span className="tree-icon">🌳</span>
           </div>
-          <h1>Child Enrollment</h1>
-          <p className="header-subtitle">Welcome back, little one! Enter your details to continue.</p>
+          <h1>Child Login</h1>
+          <p className="header-subtitle">Welcome back! Enter your Child ID and password to continue.</p>
         </div>
 
         {error && (
@@ -182,7 +183,7 @@ const ChildEnroll = () => {
               <input
                 type="text"
                 id="childId"
-                placeholder="Enter your Child ID (e.g., CH001)"
+                placeholder="Enter your Child ID"
                 value={childId}
                 onChange={handleIdChange}
                 onBlur={handleIdBlur}
@@ -203,13 +204,13 @@ const ChildEnroll = () => {
           <div className="form-group">
             <label htmlFor="childName">
               <span className="label-icon">🔑</span>
-              Your Name (Password)
+              Password
             </label>
             <div className={`input-wrapper ${nameError ? 'error' : ''}`}>
               <input
                 type={showPassword ? "text" : "password"}
                 id="childName"
-                placeholder="Enter your full name"
+                placeholder="Enter your password"
                 value={childName}
                 onChange={handleNameChange}
                 onBlur={handleNameBlur}
@@ -231,7 +232,7 @@ const ChildEnroll = () => {
             </div>
             {nameError && <span className="error-text">{nameError}</span>}
             <small className="input-hint">
-              Enter your full name exactly as registered
+              Enter your password (if you changed it, use your new password)
             </small>
           </div>
 
@@ -243,12 +244,12 @@ const ChildEnroll = () => {
             {isSubmitting ? (
               <>
                 <span className="spinner"></span>
-                Verifying...
+                Logging in...
               </>
             ) : (
               <>
                 <span className="button-icon">🌱</span>
-                Enroll Now
+                Login
               </>
             )}
           </button>
@@ -256,14 +257,14 @@ const ChildEnroll = () => {
           <div className="help-section">
             <p className="help-text">
               <span className="help-icon">❓</span>
-              First time here? Ask your parent for your Child ID and Name.
+              First time here? Use your name as the password.
             </p>
             <button 
               type="button" 
               className="forgot-link"
               onClick={handleForgotCredentials}
             >
-              Forgot your credentials?
+              Forgot your password?
             </button>
           </div>
         </form>
@@ -275,7 +276,7 @@ const ChildEnroll = () => {
             <span className="dot"></span>
           </div>
           <p className="footer-text">
-            Secure enrollment powered by nature's protection 🌿
+            Secure login powered by nature's protection 🌿
           </p>
         </div>
       </div>

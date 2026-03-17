@@ -413,6 +413,49 @@ app.get("/student-profile/:childId", async (req, res) => {
   }
 });
 
+// ==========================================
+// 11. UPDATE STUDENT PROFILE (NEW)
+// ==========================================
+app.put("/student-profile/:childId", async (req, res) => {
+  try {
+    const { childId } = req.params;
+    const updateData = { ...req.body };
+
+    // SECURITY: Prevent user from manually updating these fields
+    delete updateData.childId;
+    delete updateData._id;
+
+    // If contact numbers are provided as a single comma-separated string, convert it to an array
+    if (updateData.contactNumbers && typeof updateData.contactNumbers === 'string') {
+        updateData.contactNumbers = updateData.contactNumbers.split(',').map(num => num.trim());
+    }
+
+    const updatedProfile = await StudentProfileModel.findOneAndUpdate(
+      { childId: { $regex: new RegExp(`^${childId}$`, 'i') } },
+      { $set: updateData },
+      { new: true, runValidators: true } // runValidators ensures the mongoose rules (e.g., regex phone check, min age 3) still apply
+    );
+
+    if (!updatedProfile) {
+      return res.status(404).json({ success: false, error: "Profile not found" });
+    }
+
+    res.json({ success: true, message: "Profile updated successfully!", profile: updatedProfile });
+
+  } catch (err) {
+    console.error("Error updating profile:", err);
+    
+    // Handle Mongoose Validation Errors gracefully
+    if (err.name === 'ValidationError') {
+      const errors = Object.values(err.errors).map(e => e.message);
+      return res.status(400).json({ success: false, error: errors.join(', ') });
+    }
+    
+    res.status(500).json({ success: false, error: "Failed to update profile." });
+  }
+});
+
+
 // --- SERVER INITIALIZATION ---
 const PORT = process.env.PORT || 3002;
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

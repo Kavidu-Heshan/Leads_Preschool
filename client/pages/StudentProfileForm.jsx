@@ -52,7 +52,7 @@ const StudentProfileForm = () => {
     try {
       const response = await axios.get(`http://localhost:3002/check-profile/${id}`);
       if (response.data.exists) {
-        navigate("/child-dashboard");
+        navigate("/childdashboard");
       }
     } catch (err) {
       console.error(err);
@@ -259,7 +259,7 @@ const StudentProfileForm = () => {
         }));
         
         setTimeout(() => {
-          navigate("/child-dashboard");
+          navigate("/childdashboard");
         }, 2000);
       }
     } catch (err) {

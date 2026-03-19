@@ -11,7 +11,7 @@ const ChildDashboard = () => {
   };
 
   const handleProfileManagementClick = () => {
-    navigate('/profile-management');
+    navigate('/studentprofileManagement');
   };
 
   return (

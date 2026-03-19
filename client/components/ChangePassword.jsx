@@ -73,7 +73,7 @@ const ChangePassword = () => {
       
       if (response.data.exists) {
         // Profile exists, go to dashboard
-        navigate("/child-dashboard");
+        navigate("/childdashboard");
       } else {
         // Profile doesn't exist, show message and then go to profile form
         setError("You have already changed your password. Please complete your profile.");
@@ -282,7 +282,7 @@ const ChangePassword = () => {
   };
 
   const handleCancel = () => {
-    navigate("/child-dashboard");
+    navigate("/childdashboard");
   };
 
   if (loading) {

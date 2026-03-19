@@ -31,33 +31,40 @@ const StudentProfileManagement = () => {
   const [originalData, setOriginalData] = useState({});
   const [availableClasses, setAvailableClasses] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
+  
+  // Photo upload states
+  const [profilePhotoFile, setProfilePhotoFile] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState('');
+  const [showPhotoUpload, setShowPhotoUpload] = useState(false);
 
   // Get logged-in user from localStorage
-  useEffect(() => {
-    const storedChild = localStorage.getItem('currentChild');
+  useEffect(function() {
+    var storedChild = localStorage.getItem('currentChild');
     if (storedChild) {
-      const parsedChild = JSON.parse(storedChild);
+      var parsedChild = JSON.parse(storedChild);
       setChildId(parsedChild.childId);
       fetchProfileData(parsedChild.childId);
     } else {
       setError("No logged-in user found. Please login first.");
-      setTimeout(() => navigate('/child-enroll'), 2000);
+      setTimeout(function() {
+        navigate('/child-enroll');
+      }, 2000);
     }
   }, [navigate]);
 
-  const fetchProfileData = async (id) => {
+  var fetchProfileData = async function(id) {
     try {
-      const response = await fetch(`http://localhost:3002/student-profile/${id}`);
-      const data = await response.json();
+      var response = await fetch('http://localhost:3002/student-profile/' + id);
+      var data = await response.json();
 
       if (response.ok) {
         // Format date for the input field (YYYY-MM-DD)
-        const formattedDob = data.dob ? new Date(data.dob).toISOString().split('T')[0] : '';
+        var formattedDob = data.dob ? new Date(data.dob).toISOString().split('T')[0] : '';
         
         // Convert contact numbers array to comma-separated string
-        const contactStr = data.contactNumbers ? data.contactNumbers.join(', ') : '';
+        var contactStr = data.contactNumbers ? data.contactNumbers.join(', ') : '';
         
-        const profileData = {
+        var profileData = {
           childId: data.childId,
           fullName: data.fullName || '',
           gender: data.gender || 'Male',
@@ -75,23 +82,83 @@ const StudentProfileManagement = () => {
         
         setFormData(profileData);
         setOriginalData(profileData);
+        
+        // Set photo preview if profile photo is Base64
+        if (data.profilePhoto && data.profilePhoto.startsWith('data:image')) {
+          setPhotoPreview(data.profilePhoto);
+        }
+        
         updateAvailableClasses(data.age);
         setError('');
       } else {
         setError("Profile not found. Please complete your profile first.");
-        setTimeout(() => navigate('/complete-profile'), 2000);
+        setTimeout(function() {
+          navigate('/complete-profile');
+        }, 2000);
       }
     } catch (err) {
-        console.error("Connection error:", err);
+      console.error("Connection error:", err);
       setError("Failed to connect to server.");
     } finally {
       setLoading(false);
     }
   };
 
-  const updateAvailableClasses = (age) => {
-    const ageNum = parseInt(age);
-    let classes = [];
+  // Handle profile photo upload
+  var handlePhotoUpload = function(e) {
+    var file = e.target.files[0];
+    if (file) {
+      // Check file type
+      if (!file.type.match('image.*')) {
+        setError("Please select an image file (JPEG, PNG, etc.)");
+        return;
+      }
+      
+      // Check file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        setError("Image size should be less than 2MB");
+        return;
+      }
+
+      setProfilePhotoFile(file);
+      
+      // Create preview
+      var reader = new FileReader();
+      reader.onloadend = function() {
+        setPhotoPreview(reader.result);
+        // Update formData with new photo
+        setFormData(function(prev) {
+          return {
+            ...prev,
+            profilePhoto: reader.result
+          };
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  var removePhoto = function() {
+    setProfilePhotoFile(null);
+    setPhotoPreview("");
+    // Reset to emoji based on gender
+    var emojiPhoto = formData.gender === 'Male' ? '👦' : '👧';
+    setFormData(function(prev) {
+      return {
+        ...prev,
+        profilePhoto: emojiPhoto
+      };
+    });
+    // Reset file input
+    var input = document.getElementById('profile-photo-input-edit');
+    if (input) {
+      input.value = '';
+    }
+  };
+
+  var updateAvailableClasses = function(age) {
+    var ageNum = parseInt(age);
+    var classes = [];
     
     if (ageNum === 3) {
       classes = ["Daycare"];
@@ -104,13 +171,13 @@ const StudentProfileManagement = () => {
     setAvailableClasses(classes);
   };
 
-  const calculateAge = (dobString) => {
+  var calculateAge = function(dobString) {
     if (!dobString) return "";
-    const birthDate = new Date(dobString);
-    const today = new Date();
+    var birthDate = new Date(dobString);
+    var today = new Date();
     
-    let ageCalc = today.getFullYear() - birthDate.getFullYear();
-    const m = today.getMonth() - birthDate.getMonth();
+    var ageCalc = today.getFullYear() - birthDate.getFullYear();
+    var m = today.getMonth() - birthDate.getMonth();
     
     if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
       ageCalc--;
@@ -118,50 +185,67 @@ const StudentProfileManagement = () => {
     return ageCalc;
   };
 
-  const validatePhoneNumber = (phone) => {
-    const phoneRegex = /^0\d{9}$/;
+  var validatePhoneNumber = function(phone) {
+    var phoneRegex = /^0\d{9}$/;
     return phoneRegex.test(phone);
   };
 
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  var validateEmail = function(email) {
+    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+  var handleChange = function(e) {
+    var name = e.target.name;
+    var value = e.target.value;
+    var type = e.target.type;
+    var checked = e.target.checked;
     
     if (type === 'checkbox') {
-      setFormData({ ...formData, [name]: checked });
+      setFormData(function(prev) {
+        return { ...prev, [name]: checked };
+      });
     } else if (name === 'dob') {
-      const calculatedAge = calculateAge(value);
-      setFormData({ ...formData, dob: value, age: calculatedAge });
+      var calculatedAge = calculateAge(value);
+      setFormData(function(prev) {
+        return { ...prev, dob: value, age: calculatedAge };
+      });
       updateAvailableClasses(calculatedAge);
     } else {
-      setFormData({ ...formData, [name]: value });
+      setFormData(function(prev) {
+        return { ...prev, [name]: value };
+      });
     }
   };
 
-  const handleEdit = () => {
+  var handleEdit = function() {
     setIsEditing(true);
+    setShowPhotoUpload(true);
     setError('');
     setSuccess('');
+    // Set photo preview if exists
+    if (formData.profilePhoto && formData.profilePhoto.startsWith('data:image')) {
+      setPhotoPreview(formData.profilePhoto);
+    }
   };
 
-  const handleCancel = () => {
+  var handleCancel = function() {
     setFormData(originalData);
     setIsEditing(false);
+    setShowPhotoUpload(false);
+    setPhotoPreview(originalData.profilePhoto && originalData.profilePhoto.startsWith('data:image') ? originalData.profilePhoto : '');
     setError('');
     setSuccess('');
   };
 
-  const handleSubmit = async (e) => {
+  var handleSubmit = async function(e) {
     e.preventDefault();
     
     // Validate phone numbers
     if (formData.contactNumbers) {
-      const phones = formData.contactNumbers.split(',').map(p => p.trim());
-      for (let phone of phones) {
+      var phones = formData.contactNumbers.split(',').map(function(p) { return p.trim(); });
+      for (var i = 0; i < phones.length; i++) {
+        var phone = phones[i];
         if (phone && !validatePhoneNumber(phone)) {
           setError("All phone numbers must be 10 digits starting with 0 (e.g., 0771234567)");
           return;
@@ -193,13 +277,13 @@ const StudentProfileManagement = () => {
 
     try {
       // Prepare data for submission
-      const submissionData = {
+      var submissionData = {
         ...formData,
         childId: childId, // Ensure childId is included
-        contactNumbers: formData.contactNumbers ? formData.contactNumbers.split(',').map(p => p.trim()) : []
+        contactNumbers: formData.contactNumbers ? formData.contactNumbers.split(',').map(function(p) { return p.trim(); }) : []
       };
 
-      const response = await fetch(`http://localhost:3002/student-profile/${childId}`, {
+      var response = await fetch('http://localhost:3002/student-profile/' + childId, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -207,42 +291,45 @@ const StudentProfileManagement = () => {
         body: JSON.stringify(submissionData),
       });
 
-      const data = await response.json();
+      var data = await response.json();
 
       if (response.ok && data.success) {
         setSuccess("Profile updated successfully!");
         
         // Update localStorage with new data
-        const storedChild = JSON.parse(localStorage.getItem('currentChild'));
-        const classDisplay = formData.includeDaycare ? 
-          `${formData.class} + Daycare` : formData.class;
+        var storedChild = JSON.parse(localStorage.getItem('currentChild'));
+        var classDisplay = formData.includeDaycare ? 
+          formData.class + ' + Daycare' : formData.class;
         
         localStorage.setItem('currentChild', JSON.stringify({
           ...storedChild,
           fullName: formData.fullName,
           gender: formData.gender,
-          profilePhoto: formData.gender === 'Male' ? '👦' : '👧',
+          profilePhoto: formData.profilePhoto,
           class: classDisplay
         }));
         
         setOriginalData(formData);
         setIsEditing(false);
+        setShowPhotoUpload(false);
         
-        setTimeout(() => setSuccess(''), 3000);
+        setTimeout(function() {
+          setSuccess('');
+        }, 3000);
       } else {
         setError(data.error || "Failed to update profile.");
       }
     } catch (err) {
-        console.error("Connection error:", err);
+      console.error("Connection error:", err);
       setError("Failed to connect to server.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const formatDate = (dateString) => {
+  var formatDate = function(dateString) {
     if (!dateString) return "";
-    const date = new Date(dateString);
+    var date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
@@ -284,7 +371,13 @@ const StudentProfileManagement = () => {
       <div className="profile-card">
         <div className="profile-header">
           <div className="header-icon">
-            <span className="profile-icon">{formData.profilePhoto}</span>
+            <span className="profile-icon">
+              {photoPreview ? (
+                <img src={photoPreview} alt="Profile" style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover' }} />
+              ) : (
+                formData.profilePhoto && !formData.profilePhoto.startsWith('data:image') ? formData.profilePhoto : '👤'
+              )}
+            </span>
           </div>
           <h2>My Profile Management</h2>
           <p className="header-subtitle">View and update your personal information</p>
@@ -305,6 +398,21 @@ const StudentProfileManagement = () => {
         {/* View Mode */}
         {!isEditing ? (
           <div className="profile-view">
+            {/* Profile Photo Display */}
+            <div className="profile-photo-display">
+              {formData.profilePhoto && formData.profilePhoto.startsWith('data:image') ? (
+                <img 
+                  src={formData.profilePhoto} 
+                  alt="Profile" 
+                  className="profile-photo-large"
+                />
+              ) : (
+                <div className="avatar-large">
+                  {formData.profilePhoto || (formData.gender === 'Male' ? '👦' : '👧')}
+                </div>
+              )}
+            </div>
+
             <div className="info-grid">
               <div className="info-item">
                 <label>Child ID</label>
@@ -341,7 +449,7 @@ const StudentProfileManagement = () => {
               <div className="info-item full-width">
                 <label>Class</label>
                 <p className="info-value class-badge">
-                  {formData.includeDaycare ? `${formData.class} + Daycare` : formData.class}
+                  {formData.includeDaycare ? formData.class + ' + Daycare' : formData.class}
                 </p>
               </div>
 
@@ -358,13 +466,13 @@ const StudentProfileManagement = () => {
               <div className="info-item full-width">
                 <label>Contact Numbers</label>
                 <div className="contact-list">
-                  {formData.contactNumbers.split(',').map((num, index) => (
-                    num.trim() && (
+                  {formData.contactNumbers.split(',').map(function(num, index) {
+                    return num.trim() && (
                       <p key={index} className="info-value contact-item">
                         📞 {num.trim()}
                       </p>
-                    )
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
@@ -385,7 +493,7 @@ const StudentProfileManagement = () => {
                 Edit My Profile
               </button>
               <button 
-                onClick={() => navigate('/child-dashboard')}
+                onClick={function() { navigate('/childdashboard'); }}
                 className="back-button"
               >
                 <span className="button-icon">←</span>
@@ -396,6 +504,49 @@ const StudentProfileManagement = () => {
         ) : (
           /* Edit Mode */
           <form onSubmit={handleSubmit} className="profile-form">
+            {/* Profile Photo Upload Section */}
+            {showPhotoUpload && (
+              <div className="profile-photo-upload-section">
+                <div className="photo-upload-container">
+                  {photoPreview ? (
+                    <div className="photo-preview">
+                      <img src={photoPreview} alt="Profile Preview" className="preview-image" />
+                      <button type="button" onClick={removePhoto} className="remove-photo-btn" title="Remove photo">
+                        ✕
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="avatar-circle" style={{ fontSize: formData.profilePhoto && !formData.profilePhoto.startsWith('data:image') ? '48px' : '32px' }}>
+                      {formData.profilePhoto && !formData.profilePhoto.startsWith('data:image') ? formData.profilePhoto : '📷'}
+                    </div>
+                  )}
+                  
+                  <div className="upload-controls">
+                    <label htmlFor="profile-photo-input-edit" className="upload-photo-btn">
+                      <span>📸</span> 
+                      {photoPreview ? 'Change Photo' : 'Upload Photo'}
+                    </label>
+                    <input
+                      id="profile-photo-input-edit"
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoUpload}
+                      style={{ display: 'none' }}
+                    />
+                    <p className="photo-hint">
+                      Max size: 2MB (JPEG, PNG)
+                    </p>
+                  </div>
+                </div>
+                
+                {!photoPreview && (
+                  <p className="emoji-fallback-note">
+                    Using {formData.gender === 'Male' ? '👦' : '👧'} emoji as fallback
+                  </p>
+                )}
+              </div>
+            )}
+
             {/* Child ID - Read Only */}
             <div className="form-group">
               <label>Child ID (Cannot be changed)</label>
@@ -490,11 +641,13 @@ const StudentProfileManagement = () => {
                     required
                   >
                     <option value="">Select Class</option>
-                    {availableClasses.map(className => (
-                      <option key={className} value={className}>
-                        {className}
-                      </option>
-                    ))}
+                    {availableClasses.map(function(className) {
+                      return (
+                        <option key={className} value={className}>
+                          {className}
+                        </option>
+                      );
+                    })}
                   </select>
                 )}
                 
@@ -568,7 +721,7 @@ const StudentProfileManagement = () => {
             <div className="action-buttons">
               <button 
                 type="submit" 
-                className={`save-button ${isSubmitting ? 'submitting' : ''}`}
+                className={"save-button " + (isSubmitting ? 'submitting' : '')}
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (

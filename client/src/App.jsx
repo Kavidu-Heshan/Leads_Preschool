@@ -9,6 +9,11 @@ import ChildEnroll from "../pages/ChildEnroll";
 import ChangePassword from "../components/ChangePassword";
 import StudentProfileManagement from "../pages/StudentProfileManagement";
 import ChildDashboard from "../pages/ChildDashboard";
+import EventCreationPage from "../admin_pages/EventCreationPage";
+import UserEventsPage from "../pages/UserEventsPage";
+import AdminEventManagement from "../admin_pages/AdminEventManagement";
+import AdminTeacherManagement from "../admin_pages/AdminTeacherManagement";
+import StudentProfileForm from "../pages/StudentProfileForm";
 
 function App() {
   return (
@@ -19,9 +24,13 @@ function App() {
           <Route path="/adminaddchild" element={<AdminAddChild />} />
           <Route path="/childenroll" element={<ChildEnroll />} />
           <Route path="/changepwd" element={<ChangePassword />} />
-          <Route path="/changepwd" element={<ChangePassword />} />
-          <Route path="/studentprofileform" element={<StudentProfileManagement />} />
+          <Route path="/studentprofileform" element={<StudentProfileForm />} />
+          <Route path="/studentprofileManagement" element={<StudentProfileManagement />} />
           <Route path="/childdashboard" element={<ChildDashboard />} />
+          <Route path="/adminevent" element={<EventCreationPage />} />
+          <Route path="/userevent" element={<UserEventsPage />} />
+          <Route path="/admineditevent" element={<AdminEventManagement />} />
+          <Route path="/adminteachermanagement" element={<AdminTeacherManagement/>} />
 
 
         </Routes>

@@ -199,6 +199,25 @@ const TeacherSchema = new mongoose.Schema(
         default: "" 
       }
     },
+    // Profile Photo - New field
+    profilePhoto: {
+      data: {
+        type: String, // Base64 encoded image data
+        default: null
+      },
+      contentType: {
+        type: String, // MIME type (e.g., 'image/jpeg', 'image/png')
+        default: null
+      },
+      fileName: {
+        type: String, // Original file name
+        default: null
+      },
+      updatedAt: {
+        type: Date,
+        default: Date.now
+      }
+    },
     documents: {
       resume: { 
         type: String,
@@ -266,8 +285,7 @@ const TeacherSchema = new mongoose.Schema(
   }
 );
 
-// Remove individual index declarations and use schema.index() instead
-// TeacherSchema.index({ teacherId: 1 }); // Remove this line - duplicate with unique:true
+// Indexes
 TeacherSchema.index({ "assignedClasses.className": 1 });
 TeacherSchema.index({ status: 1 });
 TeacherSchema.index({ email: 1 });
@@ -312,6 +330,14 @@ TeacherSchema.statics.findClassTeachers = function(className, section) {
     query["assignedClasses.section"] = section;
   }
   return this.find(query);
+};
+
+// Method to get profile photo as data URL
+TeacherSchema.methods.getProfilePhotoUrl = function() {
+  if (this.profilePhoto && this.profilePhoto.data && this.profilePhoto.contentType) {
+    return `data:${this.profilePhoto.contentType};base64,${this.profilePhoto.data}`;
+  }
+  return null;
 };
 
 // Create and export the model

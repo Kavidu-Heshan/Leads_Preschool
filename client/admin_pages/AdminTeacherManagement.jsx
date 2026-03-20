@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../css/AdminTeacherManagement.css';
 
 const AdminTeacherManagement = () => {
@@ -38,6 +38,9 @@ const AdminTeacherManagement = () => {
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [activeView, setActiveView] = useState('teachers'); // 'teachers' or 'classes'
   const [selectAll, setSelectAll] = useState(false);
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [selectedPhotoTeacher, setSelectedPhotoTeacher] = useState(null);
+  const fileInputRef = useRef(null);
 
   // Form state for teacher
   const [formData, setFormData] = useState({
@@ -78,7 +81,12 @@ const AdminTeacherManagement = () => {
     languages: ['English'],
     status: 'Active',
     username: '',
-    password: ''
+    password: '',
+    profilePhoto: {
+      data: null,
+      contentType: null,
+      fileName: null
+    }
   });
 
   // Form state for class assignment
@@ -386,9 +394,18 @@ const AdminTeacherManagement = () => {
       languages: ['English'],
       status: 'Active',
       username: '',
-      password: ''
+      password: '',
+      profilePhoto: {
+        data: null,
+        contentType: null,
+        fileName: null
+      }
     });
     setEditingTeacher(null);
+    // Clear file input if it exists
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const resetClassAssignment = () => {
@@ -407,7 +424,12 @@ const AdminTeacherManagement = () => {
       ...teacher,
       dateOfBirth: teacher.dateOfBirth ? teacher.dateOfBirth.split('T')[0] : '',
       joiningDate: teacher.joiningDate ? teacher.joiningDate.split('T')[0] : '',
-      password: '' // Don't populate password
+      password: '', // Don't populate password
+      profilePhoto: teacher.profilePhoto || {
+        data: null,
+        contentType: null,
+        fileName: null
+      }
     });
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -585,6 +607,68 @@ const AdminTeacherManagement = () => {
     } finally {
       setFormLoading(false);
     }
+  };
+
+  // Profile Photo Functions
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      setError('Please upload a valid image file (JPEG, PNG, GIF, WEBP)');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image size should be less than 5MB');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      // Get base64 string (remove the data URL prefix)
+      const base64String = reader.result.split(',')[1];
+      
+      setFormData({
+        ...formData,
+        profilePhoto: {
+          data: base64String,
+          contentType: file.type,
+          fileName: file.name,
+          updatedAt: new Date()
+        }
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemovePhoto = () => {
+    setFormData({
+      ...formData,
+      profilePhoto: {
+        data: null,
+        contentType: null,
+        fileName: null
+      }
+    });
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleViewPhoto = (teacher) => {
+    setSelectedPhotoTeacher(teacher);
+    setShowPhotoModal(true);
+  };
+
+  const getProfilePhotoUrl = (teacher) => {
+    if (teacher.profilePhoto && teacher.profilePhoto.data && teacher.profilePhoto.contentType) {
+      return `data:${teacher.profilePhoto.contentType};base64,${teacher.profilePhoto.data}`;
+    }
+    return null;
   };
 
   const handleSubmit = async (e) => {
@@ -864,6 +948,50 @@ const AdminTeacherManagement = () => {
                 </h2>
                 
                 <form onSubmit={handleSubmit} className="teacher-form">
+                  {/* Profile Photo Section */}
+                  <div className="form-section">
+                    <h3 className="section-title">Profile Photo</h3>
+                    <div className="photo-upload-section">
+                      <div className="photo-preview">
+                        {formData.profilePhoto && formData.profilePhoto.data ? (
+                          <img 
+                            src={`data:${formData.profilePhoto.contentType};base64,${formData.profilePhoto.data}`}
+                            alt="Profile Preview"
+                            className="profile-photo-preview"
+                          />
+                        ) : (
+                          <div className="photo-placeholder">
+                            <span className="placeholder-icon">📸</span>
+                            <span>No Photo</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="photo-upload-controls">
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          accept="image/jpeg,image/png,image/gif,image/webp"
+                          onChange={handlePhotoUpload}
+                          className="photo-input"
+                          id="profile-photo-input"
+                        />
+                        <label htmlFor="profile-photo-input" className="photo-upload-btn">
+                          Choose Photo
+                        </label>
+                        {formData.profilePhoto && formData.profilePhoto.data && (
+                          <button 
+                            type="button" 
+                            className="photo-remove-btn"
+                            onClick={handleRemovePhoto}
+                          >
+                            Remove Photo
+                          </button>
+                        )}
+                        <p className="photo-hint">Max size: 5MB. Formats: JPEG, PNG, GIF, WEBP</p>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="form-section">
                     <h3 className="section-title">Personal Information</h3>
                     <div className="form-grid">
@@ -1308,6 +1436,7 @@ const AdminTeacherManagement = () => {
                           onChange={handleSelectAll}
                         />
                       </th>
+                      <th>Photo</th>
                       <th>Teacher ID</th>
                       <th>Name</th>
                       <th>Contact</th>
@@ -1321,7 +1450,7 @@ const AdminTeacherManagement = () => {
                   <tbody>
                     {filteredTeachers.length === 0 ? (
                       <tr>
-                        <td colSpan="9" className="no-data">
+                        <td colSpan="10" className="no-data">
                           <span className="no-data-icon">👩‍🏫</span>
                           <p>No teachers found</p>
                           <button className="create-first-btn" onClick={() => setShowForm(true)}>
@@ -1330,110 +1459,134 @@ const AdminTeacherManagement = () => {
                         </td>
                       </tr>
                     ) : (
-                      filteredTeachers.map((teacher) => (
-                        <tr key={teacher.teacherId || teacher._id}>
-                          <td className="checkbox-col">
-                            <input
-                              type="checkbox"
-                              checked={teacher.selected || false}
-                              onChange={() => toggleTeacherSelection(teacher.teacherId)}
-                            />
-                          </td>
-                          <td>
-                            <span className="teacher-id">{teacher.teacherId}</span>
-                          </td>
-                          <td>
-                            <div className="teacher-name-cell">
-                              <strong>{teacher.teacherName}</strong>
-                              {teacher.assignedClasses?.some(c => c.isClassTeacher) && (
-                                <span className="class-teacher-badge">Class Teacher</span>
-                              )}
-                            </div>
-                          </td>
-                          <td>
-                            <div className="contact-info">
-                              <div>{teacher.email}</div>
-                              <div className="phone">{teacher.phoneNumber}</div>
-                            </div>
-                          </td>
-                          <td>
-                            <div className="qualification-info">
-                              <div>{teacher.qualification}</div>
-                              <div className="specialization">{teacher.specialization}</div>
-                            </div>
-                          </td>
-                          <td>
-                            <div className="assigned-classes">
-                              {teacher.assignedClasses && teacher.assignedClasses.length > 0 ? (
-                                teacher.assignedClasses.map((cls, idx) => (
-                                  <div key={idx} className="class-tag-wrapper">
-                                    <span className="class-tag">
-                                      {cls.className}{cls.section ? `-${cls.section}` : ''}
-                                      {cls.isClassTeacher && ' 👑'}
-                                    </span>
-                                    <button
-                                      className="remove-class-btn-small"
-                                      onClick={() => handleRemoveClass(teacher, cls)}
-                                      title="Remove this class"
-                                    >
-                                      ✕
-                                    </button>
+                      filteredTeachers.map((teacher) => {
+                        const photoUrl = getProfilePhotoUrl(teacher);
+                        return (
+                          <tr key={teacher.teacherId || teacher._id}>
+                            <td className="checkbox-col">
+                              <input
+                                type="checkbox"
+                                checked={teacher.selected || false}
+                                onChange={() => toggleTeacherSelection(teacher.teacherId)}
+                              />
+                            </td>
+                            <td>
+                              <div className="teacher-photo-cell">
+                                {photoUrl ? (
+                                  <img 
+                                    src={photoUrl} 
+                                    alt={teacher.teacherName}
+                                    className="teacher-thumbnail"
+                                    onClick={() => handleViewPhoto(teacher)}
+                                    style={{ cursor: 'pointer' }}
+                                  />
+                                ) : (
+                                  <div 
+                                    className="photo-placeholder-small"
+                                    onClick={() => handleViewPhoto(teacher)}
+                                    style={{ cursor: 'pointer' }}
+                                  >
+                                    <span>👤</span>
                                   </div>
-                                ))
-                              ) : (
-                                <span className="not-assigned">Not Assigned</span>
-                              )}
-                            </div>
-                          </td>
-                          <td>
-                            <div className="experience-info">
-                              <span className="experience-years">{teacher.experience} years</span>
-                              {teacher.previousSchool && (
-                                <div className="previous-school" title={teacher.previousSchool}>
-                                  {teacher.previousSchool.substring(0, 15)}...
-                                </div>
-                              )}
-                            </div>
-                          </td>
-                          <td>
-                            <span className={`status-badge ${getStatusBadgeClass(teacher.status)}`}>
-                              {teacher.status}
-                            </span>
-                          </td>
-                          <td>
-                            <div className="action-buttons">
-                              <button
-                                className="action-btn assign"
-                                onClick={() => handleAssignClass(teacher)}
-                                title="Assign Classes"
-                              >
-                                📋
-                              </button>
-                              <button
-                                className="action-btn edit"
-                                onClick={() => handleEdit(teacher)}
-                                title="Edit teacher"
-                              >
-                                ✏️
-                              </button>
-                              <button
-                                className="action-btn delete"
-                                onClick={() => handleDelete(teacher)}
-                                title="Delete teacher"
-                              >
-                                🗑️
-                              </button>
-                              {/* <button
-                                className="action-btn view"
-                                onClick={() => window.open(`/teacher/${teacher.teacherId}`, '_blank')}
-                                title="View details"
-                              >
-                                👁️
-                              </button> */}
-                            </div>
-                          </td>
-                        </tr>
-                      ))
+                                )}
+                              </div>
+                            </td>
+                            <td>
+                              <span className="teacher-id">{teacher.teacherId}</span>
+                            </td>
+                            <td>
+                              <div className="teacher-name-cell">
+                                <strong>{teacher.teacherName}</strong>
+                                {teacher.assignedClasses?.some(c => c.isClassTeacher) && (
+                                  <span className="class-teacher-badge">Class Teacher</span>
+                                )}
+                              </div>
+                            </td>
+                            <td>
+                              <div className="contact-info">
+                                <div>{teacher.email}</div>
+                                <div className="phone">{teacher.phoneNumber}</div>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="qualification-info">
+                                <div>{teacher.qualification}</div>
+                                <div className="specialization">{teacher.specialization}</div>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="assigned-classes">
+                                {teacher.assignedClasses && teacher.assignedClasses.length > 0 ? (
+                                  teacher.assignedClasses.map((cls, idx) => (
+                                    <div key={idx} className="class-tag-wrapper">
+                                      <span className="class-tag">
+                                        {cls.className}{cls.section ? `-${cls.section}` : ''}
+                                        {cls.isClassTeacher && ' 👑'}
+                                      </span>
+                                      <button
+                                        className="remove-class-btn-small"
+                                        onClick={() => handleRemoveClass(teacher, cls)}
+                                        title="Remove this class"
+                                      >
+                                        ✕
+                                      </button>
+                                    </div>
+                                  ))
+                                ) : (
+                                  <span className="not-assigned">Not Assigned</span>
+                                )}
+                              </div>
+                            </td>
+                            <td>
+                              <div className="experience-info">
+                                <span className="experience-years">{teacher.experience} years</span>
+                                {teacher.previousSchool && (
+                                  <div className="previous-school" title={teacher.previousSchool}>
+                                    {teacher.previousSchool.substring(0, 15)}...
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                            <td>
+                              <span className={`status-badge ${getStatusBadgeClass(teacher.status)}`}>
+                                {teacher.status}
+                              </span>
+                            </td>
+                            <td>
+                              <div className="action-buttons">
+                                <button
+                                  className="action-btn assign"
+                                  onClick={() => handleAssignClass(teacher)}
+                                  title="Assign Classes"
+                                >
+                                  📋
+                                </button>
+                                <button
+                                  className="action-btn edit"
+                                  onClick={() => handleEdit(teacher)}
+                                  title="Edit teacher"
+                                >
+                                  ✏️
+                                </button>
+                                <button
+                                  className="action-btn delete"
+                                  onClick={() => handleDelete(teacher)}
+                                  title="Delete teacher"
+                                >
+                                  🗑️
+                                </button>
+                                <button
+                                  className="action-btn photo"
+                                  onClick={() => handleViewPhoto(teacher)}
+                                  title="View Photo"
+                                >
+                                  📸
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
                     )}
                   </tbody>
                 </table>
@@ -1644,7 +1797,7 @@ const AdminTeacherManagement = () => {
         </div>
       )}
 
-      {/* Remove Class Confirmation Modal - NEW */}
+      {/* Remove Class Confirmation Modal */}
       {showRemoveClassModal && selectedTeacher && classToRemove && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -1736,6 +1889,44 @@ const AdminTeacherManagement = () => {
                 disabled={!selectedClassForBulk || selectedCount === 0 || formLoading}
               >
                 {formLoading ? 'Assigning...' : 'Assign to Class'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Photo View Modal */}
+      {showPhotoModal && selectedPhotoTeacher && (
+        <div className="modal-overlay">
+          <div className="modal-content photo-modal">
+            <div className="modal-header">
+              <h3>{selectedPhotoTeacher.teacherName}'s Profile Photo</h3>
+              <button className="modal-close" onClick={() => setShowPhotoModal(false)}>✕</button>
+            </div>
+            <div className="modal-body photo-body">
+              {getProfilePhotoUrl(selectedPhotoTeacher) ? (
+                <img 
+                  src={getProfilePhotoUrl(selectedPhotoTeacher)} 
+                  alt={selectedPhotoTeacher.teacherName}
+                  className="full-size-photo"
+                />
+              ) : (
+                <div className="no-photo-placeholder">
+                  <span className="no-photo-icon">👤</span>
+                  <p>No profile photo available</p>
+                </div>
+              )}
+              {selectedPhotoTeacher.profilePhoto && selectedPhotoTeacher.profilePhoto.fileName && (
+                <div className="photo-info">
+                  <small>File: {selectedPhotoTeacher.profilePhoto.fileName}</small>
+                  <br />
+                  <small>Uploaded: {new Date(selectedPhotoTeacher.profilePhoto.updatedAt).toLocaleDateString()}</small>
+                </div>
+              )}
+            </div>
+            <div className="modal-footer">
+              <button className="cancel-btn" onClick={() => setShowPhotoModal(false)}>
+                Close
               </button>
             </div>
           </div>

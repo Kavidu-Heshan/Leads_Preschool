@@ -16,6 +16,10 @@ import AdminTeacherManagement from "../admin_pages/AdminTeacherManagement";
 import StudentProfileForm from "../pages/StudentProfileForm";
 import TeacherDirectory from "../pages/TeacherDirectory";
 import DaycarePage from "../pages/DaycarePage";
+import AdminDaycareDashboard from "../admin_pages/AdminDaycareDashboard";
+import EventPhotoUpload from "../admin_pages/EventPhotoUpload";
+import Message from "../pages/message";
+import AdminMessage from "../admin_pages/AdminMessage";
 
 function App() {
   return (
@@ -35,6 +39,10 @@ function App() {
           <Route path="/adminteachermanagement" element={<AdminTeacherManagement/>} />
           <Route path="/teacher" element={<TeacherDirectory/>} />
           <Route path="/addDaycare" element={<DaycarePage/>} />
+          <Route path="/admindaycaredashboard" element={<AdminDaycareDashboard/>} />
+          <Route path="/uploadPhoto" element={<EventPhotoUpload/>} />
+          <Route path="/message" element={<Message/>} />
+          <Route path="/adminmessage" element={<AdminMessage/>} />
 
 
         </Routes>

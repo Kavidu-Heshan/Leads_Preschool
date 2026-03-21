@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 
+
 // --- MODELS ---
 const ChildModel = require("./models/Child.js");
 const NewChildPwdModel = require("./models/NewChildPwd.js");
@@ -11,6 +12,7 @@ const StudentProfileModel = require("./models/StudentProfile.js");
 const EventModel = require("./models/Event.js");
 const TeacherModel = require("./models/Teacher.js");
 const DaycareAttendanceModel = require("./models/DaycareAttendance.js");
+const EventPhotoModel = require("./models/EventPhoto.js");
 
 const app = express();
 app.use(express.json());
@@ -1397,6 +1399,480 @@ app.post("/daycare/add", async (req, res) => {
   } catch (err) {
     console.error("Error adding to daycare:", err);
     res.status(500).json({ success: false, error: "Failed to add student to daycare." });
+  }
+});
+
+//photo event
+
+// ================================
+// EVENT PHOTO MANAGEMENT API
+// ================================
+
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
+
+// Configure multer for file upload
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadDir = path.join(__dirname, "uploads/event-photos");
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1E9);
+    cb(null, "event-" + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const fileFilter = (req, file, cb) => {
+  const allowedTypes = /jpeg|jpg|png|gif|webp/;
+  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+  const mimetype = allowedTypes.test(file.mimetype);
+  
+  if (mimetype && extname) {
+    cb(null, true);
+  } else {
+    cb(new Error("Only image files are allowed"));
+  }
+};
+
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: fileFilter
+});
+
+// 1. UPLOAD EVENT PHOTOS
+app.post("/event-photos/upload", upload.array("photos", 20), async (req, res) => {
+  try {
+    const { eventId, eventName, photoCaption, tags } = req.body;
+    const files = req.files;
+
+    if (!eventId) {
+      return res.status(400).json({ success: false, error: "Event ID is required" });
+    }
+
+    if (!files || files.length === 0) {
+      return res.status(400).json({ success: false, error: "At least one photo is required" });
+    }
+
+    const uploadedPhotos = [];
+    
+    for (const file of files) {
+      const photoUrl = `${req.protocol}://${req.get("host")}/uploads/event-photos/${file.filename}`;
+      
+      const photoData = {
+        eventId: eventId,
+        eventName: eventName || "Event",
+        photoUrl: photoUrl,
+        photoCaption: photoCaption || "",
+        uploadedBy: req.body.uploadedBy || "ADMIN",
+        uploadedByName: req.body.uploadedByName || "Admin",
+        photoSize: file.size,
+        photoType: file.mimetype,
+        tags: tags ? tags.split(",").map(tag => tag.trim()) : []
+      };
+      
+      const newPhoto = new EventPhotoModel(photoData);
+      await newPhoto.save();
+      uploadedPhotos.push(newPhoto);
+    }
+
+    res.json({
+      success: true,
+      message: `Successfully uploaded ${uploadedPhotos.length} photos`,
+      uploadedCount: uploadedPhotos.length,
+      photos: uploadedPhotos
+    });
+
+  } catch (err) {
+    console.error("Error uploading photos:", err);
+    res.status(500).json({ success: false, error: "Failed to upload photos" });
+  }
+});
+
+// 2. GET ALL EVENT PHOTOS
+app.get("/event-photos", async (req, res) => {
+  try {
+    const { eventId, limit = 50, featured } = req.query;
+    let query = { status: "Active" };
+    
+    if (eventId) query.eventId = eventId;
+    if (featured === "true") query.isFeatured = true;
+    
+    const photos = await EventPhotoModel.find(query)
+      .sort({ uploadedAt: -1 })
+      .limit(parseInt(limit));
+    
+    res.json(photos);
+  } catch (err) {
+    console.error("Error fetching photos:", err);
+    res.status(500).json({ error: "Failed to fetch photos" });
+  }
+});
+
+// 3. GET PHOTOS BY EVENT
+app.get("/event-photos/event/:eventId", async (req, res) => {
+  try {
+    const { eventId } = req.params;
+    const photos = await EventPhotoModel.find({ 
+      eventId: { $regex: new RegExp(`^${eventId}$`, 'i') },
+      status: "Active"
+    }).sort({ isFeatured: -1, uploadedAt: -1 });
+    
+    res.json(photos);
+  } catch (err) {
+    console.error("Error fetching event photos:", err);
+    res.status(500).json({ error: "Failed to fetch event photos" });
+  }
+});
+
+// 4. DELETE PHOTO
+app.delete("/event-photos/:photoId", async (req, res) => {
+  try {
+    const { photoId } = req.params;
+    
+    const photo = await EventPhotoModel.findOne({ photoId: photoId });
+    if (!photo) {
+      return res.status(404).json({ success: false, error: "Photo not found" });
+    }
+    
+    // Delete file from storage
+    const filePath = path.join(__dirname, "uploads/event-photos", path.basename(photo.photoUrl));
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+    
+    // Update status instead of hard delete
+    photo.status = "Deleted";
+    await photo.save();
+    
+    res.json({ success: true, message: "Photo deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting photo:", err);
+    res.status(500).json({ success: false, error: "Failed to delete photo" });
+  }
+});
+
+// 5. SET FEATURED PHOTO
+app.patch("/event-photos/:photoId/featured", async (req, res) => {
+  try {
+    const { photoId } = req.params;
+    
+    // Remove featured from other photos of same event
+    const photo = await EventPhotoModel.findOne({ photoId: photoId });
+    if (!photo) {
+      return res.status(404).json({ success: false, error: "Photo not found" });
+    }
+    
+    await EventPhotoModel.updateMany(
+      { eventId: photo.eventId },
+      { $set: { isFeatured: false } }
+    );
+    
+    // Set this photo as featured
+    photo.isFeatured = true;
+    await photo.save();
+    
+    res.json({ success: true, message: "Photo set as featured" });
+  } catch (err) {
+    console.error("Error setting featured photo:", err);
+    res.status(500).json({ success: false, error: "Failed to set featured photo" });
+  }
+});
+
+// 6. UPDATE PHOTO CAPTION
+app.patch("/event-photos/:photoId/caption", async (req, res) => {
+  try {
+    const { photoId } = req.params;
+    const { caption, tags } = req.body;
+    
+    const updateData = {};
+    if (caption !== undefined) updateData.photoCaption = caption;
+    if (tags !== undefined) updateData.tags = tags.split(",").map(tag => tag.trim());
+    
+    const updatedPhoto = await EventPhotoModel.findOneAndUpdate(
+      { photoId: photoId },
+      { $set: updateData },
+      { new: true }
+    );
+    
+    if (!updatedPhoto) {
+      return res.status(404).json({ success: false, error: "Photo not found" });
+    }
+    
+    res.json({ success: true, message: "Photo updated successfully", photo: updatedPhoto });
+  } catch (err) {
+    console.error("Error updating photo:", err);
+    res.status(500).json({ success: false, error: "Failed to update photo" });
+  }
+});
+
+// Serve static files (uploaded images)
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+/* ================================
+   MESSAGE MANAGEMENT API
+================================ */
+
+// Message Schema
+const MessageSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true
+  },
+  email: {
+    type: String,
+    trim: true,
+    lowercase: true
+  },
+  messageType: {
+    type: String,
+    enum: ['general', 'feedback', 'suggestion', 'complaint'],
+    default: 'general'
+  },
+  subject: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  message: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  rating: {
+    type: Number,
+    min: 1,
+    max: 5
+  },
+  isAnonymous: {
+    type: Boolean,
+    default: false
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'reviewed', 'resolved', 'replied'],
+    default: 'pending'
+  },
+  reply: {
+    type: String,
+    default: null
+  },
+  repliedBy: {
+    type: String,
+    default: null
+  },
+  repliedAt: {
+    type: Date,
+    default: null
+  },
+  ipAddress: {
+    type: String,
+    default: null
+  }
+}, {
+  timestamps: true
+});
+
+const Message = mongoose.model('Message', MessageSchema);
+
+// 1. Create a new message
+app.post('/messages', async (req, res) => {
+  try {
+    const { name, email, messageType, subject, message, rating, isAnonymous, ipAddress } = req.body;
+
+    if (!subject || !message) {
+      return res.status(400).json({ success: false, error: 'Subject and message are required' });
+    }
+
+    const newMessage = new Message({
+      name: isAnonymous ? 'Anonymous' : name,
+      email: email || null,
+      messageType: messageType || 'general',
+      subject,
+      message,
+      rating: rating || null,
+      isAnonymous: isAnonymous || false,
+      ipAddress: ipAddress || null
+    });
+
+    await newMessage.save();
+
+    res.status(201).json({ 
+      success: true, 
+      message: 'Message sent successfully!',
+      data: newMessage
+    });
+
+  } catch (err) {
+    console.error('Error creating message:', err);
+    res.status(500).json({ success: false, error: 'Failed to send message' });
+  }
+});
+
+// 2. Get all messages (Admin only)
+app.get('/messages', async (req, res) => {
+  try {
+    const { status, messageType } = req.query;
+    let query = {};
+
+    if (status) query.status = status;
+    if (messageType) query.messageType = messageType;
+
+    const messages = await Message.find(query).sort({ createdAt: -1 });
+    res.json(messages);
+  } catch (err) {
+    console.error('Error fetching messages:', err);
+    res.status(500).json({ error: 'Failed to fetch messages' });
+  }
+});
+
+// 3. Get a single message by ID
+app.get('/messages/:messageId', async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const message = await Message.findById(messageId);
+
+    if (!message) {
+      return res.status(404).json({ error: 'Message not found' });
+    }
+
+    res.json(message);
+  } catch (err) {
+    console.error('Error fetching message:', err);
+    res.status(500).json({ error: 'Failed to fetch message' });
+  }
+});
+
+// 4. Reply to a message
+app.post('/messages/:messageId/reply', async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const { reply, repliedBy } = req.body;
+
+    if (!reply) {
+      return res.status(400).json({ success: false, error: 'Reply message is required' });
+    }
+
+    const updatedMessage = await Message.findByIdAndUpdate(
+      messageId,
+      {
+        $set: {
+          reply: reply,
+          repliedBy: repliedBy || 'Admin',
+          repliedAt: new Date(),
+          status: 'replied'
+        }
+      },
+      { new: true }
+    );
+
+    if (!updatedMessage) {
+      return res.status(404).json({ success: false, error: 'Message not found' });
+    }
+
+    res.json({ 
+      success: true, 
+      message: 'Reply sent successfully!',
+      data: updatedMessage
+    });
+  } catch (err) {
+    console.error('Error replying to message:', err);
+    res.status(500).json({ success: false, error: 'Failed to send reply' });
+  }
+});
+
+// 5. Update message status
+app.patch('/messages/:messageId/status', async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const { status } = req.body;
+
+    if (!status || !['pending', 'reviewed', 'resolved', 'replied'].includes(status)) {
+      return res.status(400).json({ success: false, error: 'Invalid status' });
+    }
+
+    const updatedMessage = await Message.findByIdAndUpdate(
+      messageId,
+      { $set: { status } },
+      { new: true }
+    );
+
+    if (!updatedMessage) {
+      return res.status(404).json({ success: false, error: 'Message not found' });
+    }
+
+    res.json({ 
+      success: true, 
+      message: `Message marked as ${status}`,
+      data: updatedMessage
+    });
+  } catch (err) {
+    console.error('Error updating message status:', err);
+    res.status(500).json({ success: false, error: 'Failed to update status' });
+  }
+});
+
+// 6. Delete a message
+app.delete('/messages/:messageId', async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const deletedMessage = await Message.findByIdAndDelete(messageId);
+
+    if (!deletedMessage) {
+      return res.status(404).json({ success: false, error: 'Message not found' });
+    }
+
+    res.json({ success: true, message: 'Message deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting message:', err);
+    res.status(500).json({ success: false, error: 'Failed to delete message' });
+  }
+});
+
+// 7. Get message statistics
+app.get('/messages/stats/summary', async (req, res) => {
+  try {
+    const [
+      total,
+      pending,
+      reviewed,
+      resolved,
+      replied,
+      feedback,
+      suggestions,
+      complaints
+    ] = await Promise.all([
+      Message.countDocuments(),
+      Message.countDocuments({ status: 'pending' }),
+      Message.countDocuments({ status: 'reviewed' }),
+      Message.countDocuments({ status: 'resolved' }),
+      Message.countDocuments({ status: 'replied' }),
+      Message.countDocuments({ messageType: 'feedback' }),
+      Message.countDocuments({ messageType: 'suggestion' }),
+      Message.countDocuments({ messageType: 'complaint' })
+    ]);
+
+    res.json({
+      total,
+      pending,
+      reviewed,
+      resolved,
+      replied,
+      byType: {
+        feedback,
+        suggestions,
+        complaints,
+        general: total - (feedback + suggestions + complaints)
+      }
+    });
+  } catch (err) {
+    console.error('Error fetching message stats:', err);
+    res.status(500).json({ error: 'Failed to fetch statistics' });
   }
 });
 

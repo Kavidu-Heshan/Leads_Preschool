@@ -45,27 +45,20 @@ const AdminEventManagement = () => {
     createdBy: ''
   });
 
-  // Form validation errors
   const [formErrors, setFormErrors] = useState({});
 
-  // Get admin info from localStorage
   const adminId = localStorage.getItem('adminId') || 'ADMIN001';
   const adminName = localStorage.getItem('adminName') || 'Administrator';
 
-  // Fetch events on component mount
   useEffect(() => {
     fetchAllEvents();
-    
-    // Auto-refresh every 5 minutes
     const intervalId = setInterval(() => {
       fetchAllEvents();
       setLastUpdated(new Date());
     }, 300000);
-
     return () => clearInterval(intervalId);
   }, []);
 
-  // Fetch events when filters change
   useEffect(() => {
     if (!loading) {
       fetchAllEvents();
@@ -75,24 +68,17 @@ const AdminEventManagement = () => {
   const fetchAllEvents = async () => {
     setLoading(true);
     try {
-      // Fetch statistics
       const statsRes = await fetch('http://localhost:3002/events/stats/summary');
       if (statsRes.ok) {
         const statsData = await statsRes.json();
         setStats(statsData);
       }
 
-      // Fetch events based on active tab
       let url = 'http://localhost:3002/events';
-      if (activeTab === 'upcoming') {
-        url = 'http://localhost:3002/events/upcoming/list';
-      } else if (activeTab === 'today') {
-        url = 'http://localhost:3002/events/today/list';
-      } else if (activeTab === 'past') {
-        url = 'http://localhost:3002/events/past/list';
-      } else if (activeTab === 'all' && filterType) {
-        url = `http://localhost:3002/events?type=${filterType}`;
-      }
+      if (activeTab === 'upcoming') url = 'http://localhost:3002/events/upcoming/list';
+      else if (activeTab === 'today') url = 'http://localhost:3002/events/today/list';
+      else if (activeTab === 'past') url = 'http://localhost:3002/events/past/list';
+      else if (activeTab === 'all' && filterType) url = `http://localhost:3002/events?type=${filterType}`;
 
       const eventsRes = await fetch(url);
       const eventsData = await eventsRes.json();
@@ -107,49 +93,70 @@ const AdminEventManagement = () => {
     }
   };
 
+  // 100% CRASH-PROOF VALIDATION
   const validateForm = () => {
-    const errors = {};
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    try {
+      const errors = {};
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-    // Validate event date
-    if (formData.eventDate) {
-      const eventDate = new Date(formData.eventDate);
-      eventDate.setHours(0, 0, 0, 0);
+      console.log("Starting validation with data:", formData);
+
+      // Safe string checks (Removed optional chaining ? just in case it's breaking)
+      if (!formData.eventName || formData.eventName.trim() === '') errors.eventName = 'Event name is required';
+      if (!formData.eventDate) errors.eventDate = 'Event date is required';
+      if (!formData.eventTime) errors.eventTime = 'Event time is required';
+      if (!formData.venue || formData.venue.trim() === '') errors.venue = 'Venue is required';
+      if (!formData.organizer || formData.organizer.trim() === '') errors.organizer = 'Organizer is required';
+
+      if (formData.eventDate && formData.status === 'Upcoming' && !editingEvent) {
+        const eventDate = new Date(formData.eventDate);
+        eventDate.setHours(0, 0, 0, 0);
+        if (eventDate < today) {
+          errors.eventDate = 'Upcoming event cannot have a past date';
+        }
+      }
+
+      if (formData.eventTime && formData.endTime) {
+        if (formData.endTime <= formData.eventTime) {
+          errors.endTime = 'End time must be after start time';
+        }
+      }
+
+      if (formData.registrationRequired && formData.registrationDeadline && formData.eventDate) {
+        const deadline = new Date(formData.registrationDeadline);
+        const eventDate = new Date(formData.eventDate);
+        if (deadline > eventDate) {
+          errors.registrationDeadline = 'Registration deadline must be on or before the event date';
+        }
+      }
+
+      if (formData.contactPhone && formData.contactPhone.trim() !== '' && !/^0\d{9}$/.test(formData.contactPhone)) {
+        errors.contactPhone = 'Phone number must be 10 digits starting with 0';
+      }
+
+      if (formData.contactEmail && formData.contactEmail.trim() !== '' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactEmail)) {
+        errors.contactEmail = 'Please enter a valid email address';
+      }
+
+      setFormErrors(errors);
       
-      if (formData.status === 'Upcoming' && eventDate < today && !editingEvent) {
-        errors.eventDate = 'Upcoming event cannot have a past date';
+      const hasErrors = Object.keys(errors).length > 0;
+      if (hasErrors) {
+        console.log("Validation Failed! Errors found:", errors);
+        setError('Please fix the missing or incorrect fields highlighted in red.');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return false;
       }
-    }
+      
+      console.log("Validation Passed!");
+      return true;
 
-    // Validate end time after start time
-    if (formData.eventTime && formData.endTime) {
-      if (formData.endTime <= formData.eventTime) {
-        errors.endTime = 'End time must be after start time';
-      }
+    } catch (err) {
+      console.error("Validation crashed completely:", err);
+      setError("An internal error occurred while checking the form. Check the console.");
+      return false;
     }
-
-    // Validate registration deadline
-    if (formData.registrationRequired && formData.registrationDeadline) {
-      const deadline = new Date(formData.registrationDeadline);
-      const eventDate = new Date(formData.eventDate);
-      if (deadline > eventDate) {
-        errors.registrationDeadline = 'Registration deadline must be on or before the event date';
-      }
-    }
-
-    // Validate phone number if provided
-    if (formData.contactPhone && !/^0\d{9}$/.test(formData.contactPhone)) {
-      errors.contactPhone = 'Phone number must be 10 digits starting with 0';
-    }
-
-    // Validate email if provided
-    if (formData.contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactEmail)) {
-      errors.contactEmail = 'Please enter a valid email address';
-    }
-
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
   };
 
   const handleInputChange = (e) => {
@@ -159,35 +166,18 @@ const AdminEventManagement = () => {
       [name]: type === 'checkbox' ? checked : value
     });
     
-    // Clear error for this field
     if (formErrors[name]) {
-      setFormErrors({
-        ...formErrors,
-        [name]: null
-      });
+      setFormErrors({ ...formErrors, [name]: null });
     }
   };
 
   const resetForm = () => {
     setFormData({
-      eventId: '',
-      eventName: '',
-      eventType: 'Cultural',
-      description: '',
-      eventDate: '',
-      eventTime: '',
-      endTime: '',
-      venue: '',
-      organizer: '',
-      contactPerson: '',
-      contactPhone: '',
-      contactEmail: '',
-      targetAudience: 'All',
-      maxAttendees: '',
-      registrationRequired: false,
-      registrationDeadline: '',
-      status: 'Upcoming',
-      createdBy: ''
+      eventId: '', eventName: '', eventType: 'Cultural', description: '',
+      eventDate: '', eventTime: '', endTime: '', venue: '', organizer: '',
+      contactPerson: '', contactPhone: '', contactEmail: '', targetAudience: 'All',
+      maxAttendees: '', registrationRequired: false, registrationDeadline: '',
+      status: 'Upcoming', createdBy: ''
     });
     setFormErrors({});
     setEditingEvent(null);
@@ -226,12 +216,8 @@ const AdminEventManagement = () => {
 
   const confirmDelete = async () => {
     if (!eventToDelete) return;
-
     try {
-      const response = await fetch(`http://localhost:3002/events/${eventToDelete.eventId}`, {
-        method: 'DELETE',
-      });
-
+      const response = await fetch(`http://localhost:3002/events/${eventToDelete.eventId}`, { method: 'DELETE' });
       const data = await response.json();
 
       if (response.ok && data.success) {
@@ -249,37 +235,42 @@ const AdminEventManagement = () => {
     }
   };
 
+  // CRASH-PROOF SUBMIT HANDLER
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("1. Submit Button Clicked!");
     
-    if (!validateForm()) {
-      return;
-    }
-
-    setFormLoading(true);
-    setError('');
-    setSuccess('');
-
     try {
-      const url = editingEvent 
-        ? `http://localhost:3002/events/${editingEvent.eventId}`
-        : 'http://localhost:3002/events';
-      
+      if (!validateForm()) {
+        console.log("2. Submission stopped because validation failed.");
+        return;
+      }
+
+      console.log("3. Validation passed, talking to server...");
+      setFormLoading(true);
+      setError('');
+      setSuccess('');
+
+      const url = editingEvent ? `http://localhost:3002/events/${editingEvent.eventId}` : 'http://localhost:3002/events';
       const method = editingEvent ? 'PUT' : 'POST';
+
+      const payload = {
+        ...formData,
+        createdBy: adminId,
+        maxAttendees: formData.maxAttendees ? parseInt(formData.maxAttendees) : null
+      };
+
+      console.log("4. Payload being sent:", payload);
 
       const response = await fetch(url, {
         method: method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          createdBy: adminId,
-          maxAttendees: formData.maxAttendees ? parseInt(formData.maxAttendees) : null
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
       });
 
+      console.log("5. Received response status:", response.status);
       const data = await response.json();
+      console.log("6. Received response data:", data);
 
       if (response.ok && data.success) {
         setSuccess(editingEvent ? 'Event updated successfully!' : 'Event created successfully!');
@@ -287,35 +278,33 @@ const AdminEventManagement = () => {
         setShowForm(false);
         fetchAllEvents();
         setLastUpdated(new Date());
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         setTimeout(() => setSuccess(''), 3000);
       } else {
         setError(data.error || `Failed to ${editingEvent ? 'update' : 'create'} event`);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     } catch (err) {
-      console.error("Submission error:", err);
-      setError('Failed to connect to server');
+      console.error("CRITICAL ERROR during submit:", err);
+      setError('A fatal error occurred. Check the console.');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } finally {
       setFormLoading(false);
     }
   };
 
   const formatDate = (dateString) => {
+    if (!dateString) return '';
     const date = new Date(dateString);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
     
-    if (date.getTime() === today.getTime()) {
-      return 'Today';
-    } else if (date.getTime() === tomorrow.getTime()) {
-      return 'Tomorrow';
-    } else {
-      return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      });
+    if (date.getTime() === today.getTime()) return 'Today';
+    else if (date.getTime() === tomorrow.getTime()) return 'Tomorrow';
+    else {
+      return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
     }
   };
 
@@ -324,11 +313,7 @@ const AdminEventManagement = () => {
     const [hours, minutes] = timeString.split(':');
     const date = new Date();
     date.setHours(hours, minutes);
-    return date.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    });
+    return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
   };
 
   const getStatusBadgeClass = (status) => {
@@ -485,7 +470,7 @@ const AdminEventManagement = () => {
               {editingEvent ? 'Edit Event' : 'Create New Event'}
             </h2>
             
-            <form onSubmit={handleSubmit} className="event-form">
+            <form onSubmit={handleSubmit} className="event-form" noValidate>
               <div className="form-grid">
                 <div className="form-group full-width">
                   <label>Event Name *</label>
@@ -494,15 +479,17 @@ const AdminEventManagement = () => {
                     name="eventName"
                     value={formData.eventName}
                     onChange={handleInputChange}
-                    required
                     placeholder="Enter event name"
                     className={formErrors.eventName ? 'error' : ''}
                   />
+                  {formErrors.eventName && (
+                    <small className="error-text">{formErrors.eventName}</small>
+                  )}
                 </div>
 
                 <div className="form-group">
                   <label>Event Type *</label>
-                  <select name="eventType" value={formData.eventType} onChange={handleInputChange} required>
+                  <select name="eventType" value={formData.eventType} onChange={handleInputChange}>
                     <option value="Cultural">Cultural</option>
                     <option value="Sports">Sports</option>
                     <option value="Educational">Educational</option>
@@ -530,7 +517,6 @@ const AdminEventManagement = () => {
                     name="eventDate"
                     value={formData.eventDate}
                     onChange={handleInputChange}
-                    required
                     className={formErrors.eventDate ? 'error' : ''}
                   />
                   {formErrors.eventDate && (
@@ -545,8 +531,11 @@ const AdminEventManagement = () => {
                     name="eventTime"
                     value={formData.eventTime}
                     onChange={handleInputChange}
-                    required
+                    className={formErrors.eventTime ? 'error' : ''}
                   />
+                  {formErrors.eventTime && (
+                    <small className="error-text">{formErrors.eventTime}</small>
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -570,9 +559,12 @@ const AdminEventManagement = () => {
                     name="venue"
                     value={formData.venue}
                     onChange={handleInputChange}
-                    required
                     placeholder="Enter venue"
+                    className={formErrors.venue ? 'error' : ''}
                   />
+                  {formErrors.venue && (
+                    <small className="error-text">{formErrors.venue}</small>
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -582,9 +574,12 @@ const AdminEventManagement = () => {
                     name="organizer"
                     value={formData.organizer}
                     onChange={handleInputChange}
-                    required
                     placeholder="Enter organizer name"
+                    className={formErrors.organizer ? 'error' : ''}
                   />
+                  {formErrors.organizer && (
+                    <small className="error-text">{formErrors.organizer}</small>
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -879,6 +874,7 @@ const AdminEventManagement = () => {
               a.href = url;
               a.download = `events_${new Date().toISOString().split('T')[0]}.csv`;
               a.click();
+              window.URL.revokeObjectURL(url);
             }}>
               📥 Export to CSV
             </button>

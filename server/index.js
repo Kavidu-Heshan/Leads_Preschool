@@ -374,10 +374,18 @@ app.get("/check-profile/:childId", async (req, res) => {
   }
 });
 
-// 9. CREATE STUDENT PROFILE
+// 9. CREATE STUDENT PROFILE (UPDATED WITH PROPER ERROR HANDLING)
 app.post("/student-profile", async (req, res) => {
   try {
     const profileData = req.body;
+
+    // Check if childId is missing before hitting the database
+    if (!profileData.childId) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "Child ID is missing. Please try logging in again." 
+      });
+    }
 
     const existingProfile = await StudentProfileModel.findOne({ 
       childId: { $regex: new RegExp(`^${profileData.childId}$`, 'i') } 
@@ -400,9 +408,22 @@ app.post("/student-profile", async (req, res) => {
 
   } catch (err) {
     console.error("Error creating student profile:", err);
+
+    // Catch Mongoose Validation Errors and send to frontend
+    if (err.name === 'ValidationError') {
+      const errors = Object.values(err.errors).map(e => e.message);
+      return res.status(400).json({ success: false, error: errors.join(', ') });
+    }
+
+    // Catch Duplicate Key Errors (MongoDB code 11000)
+    if (err.code === 11000) {
+      return res.status(400).json({ success: false, error: "A record with this information already exists in the database." });
+    }
+
+    // Generic fallback for actual server crashes
     res.status(500).json({ 
       success: false, 
-      error: "Failed to save profile. Please make sure all fields are correctly filled." 
+      error: "Failed to save profile. Please check the server logs." 
     });
   }
 });

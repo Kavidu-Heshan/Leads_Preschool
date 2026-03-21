@@ -2,12 +2,12 @@ import React from 'react';
 import '../css/HomePage.css';
 import p1 from '../src/img/src_pre/p1.avif';
 import p2 from '../src/img/src_pre/p2.avif';
+import NavigationBar from '../components/NavigationBar';
 
 const HomePage = () => {
   return (
     <div>
       {/* <Navbar/> */}
-      
       {/* --- 1. HERO SECTION --- */}
       <header className="hero-section" id="home">
         <div className="container hero-wrapper">

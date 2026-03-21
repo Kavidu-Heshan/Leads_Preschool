@@ -22,7 +22,7 @@ const StudentProfileSchema = new mongoose.Schema(
     },
     profilePhoto: {
       type: String,
-      default: function() {
+      default: function () {
         return this.gender === "Male" ? "👦" : "👧";
       }
     },
@@ -61,10 +61,11 @@ const StudentProfileSchema = new mongoose.Schema(
         required: [true, "At least one contact number is required"],
         trim: true,
         validate: {
-          validator: function(v) {
+          validator: function (v) {
             return /^0\d{9}$/.test(v);
           },
-          message: props => `${props.value} is not a valid phone number! Must be 10 digits starting with 0`
+          message: props =>
+            `${props.value} is not a valid phone number! Must be 10 digits starting with 0`
         }
       }
     ],
@@ -74,7 +75,7 @@ const StudentProfileSchema = new mongoose.Schema(
       trim: true,
       lowercase: true,
       validate: {
-        validator: function(v) {
+        validator: function (v) {
           return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
         },
         message: props => `${props.value} is not a valid email address!`
@@ -91,84 +92,63 @@ const StudentProfileSchema = new mongoose.Schema(
   }
 );
 
-// Index for faster queries
+// Indexes
 StudentProfileSchema.index({ childId: 1 }, { unique: true });
 StudentProfileSchema.index({ email: 1 });
 StudentProfileSchema.index({ class: 1, includeDaycare: 1 });
 
-// PRE SAVE MIDDLEWARE
-// Note: This remains a standard callback function because it is not async
-StudentProfileSchema.pre("save", function(next) {
-  // If no profile photo is set, use gender-based emoji
+// ✅ PRE SAVE (Fixed: Removed 'next', standard synchronous function)
+StudentProfileSchema.pre("save", function () {
   if (!this.profilePhoto) {
     this.profilePhoto = this.gender === "Male" ? "👦" : "👧";
   }
-  next();
 });
 
-// PRE FIND ONE AND UPDATE MIDDLEWARE - FIXED
-// Removed 'next' callback since we are using an async function
-StudentProfileSchema.pre("findOneAndUpdate", async function() {
+// ✅ PRE FINDONEANDUPDATE (Fixed: Async function without 'next')
+StudentProfileSchema.pre("findOneAndUpdate", async function () {
   const update = this.getUpdate();
-  
-  // Only process if there's an update object
+
   if (update) {
-    // Handle $set operator
     if (update.$set) {
-      // If gender is being updated and profile photo is not being explicitly set
       if (update.$set.gender && !update.$set.profilePhoto) {
-        // Get the current document
         const doc = await this.model.findOne(this.getQuery());
-        if (doc) {
-          // If the current profile photo is an emoji, update it to match new gender
-          if (doc.profilePhoto === "👦" || doc.profilePhoto === "👧") {
-            update.$set.profilePhoto = update.$set.gender === "Male" ? "👦" : "👧";
-          }
+        if (doc && (doc.profilePhoto === "👦" || doc.profilePhoto === "👧")) {
+          update.$set.profilePhoto =
+            update.$set.gender === "Male" ? "👦" : "👧";
         }
       }
     }
-    
-    // Handle direct updates (without $set)
+
     if (update.gender && !update.profilePhoto) {
       const doc = await this.model.findOne(this.getQuery());
-      if (doc) {
-        if (doc.profilePhoto === "👦" || doc.profilePhoto === "👧") {
-          update.profilePhoto = update.gender === "Male" ? "👦" : "👧";
-        }
+      if (doc && (doc.profilePhoto === "👦" || doc.profilePhoto === "👧")) {
+        update.profilePhoto =
+          update.gender === "Male" ? "👦" : "👧";
       }
     }
   }
 });
 
-// PRE UPDATE ONE MIDDLEWARE - FIXED
-// Removed 'next' callback since we are using an async function
-StudentProfileSchema.pre("updateOne", async function() {
+// ✅ PRE UPDATEONE (Fixed: Async function without 'next')
+StudentProfileSchema.pre("updateOne", async function () {
   const update = this.getUpdate();
-  
-  // Only process if there's an update object
+
   if (update) {
-    // Handle $set operator
     if (update.$set) {
-      // If gender is being updated and profile photo is not being explicitly set
       if (update.$set.gender && !update.$set.profilePhoto) {
-        // Get the current document
         const doc = await this.model.findOne(this.getQuery());
-        if (doc) {
-          // If the current profile photo is an emoji, update it to match new gender
-          if (doc.profilePhoto === "👦" || doc.profilePhoto === "👧") {
-            update.$set.profilePhoto = update.$set.gender === "Male" ? "👦" : "👧";
-          }
+        if (doc && (doc.profilePhoto === "👦" || doc.profilePhoto === "👧")) {
+          update.$set.profilePhoto =
+            update.$set.gender === "Male" ? "👦" : "👧";
         }
       }
     }
-    
-    // Handle direct updates (without $set)
+
     if (update.gender && !update.profilePhoto) {
       const doc = await this.model.findOne(this.getQuery());
-      if (doc) {
-        if (doc.profilePhoto === "👦" || doc.profilePhoto === "👧") {
-          update.profilePhoto = update.gender === "Male" ? "👦" : "👧";
-        }
+      if (doc && (doc.profilePhoto === "👦" || doc.profilePhoto === "👧")) {
+        update.profilePhoto =
+          update.gender === "Male" ? "👦" : "👧";
       }
     }
   }

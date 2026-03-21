@@ -15,7 +15,7 @@ import AdminEventManagement from "../admin_pages/AdminEventManagement";
 import AdminTeacherManagement from "../admin_pages/AdminTeacherManagement";
 import StudentProfileForm from "../pages/StudentProfileForm";
 import TeacherDirectory from "../pages/TeacherDirectory";
-import DaycareEnrollment from "../pages/DaycareEnrollment";
+import DaycarePage from "../pages/DaycarePage";
 
 function App() {
   return (
@@ -34,7 +34,7 @@ function App() {
           <Route path="/admineditevent" element={<AdminEventManagement />} />
           <Route path="/adminteachermanagement" element={<AdminTeacherManagement/>} />
           <Route path="/teacher" element={<TeacherDirectory/>} />
-          <Route path="/addDaycare" element={<DaycareEnrollment/>} />
+          <Route path="/addDaycare" element={<DaycarePage/>} />
 
 
         </Routes>

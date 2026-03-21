@@ -10,6 +10,7 @@ const NewChildPwdModel = require("./models/NewChildPwd.js");
 const StudentProfileModel = require("./models/StudentProfile.js");
 const EventModel = require("./models/Event.js");
 const TeacherModel = require("./models/Teacher.js");
+const DaycareAttendanceModel = require("./models/DaycareAttendance.js");
 
 const app = express();
 app.use(express.json());
@@ -1313,6 +1314,89 @@ app.post("/teacher-login", async (req, res) => {
   } catch (err) {
     console.error("Teacher login error:", err);
     res.status(500).json({ error: "Server error during login. Please try again." });
+  }
+});
+
+
+//daycare
+/* ================================
+   DAYCARE MANAGEMENT API
+================================ */
+
+// 1. Get eligible students for Daycare
+app.get("/daycare/eligible", async (req, res) => {
+  try {
+    // Find students whose class is Daycare OR who have includeDaycare checked
+    const eligibleStudents = await StudentProfileModel.find({
+      $or: [
+        { class: "Daycare" },
+        { includeDaycare: true }
+      ]
+    }).select('childId fullName profilePhoto class includeDaycare');
+
+    res.json(eligibleStudents);
+  } catch (err) {
+    console.error("Error fetching eligible daycare students:", err);
+    res.status(500).json({ error: "Failed to fetch eligible students" });
+  }
+});
+
+// 2. Get TODAY'S daycare list
+app.get("/daycare/today", async (req, res) => {
+  try {
+    // Get start of today (Midnight)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const todaysList = await DaycareAttendanceModel.find({ date: today }).sort({ addedAt: 1 });
+    res.json(todaysList);
+  } catch (err) {
+    console.error("Error fetching today's daycare list:", err);
+    res.status(500).json({ error: "Failed to fetch today's list" });
+  }
+});
+
+// 3. Add student to Daycare for today
+app.post("/daycare/add", async (req, res) => {
+  try {
+    const { childId, childName } = req.body;
+
+    // Get start of today (Midnight)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Check 1: Is the daily limit reached? (Max 5)
+    const currentCount = await DaycareAttendanceModel.countDocuments({ date: today });
+    if (currentCount >= 5) {
+      return res.status(400).json({ success: false, error: "Daycare limit reached! You can only add 5 students per day." });
+    }
+
+    // Check 2: Is the child already added today?
+    const alreadyAdded = await DaycareAttendanceModel.findOne({ childId: childId, date: today });
+    if (alreadyAdded) {
+      return res.status(400).json({ success: false, error: `${childName} is already added to today's list.` });
+    }
+
+    // Check 3: Double-check if they are actually eligible from StudentProfile
+    const profile = await StudentProfileModel.findOne({ childId: childId });
+    if (!profile || (profile.class !== "Daycare" && !profile.includeDaycare)) {
+      return res.status(400).json({ success: false, error: "This student is not registered for Daycare facilities." });
+    }
+
+    // Save to Database
+    const newEntry = new DaycareAttendanceModel({
+      childId: childId,
+      childName: childName,
+      date: today // Saves exactly as today's midnight date
+    });
+
+    await newEntry.save();
+    
+    res.status(201).json({ success: true, message: `${childName} added successfully!`, entry: newEntry });
+
+  } catch (err) {
+    console.error("Error adding to daycare:", err);
+    res.status(500).json({ success: false, error: "Failed to add student to daycare." });
   }
 });
 

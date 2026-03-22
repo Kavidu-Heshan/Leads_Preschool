@@ -3,6 +3,9 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 
 
 // --- MODELS ---
@@ -15,7 +18,11 @@ const DaycareAttendanceModel = require("./models/DaycareAttendance.js");
 const EventPhotoModel = require("./models/EventPhoto.js");
 
 const app = express();
-app.use(express.json());
+
+// --- UPDATED MIDDLEWARE ---
+// Increased limit to 50mb to allow for Base64 profile photo uploads
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cors());
 
 // --- MONGODB CONNECTION ---
@@ -377,12 +384,11 @@ app.get("/check-profile/:childId", async (req, res) => {
   }
 });
 
-// 9. CREATE STUDENT PROFILE (UPDATED WITH PROPER ERROR HANDLING)
+// 9. CREATE STUDENT PROFILE
 app.post("/student-profile", async (req, res) => {
   try {
     const profileData = req.body;
 
-    // Check if childId is missing before hitting the database
     if (!profileData.childId) {
       return res.status(400).json({ 
         success: false, 
@@ -412,18 +418,15 @@ app.post("/student-profile", async (req, res) => {
   } catch (err) {
     console.error("Error creating student profile:", err);
 
-    // Catch Mongoose Validation Errors and send to frontend
     if (err.name === 'ValidationError') {
       const errors = Object.values(err.errors).map(e => e.message);
       return res.status(400).json({ success: false, error: errors.join(', ') });
     }
 
-    // Catch Duplicate Key Errors (MongoDB code 11000)
     if (err.code === 11000) {
       return res.status(400).json({ success: false, error: "A record with this information already exists in the database." });
     }
 
-    // Generic fallback for actual server crashes
     res.status(500).json({ 
       success: false, 
       error: "Failed to save profile. Please check the server logs." 
@@ -551,7 +554,7 @@ app.post("/events", async (req, res) => {
   }
 });
 
-// 2. GET ALL EVENTS (with optional filters)
+// 2. GET ALL EVENTS
 app.get("/events", async (req, res) => {
   try {
     const { status, type, fromDate, toDate } = req.query;
@@ -573,8 +576,6 @@ app.get("/events", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch events" });
   }
 });
-
-// --- FIX: SPECIFIC EVENT ROUTES MUST GO ABOVE DYNAMIC /events/:eventId ---
 
 // 3. GET TODAY'S EVENTS
 app.get("/events/today/list", async (req, res) => {
@@ -700,7 +701,7 @@ app.get("/events/stats/summary", async (req, res) => {
   }
 });
 
-// 7. GET EVENT BY ID (Catch-All route must go below specific routes)
+// 7. GET EVENT BY ID 
 app.get("/events/:eventId", async (req, res) => {
   try {
     const { eventId } = req.params;
@@ -872,8 +873,6 @@ app.get("/teachers", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch teachers data" });
   }
 });
-
-// --- FIX: SPECIFIC TEACHER ROUTES MUST GO ABOVE DYNAMIC /teachers/:teacherId ---
 
 // 3. GET TEACHER STATISTICS
 app.get("/teachers/stats/summary", async (req, res) => {
@@ -1057,7 +1056,7 @@ app.post("/teachers/bulk-assign", async (req, res) => {
   }
 });
 
-// 7. GET TEACHER BY ID (Catch-All route must go BELOW specific routes)
+// 7. GET TEACHER BY ID
 app.get("/teachers/:teacherId", async (req, res) => {
   try {
     const { teacherId } = req.params;
@@ -1320,7 +1319,6 @@ app.post("/teacher-login", async (req, res) => {
 });
 
 
-//daycare
 /* ================================
    DAYCARE MANAGEMENT API
 ================================ */
@@ -1328,7 +1326,6 @@ app.post("/teacher-login", async (req, res) => {
 // 1. Get eligible students for Daycare
 app.get("/daycare/eligible", async (req, res) => {
   try {
-    // Find students whose class is Daycare OR who have includeDaycare checked
     const eligibleStudents = await StudentProfileModel.find({
       $or: [
         { class: "Daycare" },
@@ -1346,7 +1343,6 @@ app.get("/daycare/eligible", async (req, res) => {
 // 2. Get TODAY'S daycare list
 app.get("/daycare/today", async (req, res) => {
   try {
-    // Get start of today (Midnight)
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -1363,33 +1359,28 @@ app.post("/daycare/add", async (req, res) => {
   try {
     const { childId, childName } = req.body;
 
-    // Get start of today (Midnight)
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Check 1: Is the daily limit reached? (Max 5)
     const currentCount = await DaycareAttendanceModel.countDocuments({ date: today });
     if (currentCount >= 5) {
       return res.status(400).json({ success: false, error: "Daycare limit reached! You can only add 5 students per day." });
     }
 
-    // Check 2: Is the child already added today?
     const alreadyAdded = await DaycareAttendanceModel.findOne({ childId: childId, date: today });
     if (alreadyAdded) {
       return res.status(400).json({ success: false, error: `${childName} is already added to today's list.` });
     }
 
-    // Check 3: Double-check if they are actually eligible from StudentProfile
     const profile = await StudentProfileModel.findOne({ childId: childId });
     if (!profile || (profile.class !== "Daycare" && !profile.includeDaycare)) {
       return res.status(400).json({ success: false, error: "This student is not registered for Daycare facilities." });
     }
 
-    // Save to Database
     const newEntry = new DaycareAttendanceModel({
       childId: childId,
       childName: childName,
-      date: today // Saves exactly as today's midnight date
+      date: today 
     });
 
     await newEntry.save();
@@ -1402,17 +1393,11 @@ app.post("/daycare/add", async (req, res) => {
   }
 });
 
-//photo event
 
-// ================================
-// EVENT PHOTO MANAGEMENT API
-// ================================
+/* ================================
+   EVENT PHOTO MANAGEMENT API
+================================ */
 
-const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
-
-// Configure multer for file upload
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const uploadDir = path.join(__dirname, "uploads/event-photos");
@@ -1540,13 +1525,11 @@ app.delete("/event-photos/:photoId", async (req, res) => {
       return res.status(404).json({ success: false, error: "Photo not found" });
     }
     
-    // Delete file from storage
     const filePath = path.join(__dirname, "uploads/event-photos", path.basename(photo.photoUrl));
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
     }
     
-    // Update status instead of hard delete
     photo.status = "Deleted";
     await photo.save();
     
@@ -1562,7 +1545,6 @@ app.patch("/event-photos/:photoId/featured", async (req, res) => {
   try {
     const { photoId } = req.params;
     
-    // Remove featured from other photos of same event
     const photo = await EventPhotoModel.findOne({ photoId: photoId });
     if (!photo) {
       return res.status(404).json({ success: false, error: "Photo not found" });
@@ -1573,7 +1555,6 @@ app.patch("/event-photos/:photoId/featured", async (req, res) => {
       { $set: { isFeatured: false } }
     );
     
-    // Set this photo as featured
     photo.isFeatured = true;
     await photo.save();
     
@@ -1611,72 +1592,26 @@ app.patch("/event-photos/:photoId/caption", async (req, res) => {
   }
 });
 
-// Serve static files (uploaded images)
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 /* ================================
    MESSAGE MANAGEMENT API
 ================================ */
 
-// Message Schema
 const MessageSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true
-  },
-  email: {
-    type: String,
-    trim: true,
-    lowercase: true
-  },
-  messageType: {
-    type: String,
-    enum: ['general', 'feedback', 'suggestion', 'complaint'],
-    default: 'general'
-  },
-  subject: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  message: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  rating: {
-    type: Number,
-    min: 1,
-    max: 5
-  },
-  isAnonymous: {
-    type: Boolean,
-    default: false
-  },
-  status: {
-    type: String,
-    enum: ['pending', 'reviewed', 'resolved', 'replied'],
-    default: 'pending'
-  },
-  reply: {
-    type: String,
-    default: null
-  },
-  repliedBy: {
-    type: String,
-    default: null
-  },
-  repliedAt: {
-    type: Date,
-    default: null
-  },
-  ipAddress: {
-    type: String,
-    default: null
-  }
-}, {
-  timestamps: true
-});
+  name: { type: String, required: true },
+  email: { type: String, trim: true, lowercase: true },
+  messageType: { type: String, enum: ['general', 'feedback', 'suggestion', 'complaint'], default: 'general' },
+  subject: { type: String, required: true, trim: true },
+  message: { type: String, required: true, trim: true },
+  rating: { type: Number, min: 1, max: 5 },
+  isAnonymous: { type: Boolean, default: false },
+  status: { type: String, enum: ['pending', 'reviewed', 'resolved', 'replied'], default: 'pending' },
+  reply: { type: String, default: null },
+  repliedBy: { type: String, default: null },
+  repliedAt: { type: Date, default: null },
+  ipAddress: { type: String, default: null }
+}, { timestamps: true });
 
 const Message = mongoose.model('Message', MessageSchema);
 
@@ -1693,8 +1628,7 @@ app.post('/messages', async (req, res) => {
       name: isAnonymous ? 'Anonymous' : name,
       email: email || null,
       messageType: messageType || 'general',
-      subject,
-      message,
+      subject, message,
       rating: rating || null,
       isAnonymous: isAnonymous || false,
       ipAddress: ipAddress || null
@@ -1760,14 +1694,7 @@ app.post('/messages/:messageId/reply', async (req, res) => {
 
     const updatedMessage = await Message.findByIdAndUpdate(
       messageId,
-      {
-        $set: {
-          reply: reply,
-          repliedBy: repliedBy || 'Admin',
-          repliedAt: new Date(),
-          status: 'replied'
-        }
-      },
+      { $set: { reply: reply, repliedBy: repliedBy || 'Admin', repliedAt: new Date(), status: 'replied' } },
       { new: true }
     );
 
@@ -1797,9 +1724,7 @@ app.patch('/messages/:messageId/status', async (req, res) => {
     }
 
     const updatedMessage = await Message.findByIdAndUpdate(
-      messageId,
-      { $set: { status } },
-      { new: true }
+      messageId, { $set: { status } }, { new: true }
     );
 
     if (!updatedMessage) {
@@ -1838,14 +1763,7 @@ app.delete('/messages/:messageId', async (req, res) => {
 app.get('/messages/stats/summary', async (req, res) => {
   try {
     const [
-      total,
-      pending,
-      reviewed,
-      resolved,
-      replied,
-      feedback,
-      suggestions,
-      complaints
+      total, pending, reviewed, resolved, replied, feedback, suggestions, complaints
     ] = await Promise.all([
       Message.countDocuments(),
       Message.countDocuments({ status: 'pending' }),
@@ -1858,15 +1776,9 @@ app.get('/messages/stats/summary', async (req, res) => {
     ]);
 
     res.json({
-      total,
-      pending,
-      reviewed,
-      resolved,
-      replied,
+      total, pending, reviewed, resolved, replied,
       byType: {
-        feedback,
-        suggestions,
-        complaints,
+        feedback, suggestions, complaints,
         general: total - (feedback + suggestions + complaints)
       }
     });

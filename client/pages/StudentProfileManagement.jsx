@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../css/StudentProfileManagement.css';
@@ -34,6 +33,7 @@ const StudentProfileManagement = () => {
   const [isEditing, setIsEditing] = useState(false);
   
   // Photo upload states
+  // eslint-disable-next-line no-unused-vars
   const [profilePhotoFile, setProfilePhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState('');
   const [showPhotoUpload, setShowPhotoUpload] = useState(false);

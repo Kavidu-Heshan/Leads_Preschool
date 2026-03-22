@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../css/AdminEventManagement.css';
+import NavigationBar from '../components/AdminNavbar';
 
 const AdminEventManagement = () => {
   const [activeTab, setActiveTab] = useState('all');
@@ -334,6 +335,13 @@ const AdminEventManagement = () => {
   });
 
   return (
+    <>
+      {/* CHANGE 2: Render the NavigationBar component */}
+      <NavigationBar />
+      
+      {/* CHANGE 3: Added inline style padding to push the content down 
+        so it doesn't get hidden behind the fixed NavigationBar 
+      */}
     <div className="admin-event-container">
       {/* Decorative Elements */}
       <div className="admin-decor">
@@ -907,6 +915,7 @@ const AdminEventManagement = () => {
         </div>
       )}
     </div>
+    </>
   );
 };
 

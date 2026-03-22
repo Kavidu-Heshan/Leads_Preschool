@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../css/Message.css';
+import NavigationBar from '../components/AdminNavbar';
 
 const AdminMessage = () => {
   const [messages, setMessages] = useState([]);
@@ -147,6 +148,13 @@ const AdminMessage = () => {
   });
 
   return (
+    <>
+      {/* CHANGE 2: Render the NavigationBar component */}
+      <NavigationBar />
+      
+      {/* CHANGE 3: Added inline style padding to push the content down 
+        so it doesn't get hidden behind the fixed NavigationBar 
+      */}
     <div className="message-container">
       {/* Nature Background */}
       <div className="nature-bg-message">
@@ -375,6 +383,7 @@ const AdminMessage = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
 

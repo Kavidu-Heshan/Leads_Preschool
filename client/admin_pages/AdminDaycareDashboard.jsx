@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import '../css/AdminDaycareDashboard.css'; // Import the CSS file
+import '../css/AdminDaycareDashboard.css';
+import NavigationBar from '../components/AdminNavbar';
 
 const AdminDaycareDashboard = () => {
   const [students, setStudents] = useState([]);
@@ -15,6 +16,7 @@ const AdminDaycareDashboard = () => {
 
   const fetchAdminData = async () => {
     setLoading(true);
+    setError('');
     try {
       // Fetch all eligible students AND today's attendance simultaneously
       const [eligibleRes, todayRes] = await Promise.all([
@@ -22,43 +24,127 @@ const AdminDaycareDashboard = () => {
         axios.get('http://localhost:3002/daycare/today')
       ]);
       
-      setStudents(eligibleRes.data);
-      // Map today's list to an array of childIds for easy lookup
-      const presentIds = todayRes.data.map(entry => entry.childId);
+      console.log('Eligible students response:', eligibleRes.data);
+      console.log('Today attendance response:', todayRes.data);
+      console.log('Eligible response type:', Array.isArray(eligibleRes.data));
+      console.log('Today response type:', Array.isArray(todayRes.data));
+      
+      // Handle the response - your backend returns arrays directly
+      let eligibleStudents = [];
+      let todayAttendance = [];
+      
+      // Check if eligibleRes.data is an array
+      if (Array.isArray(eligibleRes.data)) {
+        eligibleStudents = eligibleRes.data;
+      } else if (eligibleRes.data && eligibleRes.data.data && Array.isArray(eligibleRes.data.data)) {
+        eligibleStudents = eligibleRes.data.data;
+      } else if (eligibleRes.data && eligibleRes.data.students && Array.isArray(eligibleRes.data.students)) {
+        eligibleStudents = eligibleRes.data.students;
+      } else {
+        console.warn('Unexpected eligible students format:', eligibleRes.data);
+        eligibleStudents = [];
+      }
+      
+      // Check if todayRes.data is an array
+      if (Array.isArray(todayRes.data)) {
+        todayAttendance = todayRes.data;
+      } else if (todayRes.data && todayRes.data.data && Array.isArray(todayRes.data.data)) {
+        todayAttendance = todayRes.data.data;
+      } else if (todayRes.data && todayRes.data.attendance && Array.isArray(todayRes.data.attendance)) {
+        todayAttendance = todayRes.data.attendance;
+      } else {
+        console.warn('Unexpected today attendance format:', todayRes.data);
+        todayAttendance = [];
+      }
+      
+      setStudents(eligibleStudents);
+      
+      // Map today's list to an array of childIds
+      const presentIds = todayAttendance.map(entry => {
+        // Handle different possible field names
+        return entry.childId || entry.child_id || entry._id || entry.id;
+      }).filter(id => id); // Remove undefined/null values
+      
+      console.log('Present IDs:', presentIds);
       setPresentToday(presentIds);
+      
     } catch (err) {
       console.error("Failed to load admin data", err);
-      setError('Failed to load daycare data. Please check your connection.');
+      setError(`Failed to load daycare data: ${err.message || 'Please check your connection.'}`);
+      // Set empty arrays to prevent further errors
+      setStudents([]);
+      setPresentToday([]);
     } finally {
       setLoading(false);
     }
   };
 
   // Filter students based on search term
-  const filteredStudents = students.filter(student => 
-    student.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.childId?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredStudents = students.filter(student => {
+    if (!student) return false;
+    const fullName = student.fullName || student.full_name || student.name || '';
+    const childId = student.childId || student.child_id || student.id || '';
+    return fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           childId.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   // Sort students: present first, then not present
   const sortedStudents = [...filteredStudents].sort((a, b) => {
-    const aIsPresent = presentToday.includes(a.childId);
-    const bIsPresent = presentToday.includes(b.childId);
+    const aId = a.childId || a.child_id || a.id;
+    const bId = b.childId || b.child_id || b.id;
+    const aIsPresent = presentToday.includes(aId);
+    const bIsPresent = presentToday.includes(bId);
     
     // Present children come first
     if (aIsPresent && !bIsPresent) return -1;
     if (!aIsPresent && bIsPresent) return 1;
     
     // If both present or both not present, sort by name alphabetically
-    return (a.fullName || '').localeCompare(b.fullName || '');
+    const aName = a.fullName || a.full_name || a.name || '';
+    const bName = b.fullName || b.full_name || b.name || '';
+    return aName.localeCompare(bName);
   });
 
-  // Group students for display (optional - to show sections)
-  const presentStudents = sortedStudents.filter(student => presentToday.includes(student.childId));
-  const notPresentStudents = sortedStudents.filter(student => !presentToday.includes(student.childId));
+  // Group students for display
+  const presentStudents = sortedStudents.filter(student => {
+    const studentId = student.childId || student.child_id || student.id;
+    return presentToday.includes(studentId);
+  });
+  
+  const notPresentStudents = sortedStudents.filter(student => {
+    const studentId = student.childId || student.child_id || student.id;
+    return !presentToday.includes(studentId);
+  });
+
+  // Helper function to get student name
+  const getStudentName = (student) => {
+    return student.fullName || student.full_name || student.name || 'Unknown';
+  };
+
+  // Helper function to get student ID
+  const getStudentId = (student) => {
+    return student.childId || student.child_id || student.id || 'N/A';
+  };
+
+  // Helper function to get student class
+  const getStudentClass = (student) => {
+    return student.class || student.class_name || student.mainClass || 'Not Assigned';
+  };
+
+  // Helper function to get student gender
+  const getStudentGender = (student) => {
+    return student.gender || student.gender || 'Other';
+  };
+
+  // Helper function to get profile photo
+  const getProfilePhoto = (student) => {
+    return student.profilePhoto || student.photo || null;
+  };
 
   if (loading) {
     return (
+      <>
+      <NavigationBar />
       <div className="admin-dashboard-container">
         <div className="nature-bg">
           <div className="leaf leaf-1">🌿</div>
@@ -73,10 +159,13 @@ const AdminDaycareDashboard = () => {
           <div className="loading-text">Loading daycare data...</div>
         </div>
       </div>
+      </>
     );
   }
 
   return (
+    <>
+    <NavigationBar />
     <div className="admin-dashboard-container">
       <div className="nature-bg">
         <div className="leaf leaf-1">🌿</div>
@@ -116,7 +205,23 @@ const AdminDaycareDashboard = () => {
 
         {error && (
           <div className="error-message">
-            <span className="error-icon">⚠️</span> {error}
+            <span className="error-icon">⚠️</span> 
+            <span>{error}</span>
+            <button 
+              className="retry-btn"
+              onClick={fetchAdminData}
+              style={{ 
+                marginLeft: 'auto', 
+                background: 'none', 
+                border: 'none', 
+                cursor: 'pointer',
+                fontSize: '18px',
+                padding: '5px 10px',
+                borderRadius: '8px'
+              }}
+            >
+              🔄 Retry
+            </button>
           </div>
         )}
 
@@ -144,8 +249,8 @@ const AdminDaycareDashboard = () => {
             <div className="students-grid">
               {presentStudents.map((student, index) => (
                 <div 
-                  key={student.childId} 
-                  className={`student-card present`}
+                  key={getStudentId(student)} 
+                  className="student-card present"
                   style={{ '--index': index }}
                 >
                   {/* Status Badge */}
@@ -156,22 +261,26 @@ const AdminDaycareDashboard = () => {
 
                   {/* Profile Photo Avatar */}
                   <div className="student-avatar">
-                    {student.profilePhoto || (student.gender === 'Male' ? '👦' : '👧')}
+                    {getProfilePhoto(student) ? (
+                      <img src={getProfilePhoto(student)} alt={getStudentName(student)} style={{width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover'}} />
+                    ) : (
+                      getStudentGender(student) === 'Male' ? '👦' : '👧'
+                    )}
                   </div>
 
                   {/* Student Info */}
-                  <h3 className="student-name">{student.fullName}</h3>
-                  <span className="student-id">ID: {student.childId}</span>
+                  <h3 className="student-name">{getStudentName(student)}</h3>
+                  <span className="student-id">ID: {getStudentId(student)}</span>
 
                   <div className="student-details">
                     <div className="detail-item">
                       <span className="detail-label">Main Class</span>
-                      <strong className="detail-value">{student.class}</strong>
+                      <strong className="detail-value">{getStudentClass(student)}</strong>
                     </div>
                     <div className="detail-item">
                       <span className="detail-label">Facility</span>
                       <strong className="detail-value">
-                        {student.class === 'Daycare' ? 'Primary' : 'Extended'}
+                        {getStudentClass(student) === 'Daycare' ? 'Primary' : 'Extended'}
                       </strong>
                     </div>
                   </div>
@@ -194,7 +303,7 @@ const AdminDaycareDashboard = () => {
             <div className="students-grid">
               {notPresentStudents.map((student, index) => (
                 <div 
-                  key={student.childId} 
+                  key={getStudentId(student)} 
                   className="student-card"
                   style={{ '--index': index }}
                 >
@@ -206,22 +315,26 @@ const AdminDaycareDashboard = () => {
 
                   {/* Profile Photo Avatar */}
                   <div className="student-avatar">
-                    {student.profilePhoto || (student.gender === 'Male' ? '👦' : '👧')}
+                    {getProfilePhoto(student) ? (
+                      <img src={getProfilePhoto(student)} alt={getStudentName(student)} style={{width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover'}} />
+                    ) : (
+                      getStudentGender(student) === 'Male' ? '👦' : '👧'
+                    )}
                   </div>
 
                   {/* Student Info */}
-                  <h3 className="student-name">{student.fullName}</h3>
-                  <span className="student-id">ID: {student.childId}</span>
+                  <h3 className="student-name">{getStudentName(student)}</h3>
+                  <span className="student-id">ID: {getStudentId(student)}</span>
 
                   <div className="student-details">
                     <div className="detail-item">
                       <span className="detail-label">Main Class</span>
-                      <strong className="detail-value">{student.class}</strong>
+                      <strong className="detail-value">{getStudentClass(student)}</strong>
                     </div>
                     <div className="detail-item">
                       <span className="detail-label">Facility</span>
                       <strong className="detail-value">
-                        {student.class === 'Daycare' ? 'Primary' : 'Extended'}
+                        {getStudentClass(student) === 'Daycare' ? 'Primary' : 'Extended'}
                       </strong>
                     </div>
                   </div>
@@ -232,15 +345,25 @@ const AdminDaycareDashboard = () => {
         )}
 
         {/* No Results Found */}
-        {sortedStudents.length === 0 && (
+        {sortedStudents.length === 0 && !loading && !error && (
           <div className="empty-state">
             <div className="empty-icon">🔍</div>
             <h2>No students found</h2>
-            <p>No students matching "{searchTerm}"</p>
+            <p>{searchTerm ? `No students matching "${searchTerm}"` : 'No eligible students found'}</p>
+          </div>
+        )}
+
+        {/* No Data State */}
+        {students.length === 0 && !loading && !error && !searchTerm && (
+          <div className="empty-state">
+            <div className="empty-icon">👧</div>
+            <h2>No daycare students found</h2>
+            <p>There are no eligible daycare students registered yet.</p>
           </div>
         )}
       </div>
     </div>
+    </>
   );
 };
 

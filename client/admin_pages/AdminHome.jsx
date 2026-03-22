@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import '../css/AdminHome.css';
+import NavigationBar from '../components/AdminNavbar';
 
 const AdminHome = () => {
   // State for dashboard data
@@ -282,6 +283,13 @@ const AdminHome = () => {
   ];
 
   return (
+    <>
+      {/* CHANGE 2: Render the NavigationBar component */}
+      <NavigationBar />
+      
+      {/* CHANGE 3: Added inline style padding to push the content down 
+        so it doesn't get hidden behind the fixed NavigationBar 
+      */}
     <div className="admin-home">
       {/* Nature Background with animated elements */}
       <div className="nature-bg">
@@ -542,6 +550,7 @@ const AdminHome = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
 

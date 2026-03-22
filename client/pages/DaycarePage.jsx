@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import '../css/StudentProfile.css'; // Reusing your existing styles
+import '../css/StudentProfile.css'; 
 
 const DaycarePage = () => {
   const [eligibleStudents, setEligibleStudents] = useState([]);
@@ -25,17 +25,31 @@ const DaycarePage = () => {
       setEligibleStudents(eligibleRes.data);
       setTodaysList(todayRes.data);
     } catch (err) {
-      console.error("Failed to load data",err);
+      console.error("Failed to load data", err);
       setError('Failed to load data. Please check connection.');
     } finally {
       setLoading(false);
     }
   };
 
+  // Time validation check
+  const isWithinAllowedTime = () => {
+    const currentHour = new Date().getHours();
+    // Allows access from 5:00 AM (5) up to 8:59 AM. 
+    // The moment it hits 9:00 AM, it returns false.
+    return currentHour >= 5 && currentHour < 9;
+  };
+
   const handleAddStudent = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
+
+    // Double-check time upon submission just in case the window was left open
+    if (!isWithinAllowedTime()) {
+      setError('Students can only be added between 5:00 AM and 9:00 AM.');
+      return;
+    }
 
     if (!selectedStudent) {
       setError('Please select a student to add.');
@@ -69,6 +83,8 @@ const DaycarePage = () => {
   }
 
   const isLimitReached = todaysList.length >= 5;
+  const isTimeValid = isWithinAllowedTime();
+  const isFormDisabled = isLimitReached || !isTimeValid;
 
   return (
     <div className="profile-container">
@@ -88,24 +104,31 @@ const DaycarePage = () => {
 
         {/* Add Student Form */}
         <div style={{ background: '#F1F8E9', padding: '20px', borderRadius: '12px', marginBottom: '30px', border: '1px solid #C8E6C9' }}>
-          <form onSubmit={handleAddStudent} style={{ display: 'flex', gap: '15px', alignItems: 'flex-end' }}>
+          
+          {/* Out of bounds time message */}
+          {!isTimeValid && (
+            <div style={{ background: '#FFF3E0', padding: '10px 15px', borderRadius: '8px', marginBottom: '15px', border: '1px solid #FFE0B2', color: '#E65100', fontWeight: 'bold' }}>
+              🕒 Attendance closed. You can only add students between 5:00 AM and 9:00 AM.
+            </div>
+          )}
+
+          <form onSubmit={handleAddStudent} style={{ display: 'flex', gap: '15px', alignItems: 'flex-end', opacity: isTimeValid ? 1 : 0.6 }}>
             <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
               <label>Select Eligible Student</label>
               <select 
                 value={selectedStudent} 
                 onChange={(e) => setSelectedStudent(e.target.value)}
-                disabled={isLimitReached}
-                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc' }}
+                disabled={isFormDisabled}
+                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc', cursor: isFormDisabled ? 'not-allowed' : 'pointer' }}
               >
                 <option value="">-- Choose a Student --</option>
                 {eligibleStudents.map(student => {
-                  // Don't show students in dropdown if they are already in today's list
                   const isAlreadyAdded = todaysList.some(t => t.childId === student.childId);
                   if (isAlreadyAdded) return null;
                   
                   return (
                     <option key={student.childId} value={student.childId}>
-                      {student.profilePhoto} {student.fullName} ({student.childId})
+                      {student.fullName} ({student.childId})
                     </option>
                   );
                 })}
@@ -115,13 +138,14 @@ const DaycarePage = () => {
             <button 
               type="submit" 
               className="submit-button"
-              disabled={isLimitReached || !selectedStudent}
-              style={{ width: 'auto', padding: '12px 25px', marginBottom: 0, opacity: isLimitReached ? 0.5 : 1 }}
+              disabled={isFormDisabled || !selectedStudent}
+              style={{ width: 'auto', padding: '12px 25px', marginBottom: 0, opacity: isFormDisabled ? 0.5 : 1, cursor: isFormDisabled ? 'not-allowed' : 'pointer' }}
             >
               ➕ Add to Daycare
             </button>
           </form>
-          {isLimitReached && (
+
+          {isLimitReached && isTimeValid && (
             <p style={{ color: '#d32f2f', marginTop: '10px', fontSize: '0.9rem', fontWeight: 'bold' }}>
               ⚠️ Daily limit of 5 students has been reached.
             </p>

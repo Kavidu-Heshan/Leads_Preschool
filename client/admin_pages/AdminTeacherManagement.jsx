@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import '../css/AdminTeacherManagement.css';
+import NavigationBar from '../components/AdminNavbar';
 
 const AdminTeacherManagement = () => {
   const [teachers, setTeachers] = useState([]);
@@ -776,6 +777,13 @@ const AdminTeacherManagement = () => {
   const selectedCount = teachers.filter(t => t.selected).length;
 
   return (
+    <>
+      {/* CHANGE 2: Render the NavigationBar component */}
+      <NavigationBar />
+      
+      {/* CHANGE 3: Added inline style padding to push the content down 
+        so it doesn't get hidden behind the fixed NavigationBar 
+      */}
     <div className="admin-teacher-container">
       {/* Decorative Elements */}
       <div className="teacher-decor">
@@ -1933,6 +1941,7 @@ const AdminTeacherManagement = () => {
         </div>
       )}
     </div>
+    </>
   );
 };
 

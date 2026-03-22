@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../css/EventCreationPage.css';
+import NavigationBar from '../components/AdminNavbar';
 
 const EventCreationPage = () => {
   const [activeTab, setActiveTab] = useState('upcoming');
@@ -344,6 +345,13 @@ const EventCreationPage = () => {
   );
 
   return (
+    <>
+      {/* CHANGE 2: Render the NavigationBar component */}
+      <NavigationBar />
+      
+      {/* CHANGE 3: Added inline style padding to push the content down 
+        so it doesn't get hidden behind the fixed NavigationBar 
+      */}
     <div className="event-page-container">
       <div className="nature-bg">
         <div className="leaf leaf-1">🌿</div>
@@ -714,6 +722,7 @@ const EventCreationPage = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

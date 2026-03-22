@@ -20,6 +20,7 @@ import AdminDaycareDashboard from "../admin_pages/AdminDaycareDashboard";
 import EventPhotoUpload from "../admin_pages/EventPhotoUpload";
 import Message from "../pages/message";
 import AdminMessage from "../admin_pages/AdminMessage";
+import AdminHome from "../admin_pages/AdminHome";
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
           <Route path="/uploadPhoto" element={<EventPhotoUpload/>} />
           <Route path="/message" element={<Message/>} />
           <Route path="/adminmessage" element={<AdminMessage/>} />
+          <Route path="/adminhome" element={<AdminHome/>} />
 
 
         </Routes>

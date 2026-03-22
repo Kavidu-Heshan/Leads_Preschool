@@ -2,7 +2,7 @@ import React from 'react';
 import '../css/HomePage.css';
 import p1 from '../src/img/src_pre/p1.avif';
 import p2 from '../src/img/src_pre/p2.avif';
-import NavigationBar from '../components/NavigationBar';
+import NavigationBar from '../components/Navigationbar';
 
 const HomePage = () => {
   return (

@@ -1332,13 +1332,13 @@ const AdminTeacherManagement = () => {
                       </div>
 
                       <div className="form-group">
-                        <label>IFSC Code</label>
+                        <label>SLIPS Code</label>
                         <input
                           type="text"
                           name="bankDetails.ifscCode"
                           value={formData.bankDetails?.ifscCode}
                           onChange={handleInputChange}
-                          placeholder="IFSC code"
+                          placeholder="SLIPS code"
                         />
                       </div>
                     </div>

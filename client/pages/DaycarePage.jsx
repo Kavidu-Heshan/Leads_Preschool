@@ -37,7 +37,7 @@ const DaycarePage = () => {
     const currentHour = new Date().getHours();
     // Allows access from 5:00 AM (5) up to 8:59 AM. 
     // The moment it hits 9:00 AM, it returns false.
-    return currentHour >= 5 && currentHour < 9;
+    return currentHour >= 5 && currentHour < 11;
   };
 
   const handleAddStudent = async (e) => {

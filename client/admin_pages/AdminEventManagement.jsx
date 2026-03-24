@@ -335,587 +335,582 @@ const AdminEventManagement = () => {
   });
 
   return (
-    <>
-      {/* CHANGE 2: Render the NavigationBar component */}
+    <div className="admin-event-wrapper">
       <NavigationBar />
-      
-      {/* CHANGE 3: Added inline style padding to push the content down 
-        so it doesn't get hidden behind the fixed NavigationBar 
-      */}
-    <div className="admin-event-container">
-      {/* Decorative Elements */}
-      <div className="admin-decor">
-        <div className="decor-circle circle-1"></div>
-        <div className="decor-circle circle-2"></div>
-        <div className="decor-circle circle-3"></div>
-        <div className="decor-leaf leaf-1">📅</div>
-        <div className="decor-leaf leaf-2">🎪</div>
-        <div className="decor-leaf leaf-3">📋</div>
-      </div>
+      <div className="admin-event-container">
+        {/* Decorative Elements */}
+        <div className="admin-decor">
+          <div className="decor-circle circle-1"></div>
+          <div className="decor-circle circle-2"></div>
+          <div className="decor-circle circle-3"></div>
+          <div className="decor-leaf leaf-1">📅</div>
+          <div className="decor-leaf leaf-2">🎪</div>
+          <div className="decor-leaf leaf-3">📋</div>
+        </div>
 
-      <div className="admin-content">
-        {/* Header */}
-        <div className="admin-header">
-          <div className="header-left">
-            <div className="admin-avatar">
-              <span className="avatar-icon">👤</span>
+        <div className="admin-content">
+          {/* Header */}
+          <div className="admin-header">
+            <div className="header-left">
+              <div className="admin-avatar">
+                <span className="avatar-icon">👤</span>
+              </div>
+              <div className="admin-info">
+                <h1 className="admin-title">Event Management</h1>
+                <p className="admin-subtitle">Welcome back, {adminName}</p>
+                <div className="admin-badge">
+                  <span className="badge-dot"></span>
+                  Administrator
+                </div>
+              </div>
             </div>
-            <div className="admin-info">
-              <h1 className="admin-title">Event Management</h1>
-              <p className="admin-subtitle">Welcome back, {adminName}</p>
-              <div className="admin-badge">
-                <span className="badge-dot"></span>
-                Administrator
+            <div className="header-right">
+              <div className="last-updated">
+                <span className="update-icon">🔄</span>
+                Last updated: {lastUpdated.toLocaleTimeString()}
               </div>
             </div>
           </div>
-          <div className="header-right">
-            <div className="last-updated">
-              <span className="update-icon">🔄</span>
-              Last updated: {lastUpdated.toLocaleTimeString()}
+
+          {/* Stats Cards */}
+          <div className="stats-cards">
+            <div className="stat-card total">
+              <div className="stat-icon">📊</div>
+              <div className="stat-details">
+                <span className="stat-label">Total Events</span>
+                <span className="stat-value">{stats.total}</span>
+              </div>
+            </div>
+            <div className="stat-card upcoming">
+              <div className="stat-icon">⏳</div>
+              <div className="stat-details">
+                <span className="stat-label">Upcoming</span>
+                <span className="stat-value">{stats.upcoming}</span>
+              </div>
+            </div>
+            <div className="stat-card today">
+              <div className="stat-icon">🔴</div>
+              <div className="stat-details">
+                <span className="stat-label">Today</span>
+                <span className="stat-value">{stats.today}</span>
+                {stats.ongoing > 0 && (
+                  <span className="stat-badge">{stats.ongoing} ongoing</span>
+                )}
+              </div>
+            </div>
+            <div className="stat-card past">
+              <div className="stat-icon">✅</div>
+              <div className="stat-details">
+                <span className="stat-label">Completed</span>
+                <span className="stat-value">{stats.past}</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Stats Cards */}
-        <div className="stats-cards">
-          <div className="stat-card total">
-            <div className="stat-icon">📊</div>
-            <div className="stat-details">
-              <span className="stat-label">Total Events</span>
-              <span className="stat-value">{stats.total}</span>
+          {/* Action Bar */}
+          <div className="action-bar">
+            <div className="search-box">
+              <span className="search-icon">🔍</span>
+              <input
+                type="text"
+                placeholder="Search events..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="search-input"
+              />
             </div>
-          </div>
-          <div className="stat-card upcoming">
-            <div className="stat-icon">⏳</div>
-            <div className="stat-details">
-              <span className="stat-label">Upcoming</span>
-              <span className="stat-value">{stats.upcoming}</span>
-            </div>
-          </div>
-          <div className="stat-card today">
-            <div className="stat-icon">🔴</div>
-            <div className="stat-details">
-              <span className="stat-label">Today</span>
-              <span className="stat-value">{stats.today}</span>
-              {stats.ongoing > 0 && (
-                <span className="stat-badge">{stats.ongoing} ongoing</span>
-              )}
-            </div>
-          </div>
-          <div className="stat-card past">
-            <div className="stat-icon">✅</div>
-            <div className="stat-details">
-              <span className="stat-label">Completed</span>
-              <span className="stat-value">{stats.past}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Action Bar */}
-        <div className="action-bar">
-          <div className="search-box">
-            <span className="search-icon">🔍</span>
-            <input
-              type="text"
-              placeholder="Search events..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
-          </div>
-          
-          <div className="filter-box">
-            <select 
-              value={filterType} 
-              onChange={(e) => setFilterType(e.target.value)}
-              className="filter-select"
-            >
-              <option value="">All Types</option>
-              <option value="Cultural">Cultural</option>
-              <option value="Sports">Sports</option>
-              <option value="Educational">Educational</option>
-              <option value="Parent-Teacher">Parent-Teacher</option>
-              <option value="Holiday">Holiday</option>
-              <option value="Workshop">Workshop</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-
-          <button 
-            className="create-button"
-            onClick={() => {
-              resetForm();
-              setShowForm(!showForm);
-            }}
-          >
-            <span className="button-icon">{showForm ? '✕' : '+'}</span>
-            {showForm ? 'Close Form' : 'Create New Event'}
-          </button>
-        </div>
-
-        {/* Messages */}
-        {error && (
-          <div className="message error">
-            <span className="message-icon">⚠️</span>
-            <span className="message-text">{error}</span>
-            <button className="message-close" onClick={() => setError('')}>✕</button>
-          </div>
-        )}
-        
-        {success && (
-          <div className="message success">
-            <span className="message-icon">✅</span>
-            <span className="message-text">{success}</span>
-            <button className="message-close" onClick={() => setSuccess('')}>✕</button>
-          </div>
-        )}
-
-        {/* Event Form */}
-        {showForm && (
-          <div className="form-card">
-            <h2 className="form-title">
-              {editingEvent ? 'Edit Event' : 'Create New Event'}
-            </h2>
             
-            <form onSubmit={handleSubmit} className="event-form" noValidate>
-              <div className="form-grid">
-                <div className="form-group full-width">
-                  <label>Event Name *</label>
-                  <input
-                    type="text"
-                    name="eventName"
-                    value={formData.eventName}
-                    onChange={handleInputChange}
-                    placeholder="Enter event name"
-                    className={formErrors.eventName ? 'error' : ''}
-                  />
-                  {formErrors.eventName && (
-                    <small className="error-text">{formErrors.eventName}</small>
-                  )}
-                </div>
-
-                <div className="form-group">
-                  <label>Event Type *</label>
-                  <select name="eventType" value={formData.eventType} onChange={handleInputChange}>
-                    <option value="Cultural">Cultural</option>
-                    <option value="Sports">Sports</option>
-                    <option value="Educational">Educational</option>
-                    <option value="Parent-Teacher">Parent-Teacher</option>
-                    <option value="Holiday">Holiday</option>
-                    <option value="Workshop">Workshop</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label>Status</label>
-                  <select name="status" value={formData.status} onChange={handleInputChange}>
-                    <option value="Upcoming">Upcoming</option>
-                    <option value="Ongoing">Ongoing</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Cancelled">Cancelled</option>
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label>Event Date *</label>
-                  <input
-                    type="date"
-                    name="eventDate"
-                    value={formData.eventDate}
-                    onChange={handleInputChange}
-                    className={formErrors.eventDate ? 'error' : ''}
-                  />
-                  {formErrors.eventDate && (
-                    <small className="error-text">{formErrors.eventDate}</small>
-                  )}
-                </div>
-
-                <div className="form-group">
-                  <label>Start Time *</label>
-                  <input
-                    type="time"
-                    name="eventTime"
-                    value={formData.eventTime}
-                    onChange={handleInputChange}
-                    className={formErrors.eventTime ? 'error' : ''}
-                  />
-                  {formErrors.eventTime && (
-                    <small className="error-text">{formErrors.eventTime}</small>
-                  )}
-                </div>
-
-                <div className="form-group">
-                  <label>End Time</label>
-                  <input
-                    type="time"
-                    name="endTime"
-                    value={formData.endTime}
-                    onChange={handleInputChange}
-                    className={formErrors.endTime ? 'error' : ''}
-                  />
-                  {formErrors.endTime && (
-                    <small className="error-text">{formErrors.endTime}</small>
-                  )}
-                </div>
-
-                <div className="form-group">
-                  <label>Venue *</label>
-                  <input
-                    type="text"
-                    name="venue"
-                    value={formData.venue}
-                    onChange={handleInputChange}
-                    placeholder="Enter venue"
-                    className={formErrors.venue ? 'error' : ''}
-                  />
-                  {formErrors.venue && (
-                    <small className="error-text">{formErrors.venue}</small>
-                  )}
-                </div>
-
-                <div className="form-group">
-                  <label>Organizer *</label>
-                  <input
-                    type="text"
-                    name="organizer"
-                    value={formData.organizer}
-                    onChange={handleInputChange}
-                    placeholder="Enter organizer name"
-                    className={formErrors.organizer ? 'error' : ''}
-                  />
-                  {formErrors.organizer && (
-                    <small className="error-text">{formErrors.organizer}</small>
-                  )}
-                </div>
-
-                <div className="form-group">
-                  <label>Contact Person</label>
-                  <input
-                    type="text"
-                    name="contactPerson"
-                    value={formData.contactPerson}
-                    onChange={handleInputChange}
-                    placeholder="Contact person name"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Contact Phone</label>
-                  <input
-                    type="tel"
-                    name="contactPhone"
-                    value={formData.contactPhone}
-                    onChange={handleInputChange}
-                    placeholder="0771234567"
-                    className={formErrors.contactPhone ? 'error' : ''}
-                  />
-                  {formErrors.contactPhone && (
-                    <small className="error-text">{formErrors.contactPhone}</small>
-                  )}
-                </div>
-
-                <div className="form-group">
-                  <label>Contact Email</label>
-                  <input
-                    type="email"
-                    name="contactEmail"
-                    value={formData.contactEmail}
-                    onChange={handleInputChange}
-                    placeholder="contact@example.com"
-                    className={formErrors.contactEmail ? 'error' : ''}
-                  />
-                  {formErrors.contactEmail && (
-                    <small className="error-text">{formErrors.contactEmail}</small>
-                  )}
-                </div>
-
-                <div className="form-group">
-                  <label>Target Audience</label>
-                  <select name="targetAudience" value={formData.targetAudience} onChange={handleInputChange}>
-                    <option value="All">All</option>
-                    <option value="Students Only">Students Only</option>
-                    <option value="Parents Only">Parents Only</option>
-                    <option value="Teachers Only">Teachers Only</option>
-                    <option value="Students & Parents">Students & Parents</option>
-                    <option value="Staff Only">Staff Only</option>
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label>Max Attendees</label>
-                  <input
-                    type="number"
-                    name="maxAttendees"
-                    value={formData.maxAttendees}
-                    onChange={handleInputChange}
-                    min="1"
-                    placeholder="Unlimited if empty"
-                  />
-                </div>
-
-                <div className="form-group checkbox-group">
-                  <label className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      name="registrationRequired"
-                      checked={formData.registrationRequired}
-                      onChange={handleInputChange}
-                    />
-                    Registration Required
-                  </label>
-                </div>
-
-                {formData.registrationRequired && (
-                  <div className="form-group">
-                    <label>Registration Deadline</label>
-                    <input
-                      type="date"
-                      name="registrationDeadline"
-                      value={formData.registrationDeadline}
-                      onChange={handleInputChange}
-                      className={formErrors.registrationDeadline ? 'error' : ''}
-                    />
-                    {formErrors.registrationDeadline && (
-                      <small className="error-text">{formErrors.registrationDeadline}</small>
-                    )}
-                  </div>
-                )}
-
-                <div className="form-group full-width">
-                  <label>Description</label>
-                  <textarea
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    rows="3"
-                    placeholder="Enter event description"
-                  ></textarea>
-                </div>
-              </div>
-
-              <div className="form-actions">
-                <button type="submit" className="submit-btn" disabled={formLoading}>
-                  {formLoading ? (
-                    <>
-                      <span className="spinner"></span>
-                      {editingEvent ? 'Updating...' : 'Creating...'}
-                    </>
-                  ) : (
-                    editingEvent ? 'Update Event' : 'Create Event'
-                  )}
-                </button>
-                <button 
-                  type="button" 
-                  className="cancel-btn"
-                  onClick={() => {
-                    resetForm();
-                    setShowForm(false);
-                  }}
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
-
-        {/* Tabs */}
-        <div className="tabs-container">
-          <button
-            className={`tab ${activeTab === 'all' ? 'active' : ''}`}
-            onClick={() => setActiveTab('all')}
-          >
-            <span className="tab-icon">📋</span>
-            All Events
-            <span className="tab-count">{stats.total}</span>
-          </button>
-          <button
-            className={`tab ${activeTab === 'upcoming' ? 'active' : ''}`}
-            onClick={() => setActiveTab('upcoming')}
-          >
-            <span className="tab-icon">⏳</span>
-            Upcoming
-            <span className="tab-count">{stats.upcoming}</span>
-          </button>
-          <button
-            className={`tab ${activeTab === 'today' ? 'active' : ''}`}
-            onClick={() => setActiveTab('today')}
-          >
-            <span className="tab-icon">🔴</span>
-            Today
-            <span className="tab-count highlight">{stats.today}</span>
-          </button>
-          <button
-            className={`tab ${activeTab === 'past' ? 'active' : ''}`}
-            onClick={() => setActiveTab('past')}
-          >
-            <span className="tab-icon">✅</span>
-            Past
-            <span className="tab-count">{stats.past}</span>
-          </button>
-        </div>
-
-        {/* Events Table */}
-        <div className="table-wrapper">
-          {loading ? (
-            <div className="loading-container">
-              <div className="loading-spinner"></div>
-              <p>Loading events...</p>
+            <div className="filter-box">
+              <select 
+                value={filterType} 
+                onChange={(e) => setFilterType(e.target.value)}
+                className="filter-select"
+              >
+                <option value="">All Types</option>
+                <option value="Cultural">Cultural</option>
+                <option value="Sports">Sports</option>
+                <option value="Educational">Educational</option>
+                <option value="Parent-Teacher">Parent-Teacher</option>
+                <option value="Holiday">Holiday</option>
+                <option value="Workshop">Workshop</option>
+                <option value="Other">Other</option>
+              </select>
             </div>
-          ) : (
-            <table className="events-table">
-              <thead>
-                <tr>
-                  <th>Event Name</th>
-                  <th>Type</th>
-                  <th>Date</th>
-                  <th>Time</th>
-                  <th>Venue</th>
-                  <th>Organizer</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredEvents.length === 0 ? (
-                  <tr>
-                    <td colSpan="8" className="no-data">
-                      <span className="no-data-icon">📭</span>
-                      <p>No events found</p>
-                      <button className="create-first-btn" onClick={() => setShowForm(true)}>
-                        Create your first event
-                      </button>
-                    </td>
-                  </tr>
-                ) : (
-                  filteredEvents.map((event) => (
-                    <tr key={event.eventId || event._id}>
-                      <td className="event-name-cell">
-                        <strong>{event.eventName}</strong>
-                        {event.description && (
-                          <small className="event-description-preview">
-                            {event.description.substring(0, 30)}...
-                          </small>
-                        )}
-                      </td>
-                      <td>
-                        <span className={`event-type-badge ${event.eventType?.toLowerCase()}`}>
-                          {event.eventType}
-                        </span>
-                      </td>
-                      <td>
-                        {formatDate(event.eventDate)}
-                        {formatDate(event.eventDate) === 'Today' && (
-                          <span className="today-badge">🔴</span>
-                        )}
-                      </td>
-                      <td>
-                        {formatTime(event.eventTime)}
-                        {event.endTime && ` - ${formatTime(event.endTime)}`}
-                      </td>
-                      <td>{event.venue}</td>
-                      <td>{event.organizer}</td>
-                      <td>
-                        <span className={`status-badge ${getStatusBadgeClass(event.status)}`}>
-                          {event.status}
-                        </span>
-                      </td>
-                      <td>
-                        <div className="action-buttons">
-                          <button
-                            className="action-btn edit"
-                            onClick={() => handleEdit(event)}
-                            title="Edit event"
-                          >
-                            ✏️
-                          </button>
-                          <button
-                            className="action-btn delete"
-                            onClick={() => handleDelete(event)}
-                            title="Delete event"
-                          >
-                            🗑️
-                          </button>
-                          <button
-                            className="action-btn view"
-                            onClick={() => window.open(`/event/${event.eventId}`, '_blank')}
-                            title="View details"
-                          >
-                            👁️
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          )}
-        </div>
 
-        {/* Summary Footer */}
-        <div className="table-footer">
-          <div className="footer-info">
-            Showing {filteredEvents.length} of {events.length} events
-          </div>
-          <div className="footer-actions">
-            <button className="export-btn" onClick={() => {
-              // Export functionality
-              const csvContent = [
-                ['Event Name', 'Type', 'Date', 'Time', 'Venue', 'Organizer', 'Status'],
-                ...filteredEvents.map(e => [
-                  e.eventName,
-                  e.eventType,
-                  new Date(e.eventDate).toLocaleDateString(),
-                  e.eventTime,
-                  e.venue,
-                  e.organizer,
-                  e.status
-                ])
-              ].map(row => row.join(',')).join('\n');
-              
-              const blob = new Blob([csvContent], { type: 'text/csv' });
-              const url = window.URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = `events_${new Date().toISOString().split('T')[0]}.csv`;
-              a.click();
-              window.URL.revokeObjectURL(url);
-            }}>
-              📥 Export to CSV
+            <button 
+              className="create-button"
+              onClick={() => {
+                resetForm();
+                setShowForm(!showForm);
+              }}
+            >
+              <span className="button-icon">{showForm ? '✕' : '+'}</span>
+              {showForm ? 'Close Form' : 'Create New Event'}
             </button>
           </div>
-        </div>
-      </div>
 
-      {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h3>Delete Event</h3>
-              <button className="modal-close" onClick={() => setShowDeleteModal(false)}>✕</button>
+          {/* Messages */}
+          {error && (
+            <div className="message error">
+              <span className="message-icon">⚠️</span>
+              <span className="message-text">{error}</span>
+              <button className="message-close" onClick={() => setError('')}>✕</button>
             </div>
-            <div className="modal-body">
-              <p>Are you sure you want to delete this event?</p>
-              <p className="event-name">{eventToDelete?.eventName}</p>
-              <p className="warning">This action cannot be undone.</p>
+          )}
+          
+          {success && (
+            <div className="message success">
+              <span className="message-icon">✅</span>
+              <span className="message-text">{success}</span>
+              <button className="message-close" onClick={() => setSuccess('')}>✕</button>
             </div>
-            <div className="modal-footer">
-              <button className="cancel-btn" onClick={() => setShowDeleteModal(false)}>
-                Cancel
-              </button>
-              <button className="delete-btn" onClick={confirmDelete}>
-                Delete Event
+          )}
+
+          {/* Event Form */}
+          {showForm && (
+            <div className="form-card">
+              <h2 className="form-title">
+                {editingEvent ? 'Edit Event' : 'Create New Event'}
+              </h2>
+              
+              <form onSubmit={handleSubmit} className="event-form" noValidate>
+                <div className="form-grid">
+                  <div className="form-group full-width">
+                    <label>Event Name *</label>
+                    <input
+                      type="text"
+                      name="eventName"
+                      value={formData.eventName}
+                      onChange={handleInputChange}
+                      placeholder="Enter event name"
+                      className={formErrors.eventName ? 'error' : ''}
+                    />
+                    {formErrors.eventName && (
+                      <small className="error-text">{formErrors.eventName}</small>
+                    )}
+                  </div>
+
+                  <div className="form-group">
+                    <label>Event Type *</label>
+                    <select name="eventType" value={formData.eventType} onChange={handleInputChange}>
+                      <option value="Cultural">Cultural</option>
+                      <option value="Sports">Sports</option>
+                      <option value="Educational">Educational</option>
+                      <option value="Parent-Teacher">Parent-Teacher</option>
+                      <option value="Holiday">Holiday</option>
+                      <option value="Workshop">Workshop</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Status</label>
+                    <select name="status" value={formData.status} onChange={handleInputChange}>
+                      <option value="Upcoming">Upcoming</option>
+                      <option value="Ongoing">Ongoing</option>
+                      <option value="Completed">Completed</option>
+                      <option value="Cancelled">Cancelled</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Event Date *</label>
+                    <input
+                      type="date"
+                      name="eventDate"
+                      value={formData.eventDate}
+                      onChange={handleInputChange}
+                      className={formErrors.eventDate ? 'error' : ''}
+                    />
+                    {formErrors.eventDate && (
+                      <small className="error-text">{formErrors.eventDate}</small>
+                    )}
+                  </div>
+
+                  <div className="form-group">
+                    <label>Start Time *</label>
+                    <input
+                      type="time"
+                      name="eventTime"
+                      value={formData.eventTime}
+                      onChange={handleInputChange}
+                      className={formErrors.eventTime ? 'error' : ''}
+                    />
+                    {formErrors.eventTime && (
+                      <small className="error-text">{formErrors.eventTime}</small>
+                    )}
+                  </div>
+
+                  <div className="form-group">
+                    <label>End Time</label>
+                    <input
+                      type="time"
+                      name="endTime"
+                      value={formData.endTime}
+                      onChange={handleInputChange}
+                      className={formErrors.endTime ? 'error' : ''}
+                    />
+                    {formErrors.endTime && (
+                      <small className="error-text">{formErrors.endTime}</small>
+                    )}
+                  </div>
+
+                  <div className="form-group">
+                    <label>Venue *</label>
+                    <input
+                      type="text"
+                      name="venue"
+                      value={formData.venue}
+                      onChange={handleInputChange}
+                      placeholder="Enter venue"
+                      className={formErrors.venue ? 'error' : ''}
+                    />
+                    {formErrors.venue && (
+                      <small className="error-text">{formErrors.venue}</small>
+                    )}
+                  </div>
+
+                  <div className="form-group">
+                    <label>Organizer *</label>
+                    <input
+                      type="text"
+                      name="organizer"
+                      value={formData.organizer}
+                      onChange={handleInputChange}
+                      placeholder="Enter organizer name"
+                      className={formErrors.organizer ? 'error' : ''}
+                    />
+                    {formErrors.organizer && (
+                      <small className="error-text">{formErrors.organizer}</small>
+                    )}
+                  </div>
+
+                  <div className="form-group">
+                    <label>Contact Person</label>
+                    <input
+                      type="text"
+                      name="contactPerson"
+                      value={formData.contactPerson}
+                      onChange={handleInputChange}
+                      placeholder="Contact person name"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Contact Phone</label>
+                    <input
+                      type="tel"
+                      name="contactPhone"
+                      value={formData.contactPhone}
+                      onChange={handleInputChange}
+                      placeholder="0771234567"
+                      className={formErrors.contactPhone ? 'error' : ''}
+                    />
+                    {formErrors.contactPhone && (
+                      <small className="error-text">{formErrors.contactPhone}</small>
+                    )}
+                  </div>
+
+                  <div className="form-group">
+                    <label>Contact Email</label>
+                    <input
+                      type="email"
+                      name="contactEmail"
+                      value={formData.contactEmail}
+                      onChange={handleInputChange}
+                      placeholder="contact@example.com"
+                      className={formErrors.contactEmail ? 'error' : ''}
+                    />
+                    {formErrors.contactEmail && (
+                      <small className="error-text">{formErrors.contactEmail}</small>
+                    )}
+                  </div>
+
+                  <div className="form-group">
+                    <label>Target Audience</label>
+                    <select name="targetAudience" value={formData.targetAudience} onChange={handleInputChange}>
+                      <option value="All">All</option>
+                      <option value="Students Only">Students Only</option>
+                      <option value="Parents Only">Parents Only</option>
+                      <option value="Teachers Only">Teachers Only</option>
+                      <option value="Students & Parents">Students & Parents</option>
+                      <option value="Staff Only">Staff Only</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Max Attendees</label>
+                    <input
+                      type="number"
+                      name="maxAttendees"
+                      value={formData.maxAttendees}
+                      onChange={handleInputChange}
+                      min="1"
+                      placeholder="Unlimited if empty"
+                    />
+                  </div>
+
+                  <div className="form-group checkbox-group">
+                    <label className="checkbox-label">
+                      <input
+                        type="checkbox"
+                        name="registrationRequired"
+                        checked={formData.registrationRequired}
+                        onChange={handleInputChange}
+                      />
+                      Registration Required
+                    </label>
+                  </div>
+
+                  {formData.registrationRequired && (
+                    <div className="form-group">
+                      <label>Registration Deadline</label>
+                      <input
+                        type="date"
+                        name="registrationDeadline"
+                        value={formData.registrationDeadline}
+                        onChange={handleInputChange}
+                        className={formErrors.registrationDeadline ? 'error' : ''}
+                      />
+                      {formErrors.registrationDeadline && (
+                        <small className="error-text">{formErrors.registrationDeadline}</small>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="form-group full-width">
+                    <label>Description</label>
+                    <textarea
+                      name="description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      rows="3"
+                      placeholder="Enter event description"
+                    ></textarea>
+                  </div>
+                </div>
+
+                <div className="form-actions">
+                  <button type="submit" className="submit-btn" disabled={formLoading}>
+                    {formLoading ? (
+                      <>
+                        <span className="spinner"></span>
+                        {editingEvent ? 'Updating...' : 'Creating...'}
+                      </>
+                    ) : (
+                      editingEvent ? 'Update Event' : 'Create Event'
+                    )}
+                  </button>
+                  <button 
+                    type="button" 
+                    className="cancel-btn"
+                    onClick={() => {
+                      resetForm();
+                      setShowForm(false);
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {/* Tabs */}
+          <div className="tabs-container">
+            <button
+              className={`tab ${activeTab === 'all' ? 'active' : ''}`}
+              onClick={() => setActiveTab('all')}
+            >
+              <span className="tab-icon">📋</span>
+              All Events
+              <span className="tab-count">{stats.total}</span>
+            </button>
+            <button
+              className={`tab ${activeTab === 'upcoming' ? 'active' : ''}`}
+              onClick={() => setActiveTab('upcoming')}
+            >
+              <span className="tab-icon">⏳</span>
+              Upcoming
+              <span className="tab-count">{stats.upcoming}</span>
+            </button>
+            <button
+              className={`tab ${activeTab === 'today' ? 'active' : ''}`}
+              onClick={() => setActiveTab('today')}
+            >
+              <span className="tab-icon">🔴</span>
+              Today
+              <span className="tab-count highlight">{stats.today}</span>
+            </button>
+            <button
+              className={`tab ${activeTab === 'past' ? 'active' : ''}`}
+              onClick={() => setActiveTab('past')}
+            >
+              <span className="tab-icon">✅</span>
+              Past
+              <span className="tab-count">{stats.past}</span>
+            </button>
+          </div>
+
+          {/* Events Table */}
+          <div className="table-wrapper">
+            {loading ? (
+              <div className="loading-container">
+                <div className="loading-spinner"></div>
+                <p>Loading events...</p>
+              </div>
+            ) : (
+              <table className="events-table">
+                <thead>
+                  <tr>
+                    <th>Event Name</th>
+                    <th>Type</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Venue</th>
+                    <th>Organizer</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredEvents.length === 0 ? (
+                    <tr>
+                      <td colSpan="8" className="no-data">
+                        <span className="no-data-icon">📭</span>
+                        <p>No events found</p>
+                        <button className="create-first-btn" onClick={() => setShowForm(true)}>
+                          Create your first event
+                        </button>
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredEvents.map((event) => (
+                      <tr key={event.eventId || event._id}>
+                        <td className="event-name-cell">
+                          <strong>{event.eventName}</strong>
+                          {event.description && (
+                            <small className="event-description-preview">
+                              {event.description.substring(0, 30)}...
+                            </small>
+                          )}
+                        </td>
+                        <td>
+                          <span className={`event-type-badge ${event.eventType?.toLowerCase()}`}>
+                            {event.eventType}
+                          </span>
+                        </td>
+                        <td>
+                          {formatDate(event.eventDate)}
+                          {formatDate(event.eventDate) === 'Today' && (
+                            <span className="today-badge">🔴</span>
+                          )}
+                        </td>
+                        <td>
+                          {formatTime(event.eventTime)}
+                          {event.endTime && ` - ${formatTime(event.endTime)}`}
+                        </td>
+                        <td>{event.venue}</td>
+                        <td>{event.organizer}</td>
+                        <td>
+                          <span className={`status-badge ${getStatusBadgeClass(event.status)}`}>
+                            {event.status}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="action-buttons">
+                            <button
+                              className="action-btn edit"
+                              onClick={() => handleEdit(event)}
+                              title="Edit event"
+                            >
+                              ✏️
+                            </button>
+                            <button
+                              className="action-btn delete"
+                              onClick={() => handleDelete(event)}
+                              title="Delete event"
+                            >
+                              🗑️
+                            </button>
+                            <button
+                              className="action-btn view"
+                              onClick={() => window.open(`/event/${event.eventId}`, '_blank')}
+                              title="View details"
+                            >
+                              👁️
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            )}
+          </div>
+
+          {/* Summary Footer */}
+          <div className="table-footer">
+            <div className="footer-info">
+              Showing {filteredEvents.length} of {events.length} events
+            </div>
+            <div className="footer-actions">
+              <button className="export-btn" onClick={() => {
+                // Export functionality
+                const csvContent = [
+                  ['Event Name', 'Type', 'Date', 'Time', 'Venue', 'Organizer', 'Status'],
+                  ...filteredEvents.map(e => [
+                    e.eventName,
+                    e.eventType,
+                    new Date(e.eventDate).toLocaleDateString(),
+                    e.eventTime,
+                    e.venue,
+                    e.organizer,
+                    e.status
+                  ])
+                ].map(row => row.join(',')).join('\n');
+                
+                const blob = new Blob([csvContent], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `events_${new Date().toISOString().split('T')[0]}.csv`;
+                a.click();
+                window.URL.revokeObjectURL(url);
+              }}>
+                📥 Export to CSV
               </button>
             </div>
           </div>
         </div>
-      )}
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h3>Delete Event</h3>
+                <button className="modal-close" onClick={() => setShowDeleteModal(false)}>✕</button>
+              </div>
+              <div className="modal-body">
+                <p>Are you sure you want to delete this event?</p>
+                <p className="event-name">{eventToDelete?.eventName}</p>
+                <p className="warning">This action cannot be undone.</p>
+              </div>
+              <div className="modal-footer">
+                <button className="cancel-btn" onClick={() => setShowDeleteModal(false)}>
+                  Cancel
+                </button>
+                <button className="delete-btn" onClick={confirmDelete}>
+                  Delete Event
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
-    </>
   );
 };
 

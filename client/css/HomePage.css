@@ -306,3 +306,44 @@
     text-align: center;
   }
 }
+/* Add this at the beginning of your HomePage.css file */
+
+/* Wrapper to handle navbar spacing */
+.home-page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.home-page-wrapper .hero-section {
+  margin-top: 80px; /* Adjust this value based on your navbar height */
+  position: relative;
+}
+
+/* If you want the navbar to overlay the hero section but still have spacing */
+/* Alternative approach - add padding-top to the first section */
+/* 
+.home-page-wrapper .hero-section {
+  padding-top: 80px;
+}
+*/
+
+/* Keep all your existing CSS below this line */
+.hero-section {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8f0f5 100%);
+  padding: 80px 0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Rest of your existing styles... */
+
+/* If your navbar is fixed, ensure other sections don't get hidden behind it */
+.features-section,
+.about-section,
+.stats-section,
+.testimonials-section,
+.footer-section {
+  position: relative;
+  z-index: 1;
+}

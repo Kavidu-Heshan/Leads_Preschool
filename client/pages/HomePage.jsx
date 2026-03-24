@@ -2,11 +2,14 @@ import React from 'react';
 import '../css/HomePage.css';
 import p1 from '../src/img/src_pre/p1.avif';
 import p2 from '../src/img/src_pre/p2.avif';
+import { Link } from "react-router-dom";
+import UserNavbar from '../components/UserNavbar';
 
 const HomePage = () => {
   return (
-    <div>
-      {/* <Navbar/> */}
+    <div className="home-page-wrapper">
+      <UserNavbar />
+      
       {/* --- 1. HERO SECTION --- */}
       <header className="hero-section" id="home">
         <div className="container hero-wrapper">
@@ -20,7 +23,9 @@ const HomePage = () => {
               Join our vibrant community today!
             </p>
             <div className="hero-buttons">
-              <button className="btn btn-primary">Enroll Now</button>
+              <Link to="/childenroll">
+                <button className="btn btn-primary">Enroll Now</button>
+              </Link>
               <button className="btn btn-secondary">Watch Video</button>
             </div>
           </div>
@@ -163,7 +168,6 @@ const HomePage = () => {
           <p>&copy; 2024 Leads Wariyapola. All Rights Reserved.</p>
         </div>
       </footer>
-
     </div>
   );
 };

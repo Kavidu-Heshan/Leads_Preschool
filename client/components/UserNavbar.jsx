@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import '../css/AdminNavbar.css';
 
-const NavigationBar = () => {
+const UserNavbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   
@@ -47,13 +47,13 @@ const NavigationBar = () => {
   };
 
   const navItems = [
-    { path: '/adminhome', name: 'Dashboard', icon: '📊' },
-    { path: '/adminaddchild', name: 'Add Child', icon: '👶' },
-    { path: '/adminteachermanagement', name: 'Teachers', icon: '👩‍🏫' },
-    { path: '/admindaycaredashboard', name: 'Daycare', icon: '🧸' },
-    { path: '/admineditevent', name: 'Events', icon: '📅' },
-    { path: '/adminmessage', name: 'Messages', icon: '💬' },
-    { path: '/uploadPhoto', name: 'Gallery', icon: '🖼️' }
+    // { path: '/adminhome', name: 'Dashboard', icon: '📊' },
+    // { path: '/adminaddchild', name: 'Add Child', icon: '👶' },
+    { path: '/teacher', name: 'Teachers', icon: '👩‍🏫' },
+    { path: '/addDaycare', name: 'Daycare', icon: '🧸' },
+    { path: '/userevent', name: 'Events', icon: '📅' },
+    { path: '/message', name: 'Messages', icon: '💬' }
+    // { path: '/photo', name: 'Gallery', icon: '🖼️' }
   ];
 
   const isActive = (path) => {
@@ -65,13 +65,13 @@ const NavigationBar = () => {
       <nav className={`navigation-bar ${scrolled ? 'scrolled' : ''}`}>
         <div className="nav-container">
           {/* Logo Section */}
-          <Link to="/adminhome" className="nav-logo" onClick={closeMobileMenu}>
+          <Link to="/childdashboard" className="nav-logo" onClick={closeMobileMenu}>
             <div className="logo-icon">
               <span>🏫</span>
             </div>
             <div className="logo-text">
-              <span className="logo-title">Preschool Admin</span>
-              <span className="logo-subtitle">Management System</span>
+              <span className="logo-title">Leads Preschool</span>
+              {/* <span className="logo-subtitle">Management System</span> */}
             </div>
           </Link>
 
@@ -154,4 +154,4 @@ const NavigationBar = () => {
   );
 };
 
-export default NavigationBar;
+export default UserNavbar;

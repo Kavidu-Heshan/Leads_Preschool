@@ -1,0 +1,42 @@
+/* AdminDaycareDashboard.css - Green Theme with Animations */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Wrapper to handle navbar spacing - Add this at the beginning */
+.admin-daycare-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-daycare-wrapper .admin-dashboard-container {
+  flex: 1;
+  margin-top: 80px; /* Adjust this value based on your navbar height */
+  position: relative;
+  min-height: calc(100vh - 80px);
+  padding: 40px 20px;
+}
+
+/* Alternative if navbar is fixed */
+/*
+.admin-daycare-wrapper .admin-dashboard-container {
+  padding-top: 100px;
+}
+*/
+
+.admin-dashboard-container {
+  min-height: 100vh;
+  padding: 40px 20px;
+  font-family: 'Poppins', sans-serif;
+  position: relative;
+  background: linear-gradient(145deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%);
+  overflow-x: hidden;
+}
+
+/* Rest of your existing CSS continues below... */

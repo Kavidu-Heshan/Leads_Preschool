@@ -193,3 +193,38 @@ body {
   .dashboard-header { flex-direction: column; text-align: center; gap: 20px; }
   .form-card, .list-card { padding: 20px; }
 }
+/* Add this at the beginning of your AdminAddChild.css file */
+
+/* Wrapper to handle navbar spacing */
+.admin-add-child-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-add-child-wrapper .admin-dashboard {
+  flex: 1;
+  position: relative;
+  min-height: calc(100vh - 80px);
+  padding: 20px;
+  padding-top: 100px; /* 20px default padding + 80px for navbar */
+}
+
+/* Alternative: If you want to keep the inline style, you can use this */
+/* 
+.admin-add-child-wrapper .admin-dashboard {
+  margin-top: 80px;
+  padding: 20px;
+}
+*/
+
+/* Keep all your existing CSS below this line */
+.admin-dashboard {
+  position: relative;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  overflow-x: hidden;
+  padding: 20px;
+}
+
+/* Rest of your existing styles... */

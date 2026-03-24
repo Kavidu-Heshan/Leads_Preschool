@@ -2414,3 +2414,38 @@ tr:hover .teacher-id {
       background: linear-gradient(135deg, #f6f6f8 0%, #f7f6f8 100%);
     color: white;
 }
+
+/* Add this at the beginning of your AdminTeacherManagement.css file */
+
+/* Wrapper to handle navbar spacing */
+.admin-teacher-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-teacher-wrapper .admin-teacher-container {
+  flex: 1;
+  margin-top: 80px; /* Adjust this value based on your navbar height */
+  position: relative;
+  min-height: calc(100vh - 80px);
+  padding: 20px;
+}
+
+/* Alternative if navbar is fixed */
+/*
+.admin-teacher-wrapper .admin-teacher-container {
+  padding-top: 100px;
+}
+*/
+
+/* Keep all your existing CSS below this line */
+.admin-teacher-container {
+  position: relative;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8f0f5 100%);
+  overflow-x: hidden;
+  padding: 20px;
+}
+
+/* Rest of your existing styles... */

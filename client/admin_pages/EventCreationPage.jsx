@@ -299,7 +299,7 @@ const EventCreationPage = () => {
             <th>Organizer</th>
             <th>Audience</th>
             <th>Status</th>
-          </tr>
+           </tr>
         </thead>
         <tbody>
           {events.length === 0 ? (
@@ -345,384 +345,379 @@ const EventCreationPage = () => {
   );
 
   return (
-    <>
-      {/* CHANGE 2: Render the NavigationBar component */}
+    <div className="event-creation-wrapper">
       <NavigationBar />
-      
-      {/* CHANGE 3: Added inline style padding to push the content down 
-        so it doesn't get hidden behind the fixed NavigationBar 
-      */}
-    <div className="event-page-container">
-      <div className="nature-bg">
-        <div className="leaf leaf-1">🌿</div>
-        <div className="leaf leaf-2">🍃</div>
-        <div className="leaf leaf-3">🌱</div>
-        <div className="leaf leaf-4">🌿</div>
-        <div className="leaf leaf-5">🍂</div>
-        <div className="leaf leaf-6">🍃</div>
-      </div>
-
-      <div className="floating-circle circle-1"></div>
-      <div className="floating-circle circle-2"></div>
-      <div className="floating-circle circle-3"></div>
-
-      <div className="event-content">
-        <div className="header-section">
-          <div className="header-icon">
-            <span className="header-emoji">📅</span>
-          </div>
-          <h1>Preschool Event Management</h1>
-          <p className="header-subtitle">Create and manage all preschool events in one place</p>
-          <div className="last-updated">
-            Last updated: {lastUpdated.toLocaleTimeString()}
-          </div>
+      <div className="event-page-container">
+        <div className="nature-bg">
+          <div className="leaf leaf-1">🌿</div>
+          <div className="leaf leaf-2">🍃</div>
+          <div className="leaf leaf-3">🌱</div>
+          <div className="leaf leaf-4">🌿</div>
+          <div className="leaf leaf-5">🍂</div>
+          <div className="leaf leaf-6">🍃</div>
         </div>
 
-        {/* Create Event Button */}
-        <div className="action-section">
-          <button 
-            className="create-event-btn"
-            onClick={() => setShowForm(!showForm)}
-          >
-            <span className="btn-icon">{showForm ? '✕' : '+'}</span>
-            {showForm ? 'Close Form' : 'Create New Event'}
-          </button>
-        </div>
+        <div className="floating-circle circle-1"></div>
+        <div className="floating-circle circle-2"></div>
+        <div className="floating-circle circle-3"></div>
 
-        {/* Event Creation Form */}
-        {showForm && (
-          <div className="form-card">
-            <h2>Create New Event</h2>
-            {error && <div className="error-message">{error}</div>}
-            {success && <div className="success-message">{success}</div>}
-            
-            <form onSubmit={handleSubmit} className="event-form">
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Event Name *</label>
-                  <input
-                    type="text"
-                    name="eventName"
-                    value={formData.eventName}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="Enter event name"
-                    className={formErrors.eventName ? 'error' : ''}
-                  />
-                </div>
+        <div className="event-content">
+          <div className="header-section">
+            <div className="header-icon">
+              <span className="header-emoji">📅</span>
+            </div>
+            <h1>Preschool Event Management</h1>
+            <p className="header-subtitle">Create and manage all preschool events in one place</p>
+            <div className="last-updated">
+              Last updated: {lastUpdated.toLocaleTimeString()}
+            </div>
+          </div>
 
-                <div className="form-group">
-                  <label>Event Type *</label>
-                  <select name="eventType" value={formData.eventType} onChange={handleInputChange} required>
-                    <option value="Cultural">Cultural</option>
-                    <option value="Sports">Sports</option>
-                    <option value="Educational">Educational</option>
-                    <option value="Parent-Teacher">Parent-Teacher</option>
-                    <option value="Holiday">Holiday</option>
-                    <option value="Workshop">Workshop</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-              </div>
+          {/* Create Event Button */}
+          <div className="action-section">
+            <button 
+              className="create-event-btn"
+              onClick={() => setShowForm(!showForm)}
+            >
+              <span className="btn-icon">{showForm ? '✕' : '+'}</span>
+              {showForm ? 'Close Form' : 'Create New Event'}
+            </button>
+          </div>
 
-              <div className="form-group">
-                <label>Description</label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  rows="3"
-                  placeholder="Enter event description"
-                ></textarea>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Event Date *</label>
-                  <input
-                    type="date"
-                    name="eventDate"
-                    value={formData.eventDate}
-                    onChange={handleInputChange}
-                    required
-                    className={formErrors.eventDate ? 'error' : ''}
-                  />
-                  {formErrors.eventDate && (
-                    <small className="error-text">{formErrors.eventDate}</small>
-                  )}
-                </div>
-
-                <div className="form-group">
-                  <label>Start Time *</label>
-                  <input
-                    type="time"
-                    name="eventTime"
-                    value={formData.eventTime}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>End Time</label>
-                  <input
-                    type="time"
-                    name="endTime"
-                    value={formData.endTime}
-                    onChange={handleInputChange}
-                    className={formErrors.endTime ? 'error' : ''}
-                  />
-                  {formErrors.endTime && (
-                    <small className="error-text">{formErrors.endTime}</small>
-                  )}
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Venue *</label>
-                  <input
-                    type="text"
-                    name="venue"
-                    value={formData.venue}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="Enter venue"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Organizer *</label>
-                  <input
-                    type="text"
-                    name="organizer"
-                    value={formData.organizer}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="Enter organizer name"
-                  />
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Contact Person</label>
-                  <input
-                    type="text"
-                    name="contactPerson"
-                    value={formData.contactPerson}
-                    onChange={handleInputChange}
-                    placeholder="Contact person name"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Contact Phone</label>
-                  <input
-                    type="tel"
-                    name="contactPhone"
-                    value={formData.contactPhone}
-                    onChange={handleInputChange}
-                    placeholder="0771234567"
-                    className={formErrors.contactPhone ? 'error' : ''}
-                  />
-                  {formErrors.contactPhone && (
-                    <small className="error-text">{formErrors.contactPhone}</small>
-                  )}
-                </div>
-
-                <div className="form-group">
-                  <label>Contact Email</label>
-                  <input
-                    type="email"
-                    name="contactEmail"
-                    value={formData.contactEmail}
-                    onChange={handleInputChange}
-                    placeholder="contact@example.com"
-                    className={formErrors.contactEmail ? 'error' : ''}
-                  />
-                  {formErrors.contactEmail && (
-                    <small className="error-text">{formErrors.contactEmail}</small>
-                  )}
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Target Audience</label>
-                  <select name="targetAudience" value={formData.targetAudience} onChange={handleInputChange}>
-                    <option value="All">All</option>
-                    <option value="Students Only">Students Only</option>
-                    <option value="Parents Only">Parents Only</option>
-                    <option value="Teachers Only">Teachers Only</option>
-                    <option value="Students & Parents">Students & Parents</option>
-                    <option value="Staff Only">Staff Only</option>
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label>Max Attendees</label>
-                  <input
-                    type="number"
-                    name="maxAttendees"
-                    value={formData.maxAttendees}
-                    onChange={handleInputChange}
-                    min="1"
-                    placeholder="Unlimited if empty"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Status</label>
-                  <select name="status" value={formData.status} onChange={handleInputChange}>
-                    <option value="Upcoming">Upcoming</option>
-                    <option value="Ongoing">Ongoing</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Cancelled">Cancelled</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group checkbox-group">
-                  <label className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      name="registrationRequired"
-                      checked={formData.registrationRequired}
-                      onChange={handleInputChange}
-                    />
-                    Registration Required
-                  </label>
-                </div>
-
-                {formData.registrationRequired && (
+          {/* Event Creation Form */}
+          {showForm && (
+            <div className="form-card">
+              <h2>Create New Event</h2>
+              {error && <div className="error-message">{error}</div>}
+              {success && <div className="success-message">{success}</div>}
+              
+              <form onSubmit={handleSubmit} className="event-form">
+                <div className="form-row">
                   <div className="form-group">
-                    <label>Registration Deadline</label>
+                    <label>Event Name *</label>
+                    <input
+                      type="text"
+                      name="eventName"
+                      value={formData.eventName}
+                      onChange={handleInputChange}
+                      required
+                      placeholder="Enter event name"
+                      className={formErrors.eventName ? 'error' : ''}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Event Type *</label>
+                    <select name="eventType" value={formData.eventType} onChange={handleInputChange} required>
+                      <option value="Cultural">Cultural</option>
+                      <option value="Sports">Sports</option>
+                      <option value="Educational">Educational</option>
+                      <option value="Parent-Teacher">Parent-Teacher</option>
+                      <option value="Holiday">Holiday</option>
+                      <option value="Workshop">Workshop</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label>Description</label>
+                  <textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    rows="3"
+                    placeholder="Enter event description"
+                  ></textarea>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Event Date *</label>
                     <input
                       type="date"
-                      name="registrationDeadline"
-                      value={formData.registrationDeadline}
+                      name="eventDate"
+                      value={formData.eventDate}
                       onChange={handleInputChange}
-                      className={formErrors.registrationDeadline ? 'error' : ''}
+                      required
+                      className={formErrors.eventDate ? 'error' : ''}
                     />
-                    {formErrors.registrationDeadline && (
-                      <small className="error-text">{formErrors.registrationDeadline}</small>
+                    {formErrors.eventDate && (
+                      <small className="error-text">{formErrors.eventDate}</small>
                     )}
                   </div>
+
+                  <div className="form-group">
+                    <label>Start Time *</label>
+                    <input
+                      type="time"
+                      name="eventTime"
+                      value={formData.eventTime}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>End Time</label>
+                    <input
+                      type="time"
+                      name="endTime"
+                      value={formData.endTime}
+                      onChange={handleInputChange}
+                      className={formErrors.endTime ? 'error' : ''}
+                    />
+                    {formErrors.endTime && (
+                      <small className="error-text">{formErrors.endTime}</small>
+                    )}
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Venue *</label>
+                    <input
+                      type="text"
+                      name="venue"
+                      value={formData.venue}
+                      onChange={handleInputChange}
+                      required
+                      placeholder="Enter venue"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Organizer *</label>
+                    <input
+                      type="text"
+                      name="organizer"
+                      value={formData.organizer}
+                      onChange={handleInputChange}
+                      required
+                      placeholder="Enter organizer name"
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Contact Person</label>
+                    <input
+                      type="text"
+                      name="contactPerson"
+                      value={formData.contactPerson}
+                      onChange={handleInputChange}
+                      placeholder="Contact person name"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Contact Phone</label>
+                    <input
+                      type="tel"
+                      name="contactPhone"
+                      value={formData.contactPhone}
+                      onChange={handleInputChange}
+                      placeholder="0771234567"
+                      className={formErrors.contactPhone ? 'error' : ''}
+                    />
+                    {formErrors.contactPhone && (
+                      <small className="error-text">{formErrors.contactPhone}</small>
+                    )}
+                  </div>
+
+                  <div className="form-group">
+                    <label>Contact Email</label>
+                    <input
+                      type="email"
+                      name="contactEmail"
+                      value={formData.contactEmail}
+                      onChange={handleInputChange}
+                      placeholder="contact@example.com"
+                      className={formErrors.contactEmail ? 'error' : ''}
+                    />
+                    {formErrors.contactEmail && (
+                      <small className="error-text">{formErrors.contactEmail}</small>
+                    )}
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Target Audience</label>
+                    <select name="targetAudience" value={formData.targetAudience} onChange={handleInputChange}>
+                      <option value="All">All</option>
+                      <option value="Students Only">Students Only</option>
+                      <option value="Parents Only">Parents Only</option>
+                      <option value="Teachers Only">Teachers Only</option>
+                      <option value="Students & Parents">Students & Parents</option>
+                      <option value="Staff Only">Staff Only</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Max Attendees</label>
+                    <input
+                      type="number"
+                      name="maxAttendees"
+                      value={formData.maxAttendees}
+                      onChange={handleInputChange}
+                      min="1"
+                      placeholder="Unlimited if empty"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Status</label>
+                    <select name="status" value={formData.status} onChange={handleInputChange}>
+                      <option value="Upcoming">Upcoming</option>
+                      <option value="Ongoing">Ongoing</option>
+                      <option value="Completed">Completed</option>
+                      <option value="Cancelled">Cancelled</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group checkbox-group">
+                    <label className="checkbox-label">
+                      <input
+                        type="checkbox"
+                        name="registrationRequired"
+                        checked={formData.registrationRequired}
+                        onChange={handleInputChange}
+                      />
+                      Registration Required
+                    </label>
+                  </div>
+
+                  {formData.registrationRequired && (
+                    <div className="form-group">
+                      <label>Registration Deadline</label>
+                      <input
+                        type="date"
+                        name="registrationDeadline"
+                        value={formData.registrationDeadline}
+                        onChange={handleInputChange}
+                        className={formErrors.registrationDeadline ? 'error' : ''}
+                      />
+                      {formErrors.registrationDeadline && (
+                        <small className="error-text">{formErrors.registrationDeadline}</small>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className="form-actions">
+                  <button type="submit" className="submit-btn" disabled={formLoading}>
+                    {formLoading ? 'Creating...' : 'Create Event'}
+                  </button>
+                  <button type="button" className="cancel-btn" onClick={() => setShowForm(false)}>
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {/* Tabs for different event views */}
+          <div className="tabs-section">
+            <div className="tabs">
+              <button
+                className={`tab ${activeTab === 'upcoming' ? 'active' : ''}`}
+                onClick={() => setActiveTab('upcoming')}
+              >
+                Upcoming Events
+                {stats.upcoming > 0 && (
+                  <span className="tab-count">{stats.upcoming}</span>
+                )}
+              </button>
+              <button
+                className={`tab ${activeTab === 'today' ? 'active' : ''}`}
+                onClick={() => setActiveTab('today')}
+              >
+                Today's Events
+                {stats.today > 0 && (
+                  <span className="tab-count highlight">
+                    {stats.today}
+                    {stats.ongoing > 0 && ` (${stats.ongoing} ongoing)`}
+                  </span>
+                )}
+              </button>
+              <button
+                className={`tab ${activeTab === 'past' ? 'active' : ''}`}
+                onClick={() => setActiveTab('past')}
+              >
+                Past Events
+                {stats.past > 0 && (
+                  <span className="tab-count">{stats.past}</span>
+                )}
+              </button>
+            </div>
+
+            {/* Event Tables */}
+            <div className="table-wrapper">
+              {loading ? (
+                <div className="loading-spinner">Loading events...</div>
+              ) : (
+                <>
+                  {activeTab === 'upcoming' && (
+                    <EventTable events={events.upcoming} type="upcoming" />
+                  )}
+                  {activeTab === 'today' && (
+                    <EventTable events={events.today} type="today's" />
+                  )}
+                  {activeTab === 'past' && (
+                    <EventTable events={events.past} type="past" />
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Summary Cards */}
+          <div className="summary-section">
+            <div className="summary-card">
+              <div className="summary-icon">📅</div>
+              <div className="summary-content">
+                <h3>Total Events</h3>
+                <p className="summary-number">{stats.total}</p>
+              </div>
+            </div>
+            <div className="summary-card">
+              <div className="summary-icon">⏳</div>
+              <div className="summary-content">
+                <h3>Upcoming</h3>
+                <p className="summary-number">{stats.upcoming}</p>
+              </div>
+            </div>
+            <div className="summary-card highlight">
+              <div className="summary-icon">🔴</div>
+              <div className="summary-content">
+                <h3>Today</h3>
+                <p className="summary-number">{stats.today}</p>
+                {stats.ongoing > 0 && (
+                  <small className="ongoing-badge">{stats.ongoing} ongoing</small>
                 )}
               </div>
-
-              <div className="form-actions">
-                <button type="submit" className="submit-btn" disabled={formLoading}>
-                  {formLoading ? 'Creating...' : 'Create Event'}
-                </button>
-                <button type="button" className="cancel-btn" onClick={() => setShowForm(false)}>
-                  Cancel
-                </button>
+            </div>
+            <div className="summary-card">
+              <div className="summary-icon">✅</div>
+              <div className="summary-content">
+                <h3>Completed</h3>
+                <p className="summary-number">{stats.past}</p>
               </div>
-            </form>
-          </div>
-        )}
-
-        {/* Tabs for different event views */}
-        <div className="tabs-section">
-          <div className="tabs">
-            <button
-              className={`tab ${activeTab === 'upcoming' ? 'active' : ''}`}
-              onClick={() => setActiveTab('upcoming')}
-            >
-              Upcoming Events
-              {stats.upcoming > 0 && (
-                <span className="tab-count">{stats.upcoming}</span>
-              )}
-            </button>
-            <button
-              className={`tab ${activeTab === 'today' ? 'active' : ''}`}
-              onClick={() => setActiveTab('today')}
-            >
-              Today's Events
-              {stats.today > 0 && (
-                <span className="tab-count highlight">
-                  {stats.today}
-                  {stats.ongoing > 0 && ` (${stats.ongoing} ongoing)`}
-                </span>
-              )}
-            </button>
-            <button
-              className={`tab ${activeTab === 'past' ? 'active' : ''}`}
-              onClick={() => setActiveTab('past')}
-            >
-              Past Events
-              {stats.past > 0 && (
-                <span className="tab-count">{stats.past}</span>
-              )}
-            </button>
-          </div>
-
-          {/* Event Tables */}
-          <div className="table-wrapper">
-            {loading ? (
-              <div className="loading-spinner">Loading events...</div>
-            ) : (
-              <>
-                {activeTab === 'upcoming' && (
-                  <EventTable events={events.upcoming} type="upcoming" />
-                )}
-                {activeTab === 'today' && (
-                  <EventTable events={events.today} type="today's" />
-                )}
-                {activeTab === 'past' && (
-                  <EventTable events={events.past} type="past" />
-                )}
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Summary Cards */}
-        <div className="summary-section">
-          <div className="summary-card">
-            <div className="summary-icon">📅</div>
-            <div className="summary-content">
-              <h3>Total Events</h3>
-              <p className="summary-number">{stats.total}</p>
             </div>
           </div>
-          <div className="summary-card">
-            <div className="summary-icon">⏳</div>
-            <div className="summary-content">
-              <h3>Upcoming</h3>
-              <p className="summary-number">{stats.upcoming}</p>
-            </div>
-          </div>
-          <div className="summary-card highlight">
-            <div className="summary-icon">🔴</div>
-            <div className="summary-content">
-              <h3>Today</h3>
-              <p className="summary-number">{stats.today}</p>
-              {stats.ongoing > 0 && (
-                <small className="ongoing-badge">{stats.ongoing} ongoing</small>
-              )}
-            </div>
-          </div>
-          <div className="summary-card">
-            <div className="summary-icon">✅</div>
-            <div className="summary-content">
-              <h3>Completed</h3>
-              <p className="summary-number">{stats.past}</p>
-            </div>
-          </div>
-        </div>
 
-        {/* Auto-refresh indicator */}
-        <div className="auto-refresh-indicator">
-          <span className="refresh-dot"></span>
-          Auto-updates every 5 minutes
+          {/* Auto-refresh indicator */}
+          <div className="auto-refresh-indicator">
+            <span className="refresh-dot"></span>
+            Auto-updates every 5 minutes
+          </div>
         </div>
       </div>
     </div>
-    </>
   );
 };
 

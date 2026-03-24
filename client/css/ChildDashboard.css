@@ -789,3 +789,44 @@
     color: #333;
   }
 }
+
+/* Add this at the beginning of your ChildDashboard.css file */
+
+/* Wrapper to handle navbar spacing */
+.child-dashboard-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.child-dashboard-wrapper .dashboard-container {
+  flex: 1;
+  margin-top: 80px; /* Adjust this value based on your navbar height */
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* If your navbar has a different height, adjust accordingly */
+/* For example, if navbar height is 70px, use margin-top: 70px */
+
+/* Rest of your existing CSS below */
+.dashboard-container {
+  position: relative;
+  min-height: calc(100vh - 80px);
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  overflow-x: hidden;
+  padding: 20px;
+}
+
+/* Keep all your existing styles below this line */
+.nature-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ... rest of your existing CSS ... */

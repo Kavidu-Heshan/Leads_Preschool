@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../css/AdminAddChild.css";
 // CHANGE 1: Import the correct NavigationBar component
-import NavigationBar from "../components/AdminNavbar"; 
+import AdminNavbar from "../components/AdminNavbar"; 
 
 const AdminAddChild = () => {
   const [childId, setChildId] = useState("");
@@ -100,13 +100,8 @@ const AdminAddChild = () => {
   };
 
   return (
-    <>
-      {/* CHANGE 2: Render the NavigationBar component */}
-      <NavigationBar />
-      
-      {/* CHANGE 3: Added inline style padding to push the content down 
-        so it doesn't get hidden behind the fixed NavigationBar 
-      */}
+    <div className="admin-add-child-wrapper">
+      <AdminNavbar />
       <div className="admin-dashboard" style={{ paddingTop: '80px' }}>
         <div className="nature-bg">
           <div className="leaf leaf-1">🌿</div>
@@ -261,7 +256,7 @@ const AdminAddChild = () => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

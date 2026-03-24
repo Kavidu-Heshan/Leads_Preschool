@@ -550,3 +550,37 @@
     flex-direction: column;
   }
 }
+/* Add this at the beginning of your EventCreationPage.css file */
+
+/* Wrapper to handle navbar spacing */
+.event-creation-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.event-creation-wrapper .event-page-container {
+  flex: 1;
+  margin-top: 80px; /* Adjust this value based on your navbar height */
+  position: relative;
+  min-height: calc(100vh - 80px);
+  padding: 20px;
+}
+
+/* Alternative if navbar is fixed */
+/*
+.event-creation-wrapper .event-page-container {
+  padding-top: 100px;
+}
+*/
+
+/* Keep all your existing CSS below this line */
+.event-page-container {
+  position: relative;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8f0f5 100%);
+  overflow-x: hidden;
+  padding: 20px;
+}
+
+/* Rest of your existing styles... */

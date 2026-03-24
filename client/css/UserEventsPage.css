@@ -725,3 +725,37 @@
     border: 1px solid #ddd;
   }
 }
+/* Add this at the beginning of your UserEventsPage.css file */
+
+/* Wrapper to handle navbar spacing */
+.user-events-page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.user-events-page-wrapper .user-events-container {
+  flex: 1;
+  margin-top: 80px; /* Adjust this value based on your navbar height */
+  position: relative;
+  min-height: calc(100vh - 80px);
+  padding: 20px;
+}
+
+/* If your navbar uses position: fixed, use this alternative */
+/* 
+.user-events-page-wrapper .user-events-container {
+  padding-top: 100px;
+}
+*/
+
+/* Keep all your existing CSS below this line */
+.user-events-container {
+  position: relative;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  overflow-x: hidden;
+  padding: 20px;
+}
+
+/* Rest of your existing styles... */

@@ -1185,3 +1185,40 @@ select {
   box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
   border: 4px solid white;
 }
+/* Add this at the beginning of your StudentProfile.css file */
+
+/* Wrapper to handle navbar spacing */
+.student-profile-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.student-profile-wrapper .profile-container {
+  flex: 1;
+  margin-top: 80px; /* Adjust this value based on your navbar height */
+  position: relative;
+  min-height: calc(100vh - 80px);
+  padding: 20px;
+}
+
+/* If your navbar uses position: fixed, use this alternative */
+/* 
+.student-profile-wrapper .profile-container {
+  padding-top: 100px;
+}
+*/
+
+/* Keep all your existing CSS below this line */
+.profile-container {
+  position: relative;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  overflow-x: hidden;
+}
+
+/* Rest of your existing styles... */

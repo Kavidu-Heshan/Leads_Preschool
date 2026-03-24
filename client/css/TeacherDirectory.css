@@ -897,3 +897,37 @@
   background: #15803d;
 }
 
+/* Add this at the beginning of your TeacherDirectory.css file */
+
+/* Wrapper to handle navbar spacing */
+.teacher-directory-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.teacher-directory-wrapper .teacher-directory {
+  flex: 1;
+  margin-top: 80px; /* Adjust this value based on your navbar height */
+  position: relative;
+  min-height: calc(100vh - 80px);
+  padding: 20px;
+}
+
+/* If your navbar uses position: fixed, use this alternative */
+/* 
+.teacher-directory-wrapper .teacher-directory {
+  padding-top: 100px;
+}
+*/
+
+/* Keep all your existing CSS below this line */
+.teacher-directory {
+  position: relative;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  overflow-x: hidden;
+  padding: 20px;
+}
+
+/* Rest of your existing styles... */

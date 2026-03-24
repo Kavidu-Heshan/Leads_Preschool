@@ -212,299 +212,294 @@ const EventPhotoUpload = () => {
   };
 
   return (
-    <>
-      {/* CHANGE 2: Render the NavigationBar component */}
+    <div className="event-photo-wrapper">
       <NavigationBar />
-      
-      {/* CHANGE 3: Added inline style padding to push the content down 
-        so it doesn't get hidden behind the fixed NavigationBar 
-      */}
-    <div className="event-photo-container">
-      <div className="nature-bg">
-        <div className="leaf leaf-1">🌿</div>
-        <div className="leaf leaf-2">🍃</div>
-        <div className="leaf leaf-3">🌱</div>
-        <div className="leaf leaf-4">🌿</div>
-        <div className="leaf leaf-5">🍂</div>
-        <div className="leaf leaf-6">🍃</div>
-      </div>
-
-      <div className="floating-circle circle-1"></div>
-      <div className="floating-circle circle-2"></div>
-      <div className="floating-circle circle-3"></div>
-
-      <div className="photo-content">
-        <div className="header-section">
-          <div className="header-icon">
-            <span className="header-emoji">📸</span>
-          </div>
-          <h1>Event Photo Gallery</h1>
-          <p className="header-subtitle">Upload and manage photos from school events</p>
+      <div className="event-photo-container">
+        <div className="nature-bg">
+          <div className="leaf leaf-1">🌿</div>
+          <div className="leaf leaf-2">🍃</div>
+          <div className="leaf leaf-3">🌱</div>
+          <div className="leaf leaf-4">🌿</div>
+          <div className="leaf leaf-5">🍂</div>
+          <div className="leaf leaf-6">🍃</div>
         </div>
 
-        {/* Tabs */}
-        <div className="tabs-section">
-          <button
-            className={`tab ${activeTab === 'upload' ? 'active' : ''}`}
-            onClick={() => setActiveTab('upload')}
-          >
-            <span>📤</span> Upload Photos
-          </button>
-          <button
-            className={`tab ${activeTab === 'gallery' ? 'active' : ''}`}
-            onClick={() => setActiveTab('gallery')}
-          >
-            <span>🖼️</span> Photo Gallery
-          </button>
-        </div>
+        <div className="floating-circle circle-1"></div>
+        <div className="floating-circle circle-2"></div>
+        <div className="floating-circle circle-3"></div>
 
-        {error && (
-          <div className="error-message">
-            <span className="error-icon">⚠️</span> {error}
+        <div className="photo-content">
+          <div className="header-section">
+            <div className="header-icon">
+              <span className="header-emoji">📸</span>
+            </div>
+            <h1>Event Photo Gallery</h1>
+            <p className="header-subtitle">Upload and manage photos from school events</p>
           </div>
-        )}
 
-        {success && (
-          <div className="success-message">
-            <span className="success-icon">✓</span> {success}
+          {/* Tabs */}
+          <div className="tabs-section">
+            <button
+              className={`tab ${activeTab === 'upload' ? 'active' : ''}`}
+              onClick={() => setActiveTab('upload')}
+            >
+              <span>📤</span> Upload Photos
+            </button>
+            <button
+              className={`tab ${activeTab === 'gallery' ? 'active' : ''}`}
+              onClick={() => setActiveTab('gallery')}
+            >
+              <span>🖼️</span> Photo Gallery
+            </button>
           </div>
-        )}
 
-        {/* Upload Tab */}
-        {activeTab === 'upload' && (
-          <div className="upload-section">
-            <div className="form-card">
-              <h2>Upload Event Photos</h2>
-              
-              <form onSubmit={handleUpload} className="upload-form">
-                <div className="form-group">
-                  <label>Select Event *</label>
-                  <select
-                    value={selectedEventId}
-                    onChange={handleEventSelect}
-                    required
-                    className="event-select"
-                  >
-                    <option value="">-- Choose an event --</option>
-                    {events.map(event => (
-                      <option key={event.eventId} value={event.eventId}>
-                        {event.eventName} (ID: {event.eventId}) - {new Date(event.eventDate).toLocaleDateString()}
-                      </option>
-                    ))}
-                  </select>
-                  {selectedEventId && (
-                    <small className="selected-event-info">
-                      Selected Event ID: {selectedEventId} | Name: {selectedEventName}
-                    </small>
-                  )}
-                </div>
+          {error && (
+            <div className="error-message">
+              <span className="error-icon">⚠️</span> {error}
+            </div>
+          )}
 
-                <div className="form-group">
-                  <label>Photo Caption (Optional)</label>
-                  <input
-                    type="text"
-                    name="photoCaption"
-                    value={formData.photoCaption}
-                    onChange={handleInputChange}
-                    placeholder="e.g., Annual Day Celebration"
-                    className="caption-input"
-                  />
-                </div>
+          {success && (
+            <div className="success-message">
+              <span className="success-icon">✓</span> {success}
+            </div>
+          )}
 
-                <div className="form-group">
-                  <label>Tags (Optional, comma separated)</label>
-                  <input
-                    type="text"
-                    name="tags"
-                    value={formData.tags}
-                    onChange={handleInputChange}
-                    placeholder="e.g., performance, award, cultural"
-                    className="tags-input"
-                  />
-                </div>
+          {/* Upload Tab */}
+          {activeTab === 'upload' && (
+            <div className="upload-section">
+              <div className="form-card">
+                <h2>Upload Event Photos</h2>
+                
+                <form onSubmit={handleUpload} className="upload-form">
+                  <div className="form-group">
+                    <label>Select Event *</label>
+                    <select
+                      value={selectedEventId}
+                      onChange={handleEventSelect}
+                      required
+                      className="event-select"
+                    >
+                      <option value="">-- Choose an event --</option>
+                      {events.map(event => (
+                        <option key={event.eventId} value={event.eventId}>
+                          {event.eventName} (ID: {event.eventId}) - {new Date(event.eventDate).toLocaleDateString()}
+                        </option>
+                      ))}
+                    </select>
+                    {selectedEventId && (
+                      <small className="selected-event-info">
+                        Selected Event ID: {selectedEventId} | Name: {selectedEventName}
+                      </small>
+                    )}
+                  </div>
 
-                <div className="form-group">
-                  <label>Select Photos *</label>
-                  <div className="file-upload-area">
+                  <div className="form-group">
+                    <label>Photo Caption (Optional)</label>
                     <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={handleFileChange}
-                      className="file-input"
-                      id="photo-upload"
+                      type="text"
+                      name="photoCaption"
+                      value={formData.photoCaption}
+                      onChange={handleInputChange}
+                      placeholder="e.g., Annual Day Celebration"
+                      className="caption-input"
                     />
-                    <label htmlFor="photo-upload" className="file-label">
-                      <span className="upload-icon">📷</span>
-                      <span>Click to select photos</span>
-                      <small>Supports: JPG, PNG, GIF (Max 5MB each)</small>
-                    </label>
                   </div>
-                  {photos.length > 0 && (
-                    <div className="selected-photos">
-                      <h4>Selected Photos: {photos.length}</h4>
-                      <div className="photo-preview-grid">
-                        {photos.map((photo, index) => (
-                          <div key={index} className="photo-preview-item">
-                            <img
-                              src={URL.createObjectURL(photo)}
-                              alt={`Preview ${index + 1}`}
-                              className="preview-image"
-                            />
-                            <span className="preview-name">{photo.name}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
 
-                <button
-                  type="submit"
-                  className="upload-button"
-                  disabled={uploading}
-                >
-                  {uploading ? (
-                    <>
-                      <span className="spinner-small"></span>
-                      Uploading...
-                    </>
-                  ) : (
-                    <>
-                      <span className="button-icon">📤</span>
-                      Upload Photos
-                    </>
-                  )}
-                </button>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* Gallery Tab */}
-        {activeTab === 'gallery' && (
-          <div className="gallery-section">
-            <div className="gallery-header">
-              <h2>Event Photo Gallery</h2>
-              <div className="search-box">
-                <input
-                  type="text"
-                  placeholder="🔍 Search by event, caption, or tags..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="search-input"
-                />
-              </div>
-            </div>
-
-            {loading ? (
-              <div className="loading-spinner">Loading photos...</div>
-            ) : filteredPhotos.length === 0 ? (
-              <div className="empty-state">
-                <div className="empty-icon">📸</div>
-                <h3>No Photos Found</h3>
-                <p>Upload photos to create a beautiful gallery</p>
-              </div>
-            ) : (
-              <div className="photo-gallery-grid">
-                {filteredPhotos.map((photo) => (
-                  <div key={photo.photoId} className="gallery-item">
-                    <div className="photo-card">
-                      <div className="photo-image-container">
-                        <img
-                          src={photo.photoUrl}
-                          alt={photo.photoCaption || photo.eventName}
-                          className="gallery-image"
-                          onClick={() => setSelectedPhoto(photo)}
-                        />
-                        {photo.isFeatured && (
-                          <div className="featured-badge">
-                            <span>⭐ Featured</span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="photo-info">
-                        <h4>
-                          {photo.eventName}
-                          <span className="event-id-badge">ID: {photo.eventId}</span>
-                        </h4>
-                        {photo.photoCaption && (
-                          <p className="photo-caption">{photo.photoCaption}</p>
-                        )}
-                        {photo.tags && photo.tags.length > 0 && (
-                          <div className="photo-tags">
-                            {photo.tags.map((tag, idx) => (
-                              <span key={idx} className="tag">#{tag}</span>
-                            ))}
-                          </div>
-                        )}
-                        <div className="photo-meta">
-                          <span>📅 {formatDate(photo.uploadedAt)}</span>
-                          <span>👤 {photo.uploadedByName}</span>
-                        </div>
-                        <div className="photo-actions">
-                          <button
-                            className="action-btn delete"
-                            onClick={() => handleDeletePhoto(photo.photoId)}
-                            title="Delete photo"
-                          >
-                            🗑️
-                          </button>
-                          {!photo.isFeatured && (
-                            <button
-                              className="action-btn featured"
-                              onClick={() => handleSetFeatured(photo.photoId)}
-                              title="Set as featured"
-                            >
-                              ⭐
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
+                  <div className="form-group">
+                    <label>Tags (Optional, comma separated)</label>
+                    <input
+                      type="text"
+                      name="tags"
+                      value={formData.tags}
+                      onChange={handleInputChange}
+                      placeholder="e.g., performance, award, cultural"
+                      className="tags-input"
+                    />
                   </div>
-                ))}
-              </div>
-            )}
 
-            {/* Lightbox Modal */}
-            {selectedPhoto && (
-              <div className="lightbox-overlay" onClick={() => setSelectedPhoto(null)}>
-                <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
-                  <button className="lightbox-close" onClick={() => setSelectedPhoto(null)}>
-                    ✕
-                  </button>
-                  <img
-                    src={selectedPhoto.photoUrl}
-                    alt={selectedPhoto.photoCaption || selectedPhoto.eventName}
-                    className="lightbox-image"
-                  />
-                  <div className="lightbox-info">
-                    <h3>
-                      {selectedPhoto.eventName}
-                      <span className="event-id-badge">Event ID: {selectedPhoto.eventId}</span>
-                    </h3>
-                    <p>{selectedPhoto.photoCaption}</p>
-                    <div className="lightbox-meta">
-                      <span>📅 {formatDate(selectedPhoto.uploadedAt)}</span>
-                      <span>👤 {selectedPhoto.uploadedByName}</span>
+                  <div className="form-group">
+                    <label>Select Photos *</label>
+                    <div className="file-upload-area">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleFileChange}
+                        className="file-input"
+                        id="photo-upload"
+                      />
+                      <label htmlFor="photo-upload" className="file-label">
+                        <span className="upload-icon">📷</span>
+                        <span>Click to select photos</span>
+                        <small>Supports: JPG, PNG, GIF (Max 5MB each)</small>
+                      </label>
                     </div>
-                    {selectedPhoto.tags && selectedPhoto.tags.length > 0 && (
-                      <div className="lightbox-tags">
-                        {selectedPhoto.tags.map((tag, idx) => (
-                          <span key={idx} className="tag">#{tag}</span>
-                        ))}
+                    {photos.length > 0 && (
+                      <div className="selected-photos">
+                        <h4>Selected Photos: {photos.length}</h4>
+                        <div className="photo-preview-grid">
+                          {photos.map((photo, index) => (
+                            <div key={index} className="photo-preview-item">
+                              <img
+                                src={URL.createObjectURL(photo)}
+                                alt={`Preview ${index + 1}`}
+                                className="preview-image"
+                              />
+                              <span className="preview-name">{photo.name}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
+
+                  <button
+                    type="submit"
+                    className="upload-button"
+                    disabled={uploading}
+                  >
+                    {uploading ? (
+                      <>
+                        <span className="spinner-small"></span>
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <span className="button-icon">📤</span>
+                        Upload Photos
+                      </>
+                    )}
+                  </button>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* Gallery Tab */}
+          {activeTab === 'gallery' && (
+            <div className="gallery-section">
+              <div className="gallery-header">
+                <h2>Event Photo Gallery</h2>
+                <div className="search-box">
+                  <input
+                    type="text"
+                    placeholder="🔍 Search by event, caption, or tags..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="search-input"
+                  />
                 </div>
               </div>
-            )}
-          </div>
-        )}
+
+              {loading ? (
+                <div className="loading-spinner">Loading photos...</div>
+              ) : filteredPhotos.length === 0 ? (
+                <div className="empty-state">
+                  <div className="empty-icon">📸</div>
+                  <h3>No Photos Found</h3>
+                  <p>Upload photos to create a beautiful gallery</p>
+                </div>
+              ) : (
+                <div className="photo-gallery-grid">
+                  {filteredPhotos.map((photo) => (
+                    <div key={photo.photoId} className="gallery-item">
+                      <div className="photo-card">
+                        <div className="photo-image-container">
+                          <img
+                            src={photo.photoUrl}
+                            alt={photo.photoCaption || photo.eventName}
+                            className="gallery-image"
+                            onClick={() => setSelectedPhoto(photo)}
+                          />
+                          {photo.isFeatured && (
+                            <div className="featured-badge">
+                              <span>⭐ Featured</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="photo-info">
+                          <h4>
+                            {photo.eventName}
+                            <span className="event-id-badge">ID: {photo.eventId}</span>
+                          </h4>
+                          {photo.photoCaption && (
+                            <p className="photo-caption">{photo.photoCaption}</p>
+                          )}
+                          {photo.tags && photo.tags.length > 0 && (
+                            <div className="photo-tags">
+                              {photo.tags.map((tag, idx) => (
+                                <span key={idx} className="tag">#{tag}</span>
+                              ))}
+                            </div>
+                          )}
+                          <div className="photo-meta">
+                            <span>📅 {formatDate(photo.uploadedAt)}</span>
+                            <span>👤 {photo.uploadedByName}</span>
+                          </div>
+                          <div className="photo-actions">
+                            <button
+                              className="action-btn delete"
+                              onClick={() => handleDeletePhoto(photo.photoId)}
+                              title="Delete photo"
+                            >
+                              🗑️
+                            </button>
+                            {!photo.isFeatured && (
+                              <button
+                                className="action-btn featured"
+                                onClick={() => handleSetFeatured(photo.photoId)}
+                                title="Set as featured"
+                              >
+                                ⭐
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Lightbox Modal */}
+              {selectedPhoto && (
+                <div className="lightbox-overlay" onClick={() => setSelectedPhoto(null)}>
+                  <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
+                    <button className="lightbox-close" onClick={() => setSelectedPhoto(null)}>
+                      ✕
+                    </button>
+                    <img
+                      src={selectedPhoto.photoUrl}
+                      alt={selectedPhoto.photoCaption || selectedPhoto.eventName}
+                      className="lightbox-image"
+                    />
+                    <div className="lightbox-info">
+                      <h3>
+                        {selectedPhoto.eventName}
+                        <span className="event-id-badge">Event ID: {selectedPhoto.eventId}</span>
+                      </h3>
+                      <p>{selectedPhoto.photoCaption}</p>
+                      <div className="lightbox-meta">
+                        <span>📅 {formatDate(selectedPhoto.uploadedAt)}</span>
+                        <span>👤 {selectedPhoto.uploadedByName}</span>
+                      </div>
+                      {selectedPhoto.tags && selectedPhoto.tags.length > 0 && (
+                        <div className="lightbox-tags">
+                          {selectedPhoto.tags.map((tag, idx) => (
+                            <span key={idx} className="tag">#{tag}</span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
-    </>
   );
 };
 

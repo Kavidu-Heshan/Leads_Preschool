@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import "../css/UserEventsPage.css";
+import UserNavbar from '../components/UserNavbar';
 
 const UserEventsPage = () => {
   const [activeTab, setActiveTab] = useState('upcoming');
@@ -230,174 +231,177 @@ const UserEventsPage = () => {
   );
 
   return (
-    <div className="user-events-container">
-      {/* Decorative elements */}
-      <div className="nature-elements">
-        <div className="leaf leaf-1">🌿</div>
-        <div className="leaf leaf-2">🍃</div>
-        <div className="leaf leaf-3">🌱</div>
-        <div className="leaf leaf-4">🌸</div>
-      </div>
-
-      <div className="floating-shapes">
-        <div className="shape shape-1"></div>
-        <div className="shape shape-2"></div>
-        <div className="shape shape-3"></div>
-      </div>
-
-      <div className="events-content">
-        {/* Header Section */}
-        <div className="events-header">
-          <div className="header-icon-wrapper">
-            <span className="header-icon">📅</span>
-          </div>
-          <h1 className="events-title">School Events Calendar</h1>
-          <p className="events-subtitle">Stay updated with all preschool activities and events</p>
-          
-          {/* Last Updated */}
-          <div className="last-updated-badge">
-            <span className="update-icon">🔄</span>
-            Last updated: {lastUpdated.toLocaleTimeString()}
-          </div>
+    <div className="user-events-page-wrapper">
+      <UserNavbar />
+      <div className="user-events-container">
+        {/* Decorative elements */}
+        <div className="nature-elements">
+          <div className="leaf leaf-1">🌿</div>
+          <div className="leaf leaf-2">🍃</div>
+          <div className="leaf leaf-3">🌱</div>
+          <div className="leaf leaf-4">🌸</div>
         </div>
 
-        {/* Summary Cards */}
-        <div className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-icon">📊</div>
-            <div className="stat-info">
-              <span className="stat-label">Total Events</span>
-              <span className="stat-value">{stats.total}</span>
+        <div className="floating-shapes">
+          <div className="shape shape-1"></div>
+          <div className="shape shape-2"></div>
+          <div className="shape shape-3"></div>
+        </div>
+
+        <div className="events-content">
+          {/* Header Section */}
+          <div className="events-header">
+            <div className="header-icon-wrapper">
+              <span className="header-icon">📅</span>
+            </div>
+            <h1 className="events-title">School Events Calendar</h1>
+            <p className="events-subtitle">Stay updated with all preschool activities and events</p>
+            
+            {/* Last Updated */}
+            <div className="last-updated-badge">
+              <span className="update-icon">🔄</span>
+              Last updated: {lastUpdated.toLocaleTimeString()}
             </div>
           </div>
-          
-          <div className="stat-card upcoming">
-            <div className="stat-icon">⏳</div>
-            <div className="stat-info">
-              <span className="stat-label">Upcoming</span>
-              <span className="stat-value">{stats.upcoming}</span>
+
+          {/* Summary Cards */}
+          <div className="stats-grid">
+            <div className="stat-card">
+              <div className="stat-icon">📊</div>
+              <div className="stat-info">
+                <span className="stat-label">Total Events</span>
+                <span className="stat-value">{stats.total}</span>
+              </div>
+            </div>
+            
+            <div className="stat-card upcoming">
+              <div className="stat-icon">⏳</div>
+              <div className="stat-info">
+                <span className="stat-label">Upcoming</span>
+                <span className="stat-value">{stats.upcoming}</span>
+              </div>
+            </div>
+            
+            <div className="stat-card today">
+              <div className="stat-icon">🔴</div>
+              <div className="stat-info">
+                <span className="stat-label">Today</span>
+                <span className="stat-value">{stats.today}</span>
+                {stats.ongoing > 0 && (
+                  <span className="ongoing-indicator">{stats.ongoing} ongoing</span>
+                )}
+              </div>
+            </div>
+            
+            <div className="stat-card completed">
+              <div className="stat-icon">✅</div>
+              <div className="stat-info">
+                <span className="stat-label">Completed</span>
+                <span className="stat-value">{stats.past}</span>
+              </div>
             </div>
           </div>
-          
-          <div className="stat-card today">
-            <div className="stat-icon">🔴</div>
-            <div className="stat-info">
-              <span className="stat-label">Today</span>
-              <span className="stat-value">{stats.today}</span>
-              {stats.ongoing > 0 && (
-                <span className="ongoing-indicator">{stats.ongoing} ongoing</span>
+
+          {/* Error Message */}
+          {error && (
+            <div className="error-container">
+              <span className="error-icon">⚠️</span>
+              <p className="error-message">{error}</p>
+              <button className="retry-button" onClick={fetchAllEvents}>
+                Try Again
+              </button>
+            </div>
+          )}
+
+          {/* Tabs Navigation */}
+          <div className="tabs-navigation">
+            <button
+              className={`tab-button ${activeTab === 'upcoming' ? 'active' : ''}`}
+              onClick={() => setActiveTab('upcoming')}
+            >
+              <span className="tab-icon">⏳</span>
+              <span className="tab-label">Upcoming</span>
+              {stats.upcoming > 0 && (
+                <span className="tab-count">{stats.upcoming}</span>
               )}
-            </div>
-          </div>
-          
-          <div className="stat-card completed">
-            <div className="stat-icon">✅</div>
-            <div className="stat-info">
-              <span className="stat-label">Completed</span>
-              <span className="stat-value">{stats.past}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Error Message */}
-        {error && (
-          <div className="error-container">
-            <span className="error-icon">⚠️</span>
-            <p className="error-message">{error}</p>
-            <button className="retry-button" onClick={fetchAllEvents}>
-              Try Again
+            </button>
+            
+            <button
+              className={`tab-button ${activeTab === 'today' ? 'active' : ''}`}
+              onClick={() => setActiveTab('today')}
+            >
+              <span className="tab-icon">🔴</span>
+              <span className="tab-label">Today</span>
+              {stats.today > 0 && (
+                <span className="tab-count highlight">
+                  {stats.today}
+                  {stats.ongoing > 0 && ` (${stats.ongoing})`}
+                </span>
+              )}
+            </button>
+            
+            <button
+              className={`tab-button ${activeTab === 'past' ? 'active' : ''}`}
+              onClick={() => setActiveTab('past')}
+            >
+              <span className="tab-icon">✅</span>
+              <span className="tab-label">Past Events</span>
+              {stats.past > 0 && (
+                <span className="tab-count">{stats.past}</span>
+              )}
             </button>
           </div>
-        )}
 
-        {/* Tabs Navigation */}
-        <div className="tabs-navigation">
-          <button
-            className={`tab-button ${activeTab === 'upcoming' ? 'active' : ''}`}
-            onClick={() => setActiveTab('upcoming')}
-          >
-            <span className="tab-icon">⏳</span>
-            <span className="tab-label">Upcoming</span>
-            {stats.upcoming > 0 && (
-              <span className="tab-count">{stats.upcoming}</span>
+          {/* Events Display */}
+          <div className="events-display-area">
+            {loading ? (
+              <div className="loading-container">
+                <div className="loading-spinner"></div>
+                <p>Loading events...</p>
+              </div>
+            ) : (
+              <>
+                {activeTab === 'upcoming' && (
+                  <div className="tab-content">
+                    <h2 className="tab-title">
+                      <span className="title-icon">⏳</span>
+                      Upcoming Events
+                    </h2>
+                    <EventsGrid events={events.upcoming} type="upcoming" />
+                  </div>
+                )}
+                
+                {activeTab === 'today' && (
+                  <div className="tab-content">
+                    <h2 className="tab-title">
+                      <span className="title-icon">🔴</span>
+                      Today's Events
+                      {stats.ongoing > 0 && (
+                        <span className="title-badge">{stats.ongoing} ongoing</span>
+                      )}
+                    </h2>
+                    <EventsGrid events={events.today} type="today's" />
+                  </div>
+                )}
+                
+                {activeTab === 'past' && (
+                  <div className="tab-content">
+                    <h2 className="tab-title">
+                      <span className="title-icon">✅</span>
+                      Past Events
+                    </h2>
+                    <EventsGrid events={events.past} type="past" />
+                  </div>
+                )}
+              </>
             )}
-          </button>
-          
-          <button
-            className={`tab-button ${activeTab === 'today' ? 'active' : ''}`}
-            onClick={() => setActiveTab('today')}
-          >
-            <span className="tab-icon">🔴</span>
-            <span className="tab-label">Today</span>
-            {stats.today > 0 && (
-              <span className="tab-count highlight">
-                {stats.today}
-                {stats.ongoing > 0 && ` (${stats.ongoing})`}
-              </span>
-            )}
-          </button>
-          
-          <button
-            className={`tab-button ${activeTab === 'past' ? 'active' : ''}`}
-            onClick={() => setActiveTab('past')}
-          >
-            <span className="tab-icon">✅</span>
-            <span className="tab-label">Past Events</span>
-            {stats.past > 0 && (
-              <span className="tab-count">{stats.past}</span>
-            )}
-          </button>
-        </div>
+          </div>
 
-        {/* Events Display */}
-        <div className="events-display-area">
-          {loading ? (
-            <div className="loading-container">
-              <div className="loading-spinner"></div>
-              <p>Loading events...</p>
-            </div>
-          ) : (
-            <>
-              {activeTab === 'upcoming' && (
-                <div className="tab-content">
-                  <h2 className="tab-title">
-                    <span className="title-icon">⏳</span>
-                    Upcoming Events
-                  </h2>
-                  <EventsGrid events={events.upcoming} type="upcoming" />
-                </div>
-              )}
-              
-              {activeTab === 'today' && (
-                <div className="tab-content">
-                  <h2 className="tab-title">
-                    <span className="title-icon">🔴</span>
-                    Today's Events
-                    {stats.ongoing > 0 && (
-                      <span className="title-badge">{stats.ongoing} ongoing</span>
-                    )}
-                  </h2>
-                  <EventsGrid events={events.today} type="today's" />
-                </div>
-              )}
-              
-              {activeTab === 'past' && (
-                <div className="tab-content">
-                  <h2 className="tab-title">
-                    <span className="title-icon">✅</span>
-                    Past Events
-                  </h2>
-                  <EventsGrid events={events.past} type="past" />
-                </div>
-              )}
-            </>
-          )}
-        </div>
-
-        {/* Auto-refresh Indicator */}
-        <div className="auto-refresh-footer">
-          <span className="refresh-indicator"></span>
-          <span className="refresh-text">Auto-updates every 5 minutes</span>
+          {/* Auto-refresh Indicator */}
+          <div className="auto-refresh-footer">
+            <span className="refresh-indicator"></span>
+            <span className="refresh-text">Auto-updates every 5 minutes</span>
+          </div>
         </div>
       </div>
     </div>

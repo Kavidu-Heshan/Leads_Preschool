@@ -871,3 +871,70 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #2e7d32;
 }
+/* Add this at the beginning of your Message.css file */
+
+/* Wrapper to handle navbar spacing */
+.message-page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.message-page-wrapper .message-container {
+  flex: 1;
+  margin-top: 80px; /* Adjust this value based on your navbar height */
+  position: relative;
+  min-height: calc(100vh - 80px);
+}
+
+/* If your navbar uses position: fixed, use this alternative */
+/* 
+.message-page-wrapper .message-container {
+  padding-top: 100px;
+}
+*/
+
+/* Keep all your existing CSS below this line */
+.message-container {
+  position: relative;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  overflow-x: hidden;
+  padding: 20px;
+}
+
+/* Rest of your existing styles... */
+/* Add this at the beginning of your Message.css file */
+
+/* Wrapper to handle navbar spacing for admin message page */
+.admin-message-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-message-wrapper .message-container {
+  flex: 1;
+  margin-top: 80px; /* Adjust this value based on your navbar height */
+  position: relative;
+  min-height: calc(100vh - 80px);
+  padding: 20px;
+}
+
+/* Alternative if navbar is fixed */
+/*
+.admin-message-wrapper .message-container {
+  padding-top: 100px;
+}
+*/
+
+/* Keep all your existing CSS below this line */
+.message-container {
+  position: relative;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  overflow-x: hidden;
+  padding: 20px;
+}
+
+/* Rest of your existing styles... */

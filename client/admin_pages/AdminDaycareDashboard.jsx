@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../css/AdminDaycareDashboard.css';
-import NavigationBar from '../components/AdminNavbar';
+import AdminNavbar from '../components/AdminNavbar';
+import '../css/AdminDaycareDashboardnavbar.css'
 
 const AdminDaycareDashboard = () => {
   const [students, setStudents] = useState([]);
@@ -143,8 +144,29 @@ const AdminDaycareDashboard = () => {
 
   if (loading) {
     return (
-      <>
-      <NavigationBar />
+      <div className="admin-daycare-wrapper">
+        <AdminNavbar />
+        <div className="admin-dashboard-container">
+          <div className="nature-bg">
+            <div className="leaf leaf-1">🌿</div>
+            <div className="leaf leaf-2">🍃</div>
+            <div className="leaf leaf-3">🌱</div>
+            <div className="leaf leaf-4">🌿</div>
+            <div className="leaf leaf-5">🍂</div>
+            <div className="leaf leaf-6">🍃</div>
+          </div>
+          <div className="loading-container">
+            <div className="loading-spinner"></div>
+            <div className="loading-text">Loading daycare data...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="admin-daycare-wrapper">
+      <AdminNavbar />
       <div className="admin-dashboard-container">
         <div className="nature-bg">
           <div className="leaf leaf-1">🌿</div>
@@ -154,216 +176,195 @@ const AdminDaycareDashboard = () => {
           <div className="leaf leaf-5">🍂</div>
           <div className="leaf leaf-6">🍃</div>
         </div>
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <div className="loading-text">Loading daycare data...</div>
-        </div>
-      </div>
-      </>
-    );
-  }
 
-  return (
-    <>
-    <NavigationBar />
-    <div className="admin-dashboard-container">
-      <div className="nature-bg">
-        <div className="leaf leaf-1">🌿</div>
-        <div className="leaf leaf-2">🍃</div>
-        <div className="leaf leaf-3">🌱</div>
-        <div className="leaf leaf-4">🌿</div>
-        <div className="leaf leaf-5">🍂</div>
-        <div className="leaf leaf-6">🍃</div>
-      </div>
+        <div className="floating-circle circle-1"></div>
+        <div className="floating-circle circle-2"></div>
+        <div className="floating-circle circle-3"></div>
 
-      <div className="floating-circle circle-1"></div>
-      <div className="floating-circle circle-2"></div>
-      <div className="floating-circle circle-3"></div>
-
-      <div className="dashboard-content">
-        {/* Header & Stats Section */}
-        <div className="dashboard-header">
-          <div className="header-title">
-            <div className="header-icon">👑</div>
-            <div>
-              <h1>Admin Daycare Overview</h1>
-              <p className="header-subtitle">Manage and view all registered daycare students</p>
-            </div>
-          </div>
-          
-          <div className="stats-container">
-            <div className="stat-card">
-              <h3 className="stat-number">{students.length}</h3>
-              <span className="stat-label">Total Eligible</span>
-            </div>
-            <div className={`stat-card ${presentToday.length >= 5 ? 'full' : ''}`}>
-              <h3 className="stat-number">{presentToday.length} / 5</h3>
-              <span className="stat-label">Present Today</span>
-            </div>
-          </div>
-        </div>
-
-        {error && (
-          <div className="error-message">
-            <span className="error-icon">⚠️</span> 
-            <span>{error}</span>
-            <button 
-              className="retry-btn"
-              onClick={fetchAdminData}
-              style={{ 
-                marginLeft: 'auto', 
-                background: 'none', 
-                border: 'none', 
-                cursor: 'pointer',
-                fontSize: '18px',
-                padding: '5px 10px',
-                borderRadius: '8px'
-              }}
-            >
-              🔄 Retry
-            </button>
-          </div>
-        )}
-
-        {/* Search Bar */}
-        <div className="search-container">
-          <input 
-            type="text" 
-            placeholder="🔍 Search students by name or ID..." 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
-        </div>
-
-        {/* Present Students Section */}
-        {presentStudents.length > 0 && (
-          <div className="section-container">
-            <div className="section-header">
-              <div className="section-title">
-                <span className="section-icon">✅</span>
-                <h2>Present Today</h2>
-                <span className="section-count">{presentStudents.length}</span>
+        <div className="dashboard-content">
+          {/* Header & Stats Section */}
+          <div className="dashboard-header">
+            <div className="header-title">
+              <div className="header-icon">👑</div>
+              <div>
+                <h1>Admin Daycare Overview</h1>
+                <p className="header-subtitle">Manage and view all registered daycare students</p>
               </div>
             </div>
-            <div className="students-grid">
-              {presentStudents.map((student, index) => (
-                <div 
-                  key={getStudentId(student)} 
-                  className="student-card present"
-                  style={{ '--index': index }}
-                >
-                  {/* Status Badge */}
-                  <div className="status-badge present">
-                    <span className="status-dot present"></span>
-                    Present Today
-                  </div>
-
-                  {/* Profile Photo Avatar */}
-                  <div className="student-avatar">
-                    {getProfilePhoto(student) ? (
-                      <img src={getProfilePhoto(student)} alt={getStudentName(student)} style={{width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover'}} />
-                    ) : (
-                      getStudentGender(student) === 'Male' ? '👦' : '👧'
-                    )}
-                  </div>
-
-                  {/* Student Info */}
-                  <h3 className="student-name">{getStudentName(student)}</h3>
-                  <span className="student-id">ID: {getStudentId(student)}</span>
-
-                  <div className="student-details">
-                    <div className="detail-item">
-                      <span className="detail-label">Main Class</span>
-                      <strong className="detail-value">{getStudentClass(student)}</strong>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Facility</span>
-                      <strong className="detail-value">
-                        {getStudentClass(student) === 'Daycare' ? 'Primary' : 'Extended'}
-                      </strong>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Not Present Students Section */}
-        {notPresentStudents.length > 0 && (
-          <div className="section-container">
-            <div className="section-header">
-              <div className="section-title">
-                <span className="section-icon">⏳</span>
-                <h2>Not Present Today</h2>
-                <span className="section-count">{notPresentStudents.length}</span>
+            
+            <div className="stats-container">
+              <div className="stat-card">
+                <h3 className="stat-number">{students.length}</h3>
+                <span className="stat-label">Total Eligible</span>
+              </div>
+              <div className={`stat-card ${presentToday.length >= 5 ? 'full' : ''}`}>
+                <h3 className="stat-number">{presentToday.length} / 5</h3>
+                <span className="stat-label">Present Today</span>
               </div>
             </div>
-            <div className="students-grid">
-              {notPresentStudents.map((student, index) => (
-                <div 
-                  key={getStudentId(student)} 
-                  className="student-card"
-                  style={{ '--index': index }}
-                >
-                  {/* Status Badge */}
-                  <div className="status-badge">
-                    <span className="status-dot"></span>
-                    Not Present
-                  </div>
+          </div>
 
-                  {/* Profile Photo Avatar */}
-                  <div className="student-avatar">
-                    {getProfilePhoto(student) ? (
-                      <img src={getProfilePhoto(student)} alt={getStudentName(student)} style={{width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover'}} />
-                    ) : (
-                      getStudentGender(student) === 'Male' ? '👦' : '👧'
-                    )}
-                  </div>
-
-                  {/* Student Info */}
-                  <h3 className="student-name">{getStudentName(student)}</h3>
-                  <span className="student-id">ID: {getStudentId(student)}</span>
-
-                  <div className="student-details">
-                    <div className="detail-item">
-                      <span className="detail-label">Main Class</span>
-                      <strong className="detail-value">{getStudentClass(student)}</strong>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Facility</span>
-                      <strong className="detail-value">
-                        {getStudentClass(student) === 'Daycare' ? 'Primary' : 'Extended'}
-                      </strong>
-                    </div>
-                  </div>
-                </div>
-              ))}
+          {error && (
+            <div className="error-message">
+              <span className="error-icon">⚠️</span> 
+              <span>{error}</span>
+              <button 
+                className="retry-btn"
+                onClick={fetchAdminData}
+                style={{ 
+                  marginLeft: 'auto', 
+                  background: 'none', 
+                  border: 'none', 
+                  cursor: 'pointer',
+                  fontSize: '18px',
+                  padding: '5px 10px',
+                  borderRadius: '8px'
+                }}
+              >
+                🔄 Retry
+              </button>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* No Results Found */}
-        {sortedStudents.length === 0 && !loading && !error && (
-          <div className="empty-state">
-            <div className="empty-icon">🔍</div>
-            <h2>No students found</h2>
-            <p>{searchTerm ? `No students matching "${searchTerm}"` : 'No eligible students found'}</p>
+          {/* Search Bar */}
+          <div className="search-container">
+            <input 
+              type="text" 
+              placeholder="🔍 Search students by name or ID..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
           </div>
-        )}
 
-        {/* No Data State */}
-        {students.length === 0 && !loading && !error && !searchTerm && (
-          <div className="empty-state">
-            <div className="empty-icon">👧</div>
-            <h2>No daycare students found</h2>
-            <p>There are no eligible daycare students registered yet.</p>
-          </div>
-        )}
+          {/* Present Students Section */}
+          {presentStudents.length > 0 && (
+            <div className="section-container">
+              <div className="section-header">
+                <div className="section-title">
+                  <span className="section-icon">✅</span>
+                  <h2>Present Today</h2>
+                  <span className="section-count">{presentStudents.length}</span>
+                </div>
+              </div>
+              <div className="students-grid">
+                {presentStudents.map((student, index) => (
+                  <div 
+                    key={getStudentId(student)} 
+                    className="student-card present"
+                    style={{ '--index': index }}
+                  >
+                    {/* Status Badge */}
+                    <div className="status-badge present">
+                      <span className="status-dot present"></span>
+                      Present Today
+                    </div>
+
+                    {/* Profile Photo Avatar */}
+                    <div className="student-avatar">
+                      {getProfilePhoto(student) ? (
+                        <img src={getProfilePhoto(student)} alt={getStudentName(student)} style={{width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover'}} />
+                      ) : (
+                        getStudentGender(student) === 'Male' ? '👦' : '👧'
+                      )}
+                    </div>
+
+                    {/* Student Info */}
+                    <h3 className="student-name">{getStudentName(student)}</h3>
+                    <span className="student-id">ID: {getStudentId(student)}</span>
+
+                    <div className="student-details">
+                      <div className="detail-item">
+                        <span className="detail-label">Main Class</span>
+                        <strong className="detail-value">{getStudentClass(student)}</strong>
+                      </div>
+                      <div className="detail-item">
+                        <span className="detail-label">Facility</span>
+                        <strong className="detail-value">
+                          {getStudentClass(student) === 'Daycare' ? 'Primary' : 'Extended'}
+                        </strong>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Not Present Students Section */}
+          {notPresentStudents.length > 0 && (
+            <div className="section-container">
+              <div className="section-header">
+                <div className="section-title">
+                  <span className="section-icon">⏳</span>
+                  <h2>Not Present Today</h2>
+                  <span className="section-count">{notPresentStudents.length}</span>
+                </div>
+              </div>
+              <div className="students-grid">
+                {notPresentStudents.map((student, index) => (
+                  <div 
+                    key={getStudentId(student)} 
+                    className="student-card"
+                    style={{ '--index': index }}
+                  >
+                    {/* Status Badge */}
+                    <div className="status-badge">
+                      <span className="status-dot"></span>
+                      Not Present
+                    </div>
+
+                    {/* Profile Photo Avatar */}
+                    <div className="student-avatar">
+                      {getProfilePhoto(student) ? (
+                        <img src={getProfilePhoto(student)} alt={getStudentName(student)} style={{width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover'}} />
+                      ) : (
+                        getStudentGender(student) === 'Male' ? '👦' : '👧'
+                      )}
+                    </div>
+
+                    {/* Student Info */}
+                    <h3 className="student-name">{getStudentName(student)}</h3>
+                    <span className="student-id">ID: {getStudentId(student)}</span>
+
+                    <div className="student-details">
+                      <div className="detail-item">
+                        <span className="detail-label">Main Class</span>
+                        <strong className="detail-value">{getStudentClass(student)}</strong>
+                      </div>
+                      <div className="detail-item">
+                        <span className="detail-label">Facility</span>
+                        <strong className="detail-value">
+                          {getStudentClass(student) === 'Daycare' ? 'Primary' : 'Extended'}
+                        </strong>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* No Results Found */}
+          {sortedStudents.length === 0 && !loading && !error && (
+            <div className="empty-state">
+              <div className="empty-icon">🔍</div>
+              <h2>No students found</h2>
+              <p>{searchTerm ? `No students matching "${searchTerm}"` : 'No eligible students found'}</p>
+            </div>
+          )}
+
+          {/* No Data State */}
+          {students.length === 0 && !loading && !error && !searchTerm && (
+            <div className="empty-state">
+              <div className="empty-icon">👧</div>
+              <h2>No daycare students found</h2>
+              <p>There are no eligible daycare students registered yet.</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
-    </>
   );
 };
 

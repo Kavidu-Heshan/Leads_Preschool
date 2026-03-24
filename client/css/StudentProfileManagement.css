@@ -469,3 +469,40 @@
     justify-content: center;
   }
 }
+/* Add this at the beginning of your StudentProfileManagement.css file */
+
+/* Wrapper to handle navbar spacing */
+.profile-mgmt-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-mgmt-wrapper .profile-mgmt-container {
+  flex: 1;
+  margin-top: 80px; /* Adjust this value based on your navbar height */
+  position: relative;
+  min-height: calc(100vh - 80px);
+  padding: 20px;
+}
+
+/* If your navbar uses position: fixed, use this alternative */
+/* 
+.profile-mgmt-wrapper .profile-mgmt-container {
+  padding-top: 100px;
+}
+*/
+
+/* Keep all your existing CSS below this line */
+.profile-mgmt-container {
+  position: relative;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  overflow-x: hidden;
+}
+
+/* Rest of your existing styles... */

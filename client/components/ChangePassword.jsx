@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../css/ChangePassword.css";
+import UserNavbar from '../components/UserNavbar';
 
 const ChangePassword = () => {
   const navigate = useNavigate();
@@ -287,8 +288,11 @@ const ChangePassword = () => {
 
   if (loading) {
     return (
-      <div className="password-change-container">
-        <div className="loading-spinner">Loading...</div>
+      <div className="change-password-wrapper">
+        <UserNavbar />
+        <div className="password-change-container">
+          <div className="loading-spinner">Loading...</div>
+        </div>
       </div>
     );
   }
@@ -296,19 +300,22 @@ const ChangePassword = () => {
   // If already changed password, show message and redirect based on profile status
   if (hasChangedPassword) {
     return (
-      <div className="password-change-container">
-        <div className="password-card">
-          <div className="password-header">
-            <div className="header-icon">
-              <span className="lock-icon">🔒</span>
+      <div className="change-password-wrapper">
+        <UserNavbar />
+        <div className="password-change-container">
+          <div className="password-card">
+            <div className="password-header">
+              <div className="header-icon">
+                <span className="lock-icon">🔒</span>
+              </div>
+              <h1>Password Already Changed</h1>
+              <p className="header-subtitle">
+                You have already changed your password. Password can only be changed once.
+              </p>
+              <p className="redirect-message">
+                Checking your profile status...
+              </p>
             </div>
-            <h1>Password Already Changed</h1>
-            <p className="header-subtitle">
-              You have already changed your password. Password can only be changed once.
-            </p>
-            <p className="redirect-message">
-              Checking your profile status...
-            </p>
           </div>
         </div>
       </div>
@@ -316,221 +323,224 @@ const ChangePassword = () => {
   }
 
   return (
-    <div className="password-change-container">
-      <div className="nature-bg">
-        <div className="leaf leaf-1">🌿</div>
-        <div className="leaf leaf-2">🍃</div>
-        <div className="leaf leaf-3">🌱</div>
-        <div className="leaf leaf-4">🌿</div>
-        <div className="leaf leaf-5">🍂</div>
-      </div>
-
-      <div className="password-card">
-        <div className="password-header">
-          <div className="header-icon">
-            <span className="lock-icon">🔐</span>
-          </div>
-          <h1>Change Your Password</h1>
-          <p className="header-subtitle">
-            Create a new password to keep your account secure
-          </p>
-          <div className="warning-badge">
-            <span className="warning-icon">⚠️</span>
-            <span className="warning-text">You can only change your password once</span>
-          </div>
-          {childData && (
-            <div className="child-info-badge">
-              <span className="child-id-label">Child ID:</span>
-              <span className="child-id-value">{childData.childId}</span>
-            </div>
-          )}
+    <div className="change-password-wrapper">
+      <UserNavbar />
+      <div className="password-change-container">
+        <div className="nature-bg">
+          <div className="leaf leaf-1">🌿</div>
+          <div className="leaf leaf-2">🍃</div>
+          <div className="leaf leaf-3">🌱</div>
+          <div className="leaf leaf-4">🌿</div>
+          <div className="leaf leaf-5">🍂</div>
         </div>
 
-        {error && (
-          <div className="error-message">
-            <span className="error-icon">⚠️</span>
-            {error}
-          </div>
-        )}
-
-        {success && (
-          <div className="success-message">
-            <span className="success-icon">✓</span>
-            {success}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="password-form">
-          <div className="form-group">
-            <label htmlFor="currentPassword">
-              <span className="label-icon">🔑</span>
-              Current Password (Your Name)
-            </label>
-            <div className={`input-wrapper ${errors.currentPassword ? 'error' : ''}`}>
-              <input
-                type={showCurrentPassword ? "text" : "password"}
-                id="currentPassword"
-                placeholder="Enter your name (current password)"
-                value={currentPassword}
-                onChange={handleCurrentPasswordChange}
-                onBlur={handleCurrentPasswordBlur}
-                disabled={isSubmitting}
-                className={errors.currentPassword ? 'input-error' : ''}
-                autoComplete="off"
-              />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                tabIndex="-1"
-              >
-                {showCurrentPassword ? "👁️" : "👁️‍🗨️"}
-              </button>
-              {currentPassword && !errors.currentPassword && touched.currentPassword && (
-                <span className="input-valid">✓</span>
-              )}
+        <div className="password-card">
+          <div className="password-header">
+            <div className="header-icon">
+              <span className="lock-icon">🔐</span>
             </div>
-            {errors.currentPassword && <span className="error-text">{errors.currentPassword}</span>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="newPassword">
-              <span className="label-icon">🆕</span>
-              New Password
-            </label>
-            <div className={`input-wrapper ${errors.newPassword ? 'error' : ''}`}>
-              <input
-                type={showNewPassword ? "text" : "password"}
-                id="newPassword"
-                placeholder="Enter your new password"
-                value={newPassword}
-                onChange={handleNewPasswordChange}
-                onBlur={handleNewPasswordBlur}
-                disabled={isSubmitting}
-                className={errors.newPassword ? 'input-error' : ''}
-                autoComplete="off"
-              />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setShowNewPassword(!showNewPassword)}
-                tabIndex="-1"
-              >
-                {showNewPassword ? "👁️" : "👁️‍🗨️"}
-              </button>
-              {newPassword && !errors.newPassword && touched.newPassword && (
-                <span className="input-valid">✓</span>
-              )}
+            <h1>Change Your Password</h1>
+            <p className="header-subtitle">
+              Create a new password to keep your account secure
+            </p>
+            <div className="warning-badge">
+              <span className="warning-icon">⚠️</span>
+              <span className="warning-text">You can only change your password once</span>
             </div>
-            {errors.newPassword && <span className="error-text">{errors.newPassword}</span>}
-            <small className="input-hint">
-              Choose a password that's easy to remember but hard to guess
-            </small>
+            {childData && (
+              <div className="child-info-badge">
+                <span className="child-id-label">Child ID:</span>
+                <span className="child-id-value">{childData.childId}</span>
+              </div>
+            )}
           </div>
 
-          <div className="form-group">
-            <label htmlFor="confirmNewPassword">
-              <span className="label-icon">✓</span>
-              Confirm New Password
-            </label>
-            <div className={`input-wrapper ${errors.confirmNewPassword ? 'error' : ''}`}>
-              <input
-                type={showConfirmPassword ? "text" : "password"}
-                id="confirmNewPassword"
-                placeholder="Confirm your new password"
-                value={confirmNewPassword}
-                onChange={handleConfirmPasswordChange}
-                onBlur={handleConfirmPasswordBlur}
-                disabled={isSubmitting}
-                className={errors.confirmNewPassword ? 'input-error' : ''}
-                autoComplete="off"
-              />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                tabIndex="-1"
-              >
-                {showConfirmPassword ? "👁️" : "👁️‍🗨️"}
-              </button>
-              {confirmNewPassword && !errors.confirmNewPassword && touched.confirmNewPassword && (
-                <span className="input-valid">✓</span>
-              )}
+          {error && (
+            <div className="error-message">
+              <span className="error-icon">⚠️</span>
+              {error}
             </div>
-            {errors.confirmNewPassword && <span className="error-text">{errors.confirmNewPassword}</span>}
-          </div>
+          )}
 
-          <div className="password-requirements">
-            <p className="requirements-title">Password requirements:</p>
-            <ul className="requirements-list">
-              <li className={newPassword.length >= 3 ? "met" : ""}>
-                <span className="req-icon">{newPassword.length >= 3 ? "✓" : "•"}</span>
-                At least 3 characters long
-              </li>
-              <li className={newPassword !== currentPassword && currentPassword ? "met" : ""}>
-                <span className="req-icon">{newPassword !== currentPassword && currentPassword ? "✓" : "•"}</span>
-                Different from current password
-              </li>
-              <li className={newPassword === confirmNewPassword && newPassword ? "met" : ""}>
-                <span className="req-icon">{newPassword === confirmNewPassword && newPassword ? "✓" : "•"}</span>
-                Passwords match
-              </li>
-            </ul>
-          </div>
+          {success && (
+            <div className="success-message">
+              <span className="success-icon">✓</span>
+              {success}
+            </div>
+          )}
 
-          <div className="warning-message">
-            <span className="warning-icon">⚠️</span>
-            <span className="warning-text">
-              This action cannot be undone. After changing your password, you won't be able to change it again.
-            </span>
-          </div>
+          <form onSubmit={handleSubmit} className="password-form">
+            <div className="form-group">
+              <label htmlFor="currentPassword">
+                <span className="label-icon">🔑</span>
+                Current Password (Your Name)
+              </label>
+              <div className={`input-wrapper ${errors.currentPassword ? 'error' : ''}`}>
+                <input
+                  type={showCurrentPassword ? "text" : "password"}
+                  id="currentPassword"
+                  placeholder="Enter your name (current password)"
+                  value={currentPassword}
+                  onChange={handleCurrentPasswordChange}
+                  onBlur={handleCurrentPasswordBlur}
+                  disabled={isSubmitting}
+                  className={errors.currentPassword ? 'input-error' : ''}
+                  autoComplete="off"
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  tabIndex="-1"
+                >
+                  {showCurrentPassword ? "👁️" : "👁️‍🗨️"}
+                </button>
+                {currentPassword && !errors.currentPassword && touched.currentPassword && (
+                  <span className="input-valid">✓</span>
+                )}
+              </div>
+              {errors.currentPassword && <span className="error-text">{errors.currentPassword}</span>}
+            </div>
 
-          <div className="button-group">
-            <button 
-              type="submit" 
-              className={`change-button ${isSubmitting ? 'submitting' : ''}`}
-              disabled={isSubmitting || hasChangedPassword}
-            >
-              {isSubmitting ? (
-                <>
-                  <span className="spinner"></span>
-                  Changing Password...
-                </>
-              ) : (
-                <>
-                  <span className="button-icon">🔒</span>
-                  Change Password (One-time Only)
-                </>
-              )}
-            </button>
-            
-            <button 
-              type="button" 
-              className="cancel-button"
-              onClick={handleCancel}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </button>
-          </div>
+            <div className="form-group">
+              <label htmlFor="newPassword">
+                <span className="label-icon">🆕</span>
+                New Password
+              </label>
+              <div className={`input-wrapper ${errors.newPassword ? 'error' : ''}`}>
+                <input
+                  type={showNewPassword ? "text" : "password"}
+                  id="newPassword"
+                  placeholder="Enter your new password"
+                  value={newPassword}
+                  onChange={handleNewPasswordChange}
+                  onBlur={handleNewPasswordBlur}
+                  disabled={isSubmitting}
+                  className={errors.newPassword ? 'input-error' : ''}
+                  autoComplete="off"
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  tabIndex="-1"
+                >
+                  {showNewPassword ? "👁️" : "👁️‍🗨️"}
+                </button>
+                {newPassword && !errors.newPassword && touched.newPassword && (
+                  <span className="input-valid">✓</span>
+                )}
+              </div>
+              {errors.newPassword && <span className="error-text">{errors.newPassword}</span>}
+              <small className="input-hint">
+                Choose a password that's easy to remember but hard to guess
+              </small>
+            </div>
 
-          <div className="help-section">
-            <p className="help-text">
-              <span className="help-icon">💡</span>
-              After changing your password, you'll need to use your new password to login next time. You cannot change it again.
+            <div className="form-group">
+              <label htmlFor="confirmNewPassword">
+                <span className="label-icon">✓</span>
+                Confirm New Password
+              </label>
+              <div className={`input-wrapper ${errors.confirmNewPassword ? 'error' : ''}`}>
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  id="confirmNewPassword"
+                  placeholder="Confirm your new password"
+                  value={confirmNewPassword}
+                  onChange={handleConfirmPasswordChange}
+                  onBlur={handleConfirmPasswordBlur}
+                  disabled={isSubmitting}
+                  className={errors.confirmNewPassword ? 'input-error' : ''}
+                  autoComplete="off"
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  tabIndex="-1"
+                >
+                  {showConfirmPassword ? "👁️" : "👁️‍🗨️"}
+                </button>
+                {confirmNewPassword && !errors.confirmNewPassword && touched.confirmNewPassword && (
+                  <span className="input-valid">✓</span>
+                )}
+              </div>
+              {errors.confirmNewPassword && <span className="error-text">{errors.confirmNewPassword}</span>}
+            </div>
+
+            <div className="password-requirements">
+              <p className="requirements-title">Password requirements:</p>
+              <ul className="requirements-list">
+                <li className={newPassword.length >= 3 ? "met" : ""}>
+                  <span className="req-icon">{newPassword.length >= 3 ? "✓" : "•"}</span>
+                  At least 3 characters long
+                </li>
+                <li className={newPassword !== currentPassword && currentPassword ? "met" : ""}>
+                  <span className="req-icon">{newPassword !== currentPassword && currentPassword ? "✓" : "•"}</span>
+                  Different from current password
+                </li>
+                <li className={newPassword === confirmNewPassword && newPassword ? "met" : ""}>
+                  <span className="req-icon">{newPassword === confirmNewPassword && newPassword ? "✓" : "•"}</span>
+                  Passwords match
+                </li>
+              </ul>
+            </div>
+
+            <div className="warning-message">
+              <span className="warning-icon">⚠️</span>
+              <span className="warning-text">
+                This action cannot be undone. After changing your password, you won't be able to change it again.
+              </span>
+            </div>
+
+            <div className="button-group">
+              <button 
+                type="submit" 
+                className={`change-button ${isSubmitting ? 'submitting' : ''}`}
+                disabled={isSubmitting || hasChangedPassword}
+              >
+                {isSubmitting ? (
+                  <>
+                    <span className="spinner"></span>
+                    Changing Password...
+                  </>
+                ) : (
+                  <>
+                    <span className="button-icon">🔒</span>
+                    Change Password (One-time Only)
+                  </>
+                )}
+              </button>
+              
+              <button 
+                type="button" 
+                className="cancel-button"
+                onClick={handleCancel}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </button>
+            </div>
+
+            <div className="help-section">
+              <p className="help-text">
+                <span className="help-icon">💡</span>
+                After changing your password, you'll need to use your new password to login next time. You cannot change it again.
+              </p>
+            </div>
+          </form>
+
+          <div className="password-footer">
+            <div className="footer-decoration">
+              <span className="dot"></span>
+              <span className="dot"></span>
+              <span className="dot"></span>
+            </div>
+            <p className="footer-text">
+              Keep your password safe and secure 🌿
             </p>
           </div>
-        </form>
-
-        <div className="password-footer">
-          <div className="footer-decoration">
-            <span className="dot"></span>
-            <span className="dot"></span>
-            <span className="dot"></span>
-          </div>
-          <p className="footer-text">
-            Keep your password safe and secure 🌿
-          </p>
         </div>
       </div>
     </div>

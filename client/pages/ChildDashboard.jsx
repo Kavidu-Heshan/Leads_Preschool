@@ -2,6 +2,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../css/ChildDashboard.css';
+import UserNavbar from '../components/UserNavbar';
 
 const ChildDashboard = () => {
   const navigate = useNavigate();
@@ -107,86 +108,89 @@ const ChildDashboard = () => {
   ];
 
   return (
-    <div className="dashboard-container">
-      {/* Nature Background Elements */}
-      <div className="nature-bg">
-        <div className="leaf leaf-1">🌿</div>
-        <div className="leaf leaf-2">🍃</div>
-        <div className="leaf leaf-3">🌱</div>
-        <div className="leaf leaf-4">🌿</div>
-        <div className="leaf leaf-5">🍂</div>
-        <div className="leaf leaf-6">🍃</div>
-        <div className="leaf leaf-7">🌱</div>
-        <div className="leaf leaf-8">🌿</div>
-      </div>
-
-      {/* Floating Circles */}
-      <div className="floating-circle circle-1"></div>
-      <div className="floating-circle circle-2"></div>
-      <div className="floating-circle circle-3"></div>
-
-      <div className="dashboard-content">
-        {/* Welcome Section */}
-        <div className="welcome-section">
-          <div className="welcome-icon">
-            <span className="welcome-emoji">🌱</span>
-          </div>
-          <h1>Welcome to Your Dashboard!</h1>
-          <p className="welcome-subtitle">
-            Your journey of learning and growth starts here
-          </p>
+    <div className="child-dashboard-wrapper">
+      <UserNavbar />
+      <div className="dashboard-container">
+        {/* Nature Background Elements */}
+        <div className="nature-bg">
+          <div className="leaf leaf-1">🌿</div>
+          <div className="leaf leaf-2">🍃</div>
+          <div className="leaf leaf-3">🌱</div>
+          <div className="leaf leaf-4">🌿</div>
+          <div className="leaf leaf-5">🍂</div>
+          <div className="leaf leaf-6">🍃</div>
+          <div className="leaf leaf-7">🌱</div>
+          <div className="leaf leaf-8">🌿</div>
         </div>
 
-        {/* Cards Grid */}
-        <div className="cards-grid">
-          {cards.map((card, index) => (
-            <div 
-              key={card.id}
-              className="dashboard-card"
-              onClick={card.onClick}
-              onKeyPress={(e) => e.key === 'Enter' && card.onClick()}
-              role="button"
-              tabIndex={0}
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              <div className="card-glow"></div>
+        {/* Floating Circles */}
+        <div className="floating-circle circle-1"></div>
+        <div className="floating-circle circle-2"></div>
+        <div className="floating-circle circle-3"></div>
+
+        <div className="dashboard-content">
+          {/* Welcome Section */}
+          <div className="welcome-section">
+            <div className="welcome-icon">
+              <span className="welcome-emoji">🌱</span>
+            </div>
+            <h1>Welcome to Your Dashboard!</h1>
+            <p className="welcome-subtitle">
+              Your journey of learning and growth starts here
+            </p>
+          </div>
+
+          {/* Cards Grid */}
+          <div className="cards-grid">
+            {cards.map((card, index) => (
               <div 
-                className="card-icon-wrapper"
-                style={{ background: card.bgColor }}
+                key={card.id}
+                className="dashboard-card"
+                onClick={card.onClick}
+                onKeyPress={(e) => e.key === 'Enter' && card.onClick()}
+                role="button"
+                tabIndex={0}
+                style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <span className="card-icon" style={{ color: card.color }}>
-                  {card.icon}
+                <div className="card-glow"></div>
+                <div 
+                  className="card-icon-wrapper"
+                  style={{ background: card.bgColor }}
+                >
+                  <span className="card-icon" style={{ color: card.color }}>
+                    {card.icon}
+                  </span>
+                </div>
+                <h3 className="card-title">{card.title}</h3>
+                <p className="card-description">{card.description}</p>
+                <span className="card-badge">
+                  <span>{card.badgeIcon}</span> {card.badge}
                 </span>
               </div>
-              <h3 className="card-title">{card.title}</h3>
-              <p className="card-description">{card.description}</p>
-              <span className="card-badge">
-                <span>{card.badgeIcon}</span> {card.badge}
-              </span>
-            </div>
-          ))}
-        </div>
-
-        <div className="decorative-line"></div>
-
-        {/* Quote Section */}
-        <div className="quote-container">
-          <p className="quote-text">
-            "Education is the most powerful weapon which you can use to change the world."
-          </p>
-          <p className="quote-author">- Nelson Mandela</p>
-        </div>
-
-        {/* Footer */}
-        <div className="dashboard-footer">
-          <div className="footer-decoration">
-            <span className="dot"></span>
-            <span className="dot"></span>
-            <span className="dot"></span>
+            ))}
           </div>
-          <p className="footer-text">
-            <span>🌿</span> Growing together, learning forever <span>🌿</span>
-          </p>
+
+          <div className="decorative-line"></div>
+
+          {/* Quote Section */}
+          <div className="quote-container">
+            <p className="quote-text">
+              "Education is the most powerful weapon which you can use to change the world."
+            </p>
+            <p className="quote-author">- Nelson Mandela</p>
+          </div>
+
+          {/* Footer */}
+          <div className="dashboard-footer">
+            <div className="footer-decoration">
+              <span className="dot"></span>
+              <span className="dot"></span>
+              <span className="dot"></span>
+            </div>
+            <p className="footer-text">
+              <span>🌿</span> Growing together, learning forever <span>🌿</span>
+            </p>
+          </div>
         </div>
       </div>
     </div>

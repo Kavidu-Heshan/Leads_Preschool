@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../css/Message.css';
+import UserNavbar from '../components/UserNavbar';
 
 const Message = () => {
   const [messages, setMessages] = useState([]);
@@ -183,300 +184,303 @@ const Message = () => {
   });
 
   return (
-    <div className="message-container">
-      {/* Nature Background */}
-      <div className="nature-bg-message">
-        <div className="leaf leaf-1">🌿</div>
-        <div className="leaf leaf-2">🍃</div>
-        <div className="leaf leaf-3">🌱</div>
-        <div className="leaf leaf-4">🌿</div>
-        <div className="leaf leaf-5">🍂</div>
-        <div className="leaf leaf-6">🍃</div>
-        <div className="flower flower-1">🌸</div>
-        <div className="flower flower-2">🌻</div>
-      </div>
-
-      <div className="floating-circle circle-1"></div>
-      <div className="floating-circle circle-2"></div>
-      <div className="floating-circle circle-3"></div>
-
-      <div className="message-content">
-        {/* Header Section */}
-        <div className="header-section">
-          <div className="header-icon">
-            <span className="header-emoji">💬</span>
-          </div>
-          <h1>Preschool Message Center</h1>
-          <p className="header-subtitle">Share your thoughts, feedback, and suggestions with us</p>
-          <div className="info-banner">
-            <span>📢 Your voice matters! We value every message and will respond within 24 hours.</span>
-          </div>
+    <div className="message-page-wrapper">
+      <UserNavbar />
+      <div className="message-container">
+        {/* Nature Background */}
+        <div className="nature-bg-message">
+          <div className="leaf leaf-1">🌿</div>
+          <div className="leaf leaf-2">🍃</div>
+          <div className="leaf leaf-3">🌱</div>
+          <div className="leaf leaf-4">🌿</div>
+          <div className="leaf leaf-5">🍂</div>
+          <div className="leaf leaf-6">🍃</div>
+          <div className="flower flower-1">🌸</div>
+          <div className="flower flower-2">🌻</div>
         </div>
 
-        {error && (
-          <div className="error-message">
-            <span className="error-icon">⚠️</span> {error}
+        <div className="floating-circle circle-1"></div>
+        <div className="floating-circle circle-2"></div>
+        <div className="floating-circle circle-3"></div>
+
+        <div className="message-content">
+          {/* Header Section */}
+          <div className="header-section">
+            <div className="header-icon">
+              <span className="header-emoji">💬</span>
+            </div>
+            <h1>Preschool Message Center</h1>
+            <p className="header-subtitle">Share your thoughts, feedback, and suggestions with us</p>
+            <div className="info-banner">
+              <span>📢 Your voice matters! We value every message and will respond within 24 hours.</span>
+            </div>
           </div>
-        )}
 
-        {success && (
-          <div className="success-message">
-            <span className="success-icon">✓</span> {success}
-          </div>
-        )}
+          {error && (
+            <div className="error-message">
+              <span className="error-icon">⚠️</span> {error}
+            </div>
+          )}
 
-        {/* Message Form Section */}
-        <div className="form-section">
-          <div className="form-card">
-            <h2>
-              <span className="section-icon">✍️</span>
-              Send Us a Message
-            </h2>
-            
-            <form onSubmit={handleSubmit} className="message-form">
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Your Name</label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    disabled={formData.isAnonymous}
-                    placeholder="Enter your name"
-                    className={formErrors.name ? 'error' : ''}
-                  />
-                  {formErrors.name && (
-                    <small className="error-text">{formErrors.name}</small>
-                  )}
-                </div>
+          {success && (
+            <div className="success-message">
+              <span className="success-icon">✓</span> {success}
+            </div>
+          )}
 
-                <div className="form-group">
-                  <label>Email (Optional)</label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    placeholder="your@email.com"
-                    className={formErrors.email ? 'error' : ''}
-                  />
-                  {formErrors.email && (
-                    <small className="error-text">{formErrors.email}</small>
-                  )}
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Message Type</label>
-                  <select
-                    name="messageType"
-                    value={formData.messageType}
-                    onChange={handleInputChange}
-                  >
-                    <option value="general">💬 General Message</option>
-                    <option value="feedback">⭐ Feedback</option>
-                    <option value="suggestion">💡 Suggestion</option>
-                    <option value="complaint">⚠️ Complaint</option>
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label>Rating (1-5)</label>
-                  <div className="rating-input">
-                    {[1, 2, 3, 4, 5].map(star => (
-                      <button
-                        key={star}
-                        type="button"
-                        className={`star-btn ${formData.rating >= star ? 'active' : ''}`}
-                        onClick={() => setFormData({...formData, rating: star})}
-                      >
-                        ★
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label>Subject</label>
-                <input
-                  type="text"
-                  name="subject"
-                  value={formData.subject}
-                  onChange={handleInputChange}
-                  placeholder="Brief subject of your message"
-                  className={formErrors.subject ? 'error' : ''}
-                />
-                {formErrors.subject && (
-                  <small className="error-text">{formErrors.subject}</small>
-                )}
-              </div>
-
-              <div className="form-group">
-                <label>Your Message</label>
-                <textarea
-                  name="message"
-                  value={formData.message}
-                  onChange={handleInputChange}
-                  rows="5"
-                  placeholder="Please share your thoughts, feedback, or suggestions..."
-                  className={formErrors.message ? 'error' : ''}
-                ></textarea>
-                {formErrors.message && (
-                  <small className="error-text">{formErrors.message}</small>
-                )}
-              </div>
-
-              <div className="form-group checkbox-group">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    name="isAnonymous"
-                    checked={formData.isAnonymous}
-                    onChange={handleInputChange}
-                  />
-                  Submit anonymously
-                </label>
-              </div>
-
-              <button
-                type="submit"
-                className="submit-btn"
-                disabled={submitting}
-              >
-                {submitting ? (
-                  <>
-                    <span className="spinner-small"></span>
-                    Sending...
-                  </>
-                ) : (
-                  <>
-                    <span className="btn-icon">📤</span>
-                    Send Message
-                  </>
-                )}
-              </button>
-            </form>
-          </div>
-        </div>
-
-        {/* Messages Display Section - Only visible to admin */}
-        {isAdmin && (
-          <div className="messages-section">
-            <div className="messages-header">
+          {/* Message Form Section */}
+          <div className="form-section">
+            <div className="form-card">
               <h2>
-                <span className="section-icon">📬</span>
-                Messages ({messages.length})
+                <span className="section-icon">✍️</span>
+                Send Us a Message
               </h2>
               
-              <div className="filter-buttons">
-                <button
-                  className={`filter-btn ${activeFilter === 'all' ? 'active' : ''}`}
-                  onClick={() => setActiveFilter('all')}
-                >
-                  All
-                </button>
-                <button
-                  className={`filter-btn ${activeFilter === 'general' ? 'active' : ''}`}
-                  onClick={() => setActiveFilter('general')}
-                >
-                  💬 General
-                </button>
-                <button
-                  className={`filter-btn ${activeFilter === 'feedback' ? 'active' : ''}`}
-                  onClick={() => setActiveFilter('feedback')}
-                >
-                  ⭐ Feedback
-                </button>
-                <button
-                  className={`filter-btn ${activeFilter === 'suggestion' ? 'active' : ''}`}
-                  onClick={() => setActiveFilter('suggestion')}
-                >
-                  💡 Suggestion
-                </button>
-                <button
-                  className={`filter-btn ${activeFilter === 'complaint' ? 'active' : ''}`}
-                  onClick={() => setActiveFilter('complaint')}
-                >
-                  ⚠️ Complaint
-                </button>
-              </div>
-            </div>
-
-            {loading ? (
-              <div className="loading-spinner">Loading messages...</div>
-            ) : filteredMessages.length === 0 ? (
-              <div className="empty-state">
-                <div className="empty-icon">📭</div>
-                <h3>No Messages Found</h3>
-                <p>Messages will appear here once users send them</p>
-              </div>
-            ) : (
-              <div className="messages-list">
-                {filteredMessages.map((message) => (
-                  <div key={message._id} className={`message-card ${message.status}`}>
-                    <div className="message-header">
-                      <div className="message-info">
-                        <div className="message-sender">
-                          <span className="sender-icon">👤</span>
-                          <strong>{message.name}</strong>
-                          {message.isAnonymous && (
-                            <span className="anonymous-badge">Anonymous</span>
-                          )}
-                        </div>
-                        <div className="message-date">
-                          {new Date(message.createdAt).toLocaleString()}
-                        </div>
-                      </div>
-                      <div className="message-badges">
-                        <span className={`message-type ${getMessageTypeClass(message.messageType)}`}>
-                          {getMessageTypeIcon(message.messageType)} {message.messageType}
-                        </span>
-                        <span className={`status-badge ${getStatusBadgeClass(message.status)}`}>
-                          {getStatusText(message.status)}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="message-subject">
-                      <h3>{message.subject}</h3>
-                    </div>
-
-                    <div className="message-body">
-                      <p>{message.message}</p>
-                    </div>
-
-                    {message.rating && (
-                      <div className="message-rating">
-                        <span>Rating: </span>
-                        <span className="stars">{renderStars(message.rating)}</span>
-                      </div>
-                    )}
-
-                    {message.email && (
-                      <div className="message-email">
-                        <span>📧 {message.email}</span>
-                      </div>
-                    )}
-
-                    {message.reply && (
-                      <div className="message-reply">
-                        <div className="reply-header">
-                          <span className="reply-icon">💬</span>
-                          <strong>Admin Response:</strong>
-                        </div>
-                        <p>{message.reply}</p>
-                        <small>Replied on: {new Date(message.repliedAt).toLocaleString()}</small>
-                      </div>
+              <form onSubmit={handleSubmit} className="message-form">
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Your Name</label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      disabled={formData.isAnonymous}
+                      placeholder="Enter your name"
+                      className={formErrors.name ? 'error' : ''}
+                    />
+                    {formErrors.name && (
+                      <small className="error-text">{formErrors.name}</small>
                     )}
                   </div>
-                ))}
-              </div>
-            )}
+
+                  <div className="form-group">
+                    <label>Email (Optional)</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      placeholder="your@email.com"
+                      className={formErrors.email ? 'error' : ''}
+                    />
+                    {formErrors.email && (
+                      <small className="error-text">{formErrors.email}</small>
+                    )}
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Message Type</label>
+                    <select
+                      name="messageType"
+                      value={formData.messageType}
+                      onChange={handleInputChange}
+                    >
+                      <option value="general">💬 General Message</option>
+                      <option value="feedback">⭐ Feedback</option>
+                      <option value="suggestion">💡 Suggestion</option>
+                      <option value="complaint">⚠️ Complaint</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Rating (1-5)</label>
+                    <div className="rating-input">
+                      {[1, 2, 3, 4, 5].map(star => (
+                        <button
+                          key={star}
+                          type="button"
+                          className={`star-btn ${formData.rating >= star ? 'active' : ''}`}
+                          onClick={() => setFormData({...formData, rating: star})}
+                        >
+                          ★
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label>Subject</label>
+                  <input
+                    type="text"
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleInputChange}
+                    placeholder="Brief subject of your message"
+                    className={formErrors.subject ? 'error' : ''}
+                  />
+                  {formErrors.subject && (
+                    <small className="error-text">{formErrors.subject}</small>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <label>Your Message</label>
+                  <textarea
+                    name="message"
+                    value={formData.message}
+                    onChange={handleInputChange}
+                    rows="5"
+                    placeholder="Please share your thoughts, feedback, or suggestions..."
+                    className={formErrors.message ? 'error' : ''}
+                  ></textarea>
+                  {formErrors.message && (
+                    <small className="error-text">{formErrors.message}</small>
+                  )}
+                </div>
+
+                <div className="form-group checkbox-group">
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="isAnonymous"
+                      checked={formData.isAnonymous}
+                      onChange={handleInputChange}
+                    />
+                    Submit anonymously
+                  </label>
+                </div>
+
+                <button
+                  type="submit"
+                  className="submit-btn"
+                  disabled={submitting}
+                >
+                  {submitting ? (
+                    <>
+                      <span className="spinner-small"></span>
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <span className="btn-icon">📤</span>
+                      Send Message
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
           </div>
-        )}
+
+          {/* Messages Display Section - Only visible to admin */}
+          {isAdmin && (
+            <div className="messages-section">
+              <div className="messages-header">
+                <h2>
+                  <span className="section-icon">📬</span>
+                  Messages ({messages.length})
+                </h2>
+                
+                <div className="filter-buttons">
+                  <button
+                    className={`filter-btn ${activeFilter === 'all' ? 'active' : ''}`}
+                    onClick={() => setActiveFilter('all')}
+                  >
+                    All
+                  </button>
+                  <button
+                    className={`filter-btn ${activeFilter === 'general' ? 'active' : ''}`}
+                    onClick={() => setActiveFilter('general')}
+                  >
+                    💬 General
+                  </button>
+                  <button
+                    className={`filter-btn ${activeFilter === 'feedback' ? 'active' : ''}`}
+                    onClick={() => setActiveFilter('feedback')}
+                  >
+                    ⭐ Feedback
+                  </button>
+                  <button
+                    className={`filter-btn ${activeFilter === 'suggestion' ? 'active' : ''}`}
+                    onClick={() => setActiveFilter('suggestion')}
+                  >
+                    💡 Suggestion
+                  </button>
+                  <button
+                    className={`filter-btn ${activeFilter === 'complaint' ? 'active' : ''}`}
+                    onClick={() => setActiveFilter('complaint')}
+                  >
+                    ⚠️ Complaint
+                  </button>
+                </div>
+              </div>
+
+              {loading ? (
+                <div className="loading-spinner">Loading messages...</div>
+              ) : filteredMessages.length === 0 ? (
+                <div className="empty-state">
+                  <div className="empty-icon">📭</div>
+                  <h3>No Messages Found</h3>
+                  <p>Messages will appear here once users send them</p>
+                </div>
+              ) : (
+                <div className="messages-list">
+                  {filteredMessages.map((message) => (
+                    <div key={message._id} className={`message-card ${message.status}`}>
+                      <div className="message-header">
+                        <div className="message-info">
+                          <div className="message-sender">
+                            <span className="sender-icon">👤</span>
+                            <strong>{message.name}</strong>
+                            {message.isAnonymous && (
+                              <span className="anonymous-badge">Anonymous</span>
+                            )}
+                          </div>
+                          <div className="message-date">
+                            {new Date(message.createdAt).toLocaleString()}
+                          </div>
+                        </div>
+                        <div className="message-badges">
+                          <span className={`message-type ${getMessageTypeClass(message.messageType)}`}>
+                            {getMessageTypeIcon(message.messageType)} {message.messageType}
+                          </span>
+                          <span className={`status-badge ${getStatusBadgeClass(message.status)}`}>
+                            {getStatusText(message.status)}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="message-subject">
+                        <h3>{message.subject}</h3>
+                      </div>
+
+                      <div className="message-body">
+                        <p>{message.message}</p>
+                      </div>
+
+                      {message.rating && (
+                        <div className="message-rating">
+                          <span>Rating: </span>
+                          <span className="stars">{renderStars(message.rating)}</span>
+                        </div>
+                      )}
+
+                      {message.email && (
+                        <div className="message-email">
+                          <span>📧 {message.email}</span>
+                        </div>
+                      )}
+
+                      {message.reply && (
+                        <div className="message-reply">
+                          <div className="reply-header">
+                            <span className="reply-icon">💬</span>
+                            <strong>Admin Response:</strong>
+                          </div>
+                          <p>{message.reply}</p>
+                          <small>Replied on: {new Date(message.repliedAt).toLocaleString()}</small>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

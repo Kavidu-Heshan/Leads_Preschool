@@ -3,12 +3,10 @@ import '../css/HomePage.css';
 import p1 from '../src/img/src_pre/p1.avif';
 import p2 from '../src/img/src_pre/p2.avif';
 import { Link } from "react-router-dom";
-import UserNavbar from '../components/UserNavbar';
 
-const HomePage = () => {
+const HomePagelog = () => {
   return (
     <div className="home-page-wrapper">
-      <UserNavbar />
       
       {/* --- 1. HERO SECTION --- */}
       <header className="hero-section" id="home">
@@ -174,4 +172,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default HomePagelog;

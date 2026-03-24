@@ -167,6 +167,26 @@ const AdminTeacherManagement = () => {
   // eslint-disable-next-line no-unused-vars
   const adminName = localStorage.getItem('adminName') || 'Administrator';
 
+  // Calculate age from birth date
+  const calculateAge = (birthDate) => {
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
+  // Get age from date string for display
+  const getAgeFromDate = (dateString) => {
+    if (!dateString) return null;
+    const age = calculateAge(dateString);
+    return age;
+  };
+
   // Fetch teachers on component mount
   useEffect(() => {
     fetchTeachers();
@@ -272,6 +292,18 @@ const AdminTeacherManagement = () => {
     // Validate experience
     if (formData.experience && (formData.experience < 0 || formData.experience > 50)) {
       errors.experience = 'Experience must be between 0 and 50 years';
+    }
+
+    // Validate date of birth (must be 18 or older)
+    if (formData.dateOfBirth) {
+      const age = calculateAge(formData.dateOfBirth);
+      if (age < 18) {
+        errors.dateOfBirth = 'Teacher must be at least 18 years old';
+      } else if (age > 100) {
+        errors.dateOfBirth = 'Please enter a valid date of birth';
+      }
+    } else {
+      errors.dateOfBirth = 'Date of birth is required';
     }
 
     // Validate username (if new teacher)
@@ -1053,7 +1085,17 @@ const AdminTeacherManagement = () => {
                             value={formData.dateOfBirth}
                             onChange={handleInputChange}
                             required
+                            max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
                           />
+                          <small className="form-hint">Must be 18 years or older</small>
+                          {formData.dateOfBirth && (
+                            <div className="age-indicator">
+                              Age: {getAgeFromDate(formData.dateOfBirth)} years
+                              {getAgeFromDate(formData.dateOfBirth) < 18 && (
+                                <span className="error-text"> (Under 18 - Not eligible)</span>
+                              )}
+                            </div>
+                          )}
                         </div>
 
                         <div className="form-group">

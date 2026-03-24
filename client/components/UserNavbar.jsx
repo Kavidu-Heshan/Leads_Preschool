@@ -47,7 +47,7 @@ const UserNavbar = () => {
   };
 
   const navItems = [
-    // { path: '/adminhome', name: 'Dashboard', icon: '📊' },
+    { path: '/userhome', name: 'Home Page', icon: '📊' },
     // { path: '/adminaddchild', name: 'Add Child', icon: '👶' },
     { path: '/teacher', name: 'Teachers', icon: '👩‍🏫' },
     { path: '/addDaycare', name: 'Daycare', icon: '🧸' },

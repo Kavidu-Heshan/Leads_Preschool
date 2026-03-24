@@ -142,164 +142,164 @@ const ChildEnroll = () => {
   };
 
   return (
-    <div className="child-enroll-wrapper">
-      <UserNavbar />
-      <div className="enroll-container">
-        <div className="nature-bg">
-          <div className="leaf leaf-1">🌿</div>
-          <div className="leaf leaf-2">🍃</div>
-          <div className="leaf leaf-3">🌱</div>
-          <div className="leaf leaf-4">🌿</div>
-          <div className="leaf leaf-5">🍂</div>
+    <>
+    <UserNavbar/>
+    <div className="enroll-container">
+      <div className="nature-bg">
+        <div className="leaf leaf-1">🌿</div>
+        <div className="leaf leaf-2">🍃</div>
+        <div className="leaf leaf-3">🌱</div>
+        <div className="leaf leaf-4">🌿</div>
+        <div className="leaf leaf-5">🍂</div>
+      </div>
+
+      <div className="enroll-card">
+        <div className="enroll-header">
+          <div className="header-icon">
+            <span className="tree-icon">🌳</span>
+          </div>
+          <h1>Child Login</h1>
+          <p className="header-subtitle">Welcome back! Enter your Child ID and password to continue.</p>
         </div>
 
-        <div className="enroll-card">
-          <div className="enroll-header">
-            <div className="header-icon">
-              <span className="tree-icon">🌳</span>
-            </div>
-            <h1>Child Login</h1>
-            <p className="header-subtitle">Welcome back! Enter your Child ID and password to continue.</p>
+        {error && (
+          <div className="error-message">
+            <span className="error-icon">⚠️</span>
+            {error}
           </div>
+        )}
 
-          {error && (
-            <div className="error-message">
-              <span className="error-icon">⚠️</span>
-              {error}
-            </div>
-          )}
+        {success && (
+          <div className="success-message">
+            <span className="success-icon">✓</span>
+            {success}
+          </div>
+        )}
 
-          {success && (
-            <div className="success-message">
-              <span className="success-icon">✓</span>
-              {success}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="enroll-form">
-            <div className="form-group">
-              <label htmlFor="childId">
-                <span className="label-icon">🆔</span>
-                Child ID
-              </label>
-              <div className={`input-wrapper ${idError ? 'error' : ''}`}>
-                <input
-                  type="text"
-                  id="childId"
-                  placeholder="Enter your Child ID"
-                  value={childId}
-                  onChange={handleIdChange}
-                  onBlur={handleIdBlur}
-                  disabled={isSubmitting}
-                  className={idError ? 'input-error' : ''}
-                  autoComplete="off"
-                />
-                {childId && !idError && touched.childId && (
-                  <span className="input-valid">✓</span>
-                )}
-              </div>
-              {idError && <span className="error-text">{idError}</span>}
-              <small className="input-hint">
-                Use the Child ID provided by your parent/guardian
-              </small>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="childName">
-                <span className="label-icon">🔑</span>
-                Password
-              </label>
-              <div className={`input-wrapper ${nameError ? 'error' : ''}`}>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  id="childName"
-                  placeholder="Enter your password"
-                  value={childName}
-                  onChange={handleNameChange}
-                  onBlur={handleNameBlur}
-                  disabled={isSubmitting}
-                  className={nameError ? 'input-error' : ''}
-                  autoComplete="off"
-                />
-                <button
-                  type="button"
-                  className="password-toggle"
-                  onClick={() => setShowPassword(!showPassword)}
-                  tabIndex="-1"
-                >
-                  {showPassword ? "👁️" : "👁️‍🗨️"}
-                </button>
-                {childName && !nameError && touched.childName && (
-                  <span className="input-valid">✓</span>
-                )}
-              </div>
-              {nameError && <span className="error-text">{nameError}</span>}
-              <small className="input-hint">
-                Enter your password (if you changed it, use your new password)
-              </small>
-            </div>
-
-            <button 
-              type="submit" 
-              className={`enroll-button ${isSubmitting ? 'submitting' : ''}`}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <>
-                  <span className="spinner"></span>
-                  Logging in...
-                </>
-              ) : (
-                <>
-                  <span className="button-icon">🌱</span>
-                  Login
-                </>
+        <form onSubmit={handleSubmit} className="enroll-form">
+          <div className="form-group">
+            <label htmlFor="childId">
+              <span className="label-icon">🆔</span>
+              Child ID
+            </label>
+            <div className={`input-wrapper ${idError ? 'error' : ''}`}>
+              <input
+                type="text"
+                id="childId"
+                placeholder="Enter your Child ID"
+                value={childId}
+                onChange={handleIdChange}
+                onBlur={handleIdBlur}
+                disabled={isSubmitting}
+                className={idError ? 'input-error' : ''}
+                autoComplete="off"
+              />
+              {childId && !idError && touched.childId && (
+                <span className="input-valid">✓</span>
               )}
-            </button>
+            </div>
+            {idError && <span className="error-text">{idError}</span>}
+            <small className="input-hint">
+              Use the Child ID provided by your parent/guardian
+            </small>
+          </div>
 
-            <div className="help-section">
-              <p className="help-text">
-                <span className="help-icon">❓</span>
-                First time here? Use your name as the password.
-              </p>
-              <button 
-                type="button" 
-                className="forgot-link"
-                onClick={handleForgotCredentials}
+          <div className="form-group">
+            <label htmlFor="childName">
+              <span className="label-icon">🔑</span>
+              Password
+            </label>
+            <div className={`input-wrapper ${nameError ? 'error' : ''}`}>
+              <input
+                type={showPassword ? "text" : "password"}
+                id="childName"
+                placeholder="Enter your password"
+                value={childName}
+                onChange={handleNameChange}
+                onBlur={handleNameBlur}
+                disabled={isSubmitting}
+                className={nameError ? 'input-error' : ''}
+                autoComplete="off"
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setShowPassword(!showPassword)}
+                tabIndex="-1"
               >
-                Forgot your password?
+                {showPassword ? "👁️" : "👁️‍🗨️"}
               </button>
+              {childName && !nameError && touched.childName && (
+                <span className="input-valid">✓</span>
+              )}
             </div>
-          </form>
+            {nameError && <span className="error-text">{nameError}</span>}
+            <small className="input-hint">
+              Enter your password (if you changed it, use your new password)
+            </small>
+          </div>
 
-          <div className="enroll-footer">
-            <div className="footer-decoration">
-              <span className="dot"></span>
-              <span className="dot"></span>
-              <span className="dot"></span>
-            </div>
-            <p className="footer-text">
-              Secure login powered by nature's protection 🌿
+          <button 
+            type="submit" 
+            className={`enroll-button ${isSubmitting ? 'submitting' : ''}`}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <span className="spinner"></span>
+                Logging in...
+              </>
+            ) : (
+              <>
+                <span className="button-icon">🌱</span>
+                Login
+              </>
+            )}
+          </button>
+
+          <div className="help-section">
+            <p className="help-text">
+              <span className="help-icon">❓</span>
+              First time here? Use your name as the password.
             </p>
+            <button 
+              type="button" 
+              className="forgot-link"
+              onClick={handleForgotCredentials}
+            >
+              Forgot your password?
+            </button>
           </div>
-        </div>
+        </form>
 
-        <div className="fun-facts">
-          <div className="fact-card">
-            <span className="fact-icon">🌟</span>
-            <p className="fact-text">Learning is an adventure!</p>
+        <div className="enroll-footer">
+          <div className="footer-decoration">
+            <span className="dot"></span>
+            <span className="dot"></span>
+            <span className="dot"></span>
           </div>
-          <div className="fact-card">
-            <span className="fact-icon">📚</span>
-            <p className="fact-text">Every day is a new discovery</p>
-          </div>
-          <div className="fact-card">
-            <span className="fact-icon">🎨</span>
-            <p className="fact-text">Be creative, be yourself</p>
-          </div>
+          <p className="footer-text">
+            Secure login powered by nature's protection 🌿
+          </p>
+        </div>
+      </div>
+
+      <div className="fun-facts">
+        <div className="fact-card">
+          <span className="fact-icon">🌟</span>
+          <p className="fact-text">Learning is an adventure!</p>
+        </div>
+        <div className="fact-card">
+          <span className="fact-icon">📚</span>
+          <p className="fact-text">Every day is a new discovery</p>
+        </div>
+        <div className="fact-card">
+          <span className="fact-icon">🎨</span>
+          <p className="fact-text">Be creative, be yourself</p>
         </div>
       </div>
     </div>
+    </>
   );
 };
 

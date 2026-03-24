@@ -153,3 +153,46 @@ body {
 }
 
 /* Rest of your existing styles... */
+
+/* Login Type Toggle */
+.login-type-toggle {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  background: var(--light-green);
+  padding: 0.5rem;
+  border-radius: 60px;
+  background: rgba(76, 175, 80, 0.1);
+}
+
+.toggle-btn {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: transparent;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.toggle-btn.active {
+  background: linear-gradient(135deg, #4caf50, #45a049);
+  color: white;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.toggle-btn:not(.active):hover {
+  background: rgba(76, 175, 80, 0.2);
+  color: var(--primary-green);
+}
+
+.toggle-icon {
+  font-size: 1.2rem;
+}

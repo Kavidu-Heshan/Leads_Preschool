@@ -21,13 +21,15 @@ import EventPhotoUpload from "../admin_pages/EventPhotoUpload";
 import Message from "../pages/message";
 import AdminMessage from "../admin_pages/AdminMessage";
 import AdminHome from "../admin_pages/AdminHome";
+import HomePagelog from "../pages/HomePagelog";
 
 function App() {
   return (
     <div className="p-4">
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<HomePagelog />} />
+          <Route path="/userhome" element={<HomePage />} />
           <Route path="/adminaddchild" element={<AdminAddChild />} />
           <Route path="/childenroll" element={<ChildEnroll />} />
           <Route path="/changepwd" element={<ChangePassword />} />

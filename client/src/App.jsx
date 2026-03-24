@@ -23,6 +23,7 @@ import AdminMessage from "../admin_pages/AdminMessage";
 import AdminHome from "../admin_pages/AdminHome";
 import HomePagelog from "../pages/HomePagelog";
 import PhotoDownload from "../pages/PhotoDownload";
+import QRScanner from "../admin_pages/QRScanner";
 
 function App() {
   return (
@@ -49,6 +50,7 @@ function App() {
           <Route path="/adminmessage" element={<AdminMessage/>} />
           <Route path="/adminhome" element={<AdminHome/>} />
           <Route path="/photodownload" element={<PhotoDownload/>} />
+          <Route path="/qrscanner" element={<QRScanner/>} />
 
 
         </Routes>

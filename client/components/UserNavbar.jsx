@@ -52,8 +52,8 @@ const UserNavbar = () => {
     { path: '/teacher', name: 'Teachers', icon: '👩‍🏫' },
     { path: '/addDaycare', name: 'Daycare', icon: '🧸' },
     { path: '/userevent', name: 'Events', icon: '📅' },
-    { path: '/message', name: 'Messages', icon: '💬' }
-    // { path: '/photo', name: 'Gallery', icon: '🖼️' }
+    { path: '/message', name: 'Messages', icon: '💬' },
+    { path: '/photodownload', name: 'Gallery', icon: '🖼️' }
   ];
 
   const isActive = (path) => {

@@ -116,7 +116,7 @@ const HomePagelog = () => {
         </div>
       </section>
 
-      {/* --- 5. TESTIMONIALS --- */}
+      {/* --- 5. TESTIMONIALS ---
       <section className="testimonials-section" id="reviews">
         <div className="container">
           <div className="section-title">
@@ -137,7 +137,7 @@ const HomePagelog = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* --- 6. FOOTER --- */}
       <footer className="footer-section">

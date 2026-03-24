@@ -22,6 +22,7 @@ import Message from "../pages/message";
 import AdminMessage from "../admin_pages/AdminMessage";
 import AdminHome from "../admin_pages/AdminHome";
 import HomePagelog from "../pages/HomePagelog";
+import PhotoDownload from "../pages/PhotoDownload";
 
 function App() {
   return (
@@ -47,6 +48,7 @@ function App() {
           <Route path="/message" element={<Message/>} />
           <Route path="/adminmessage" element={<AdminMessage/>} />
           <Route path="/adminhome" element={<AdminHome/>} />
+          <Route path="/photodownload" element={<PhotoDownload/>} />
 
 
         </Routes>

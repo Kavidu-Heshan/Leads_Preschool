@@ -1,0 +1,689 @@
+/* PhotoDownload.css */
+
+.photo-download-wrapper {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8f0e8 100%);
+  position: relative;
+  overflow-x: hidden;
+}
+
+.photo-download-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  position: relative;
+  min-height: 100vh;
+}
+
+/* Decorative Elements */
+.nature-bg-download {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.leaf-download {
+  position: absolute;
+  font-size: 2rem;
+  opacity: 0.1;
+  animation: float 20s infinite ease-in-out;
+}
+
+.leaf-1 { top: 10%; left: 5%; animation-delay: 0s; }
+.leaf-2 { bottom: 15%; right: 8%; animation-delay: 2s; animation-duration: 18s; }
+.leaf-3 { top: 30%; right: 15%; animation-delay: 4s; animation-duration: 22s; }
+.leaf-4 { bottom: 25%; left: 12%; animation-delay: 1s; animation-duration: 19s; }
+
+.floating-circle-download {
+  position: fixed;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0.05) 100%);
+  pointer-events: none;
+  animation: float 15s infinite ease-in-out;
+  z-index: 0;
+}
+
+.circle-1 {
+  width: 300px;
+  height: 300px;
+  top: -100px;
+  right: -100px;
+  animation-duration: 20s;
+}
+
+.circle-2 {
+  width: 200px;
+  height: 200px;
+  bottom: 10%;
+  left: -50px;
+  animation-duration: 18s;
+  animation-delay: 2s;
+}
+
+.circle-3 {
+  width: 150px;
+  height: 150px;
+  bottom: 30%;
+  right: 20%;
+  animation-duration: 22s;
+  animation-delay: 1s;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(5deg); }
+}
+
+.download-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* Header Section */
+.header-section-download {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.header-icon-download {
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.header-emoji {
+  font-size: 4rem;
+  display: inline-block;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.header-section-download h1 {
+  font-size: 2.5rem;
+  color: #2c5e2e;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+
+.header-subtitle-download {
+  font-size: 1.1rem;
+  color: #4a6b4a;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Error Message */
+.error-message-download {
+  background-color: #fee;
+  border-left: 4px solid #f44336;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #c62828;
+}
+
+.error-icon {
+  font-size: 1.2rem;
+}
+
+/* Events Grid Section */
+.events-grid-section {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.events-grid-section h2 {
+  font-size: 1.8rem;
+  color: #2c5e2e;
+  margin-bottom: 0.5rem;
+}
+
+.section-description {
+  color: #6b8c6b;
+  margin-bottom: 2rem;
+}
+
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.event-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  padding: 1.5rem;
+  gap: 1rem;
+}
+
+.event-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.event-card-icon {
+  font-size: 3rem;
+  background: linear-gradient(135deg, #4caf50, #2e7d32);
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.event-card-content {
+  flex: 1;
+}
+
+.event-card-content h3 {
+  font-size: 1.2rem;
+  color: #2c3e2c;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.event-date, .event-venue {
+  font-size: 0.85rem;
+  color: #6b8c6b;
+  margin: 0.25rem 0;
+}
+
+.view-photos-btn {
+  background: none;
+  border: none;
+  color: #4caf50;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.9rem;
+  transition: color 0.3s;
+}
+
+.view-photos-btn:hover {
+  color: #2e7d32;
+}
+
+/* Photos Gallery Section */
+.photos-gallery-section {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.gallery-header-download {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.back-button {
+  background: none;
+  border: none;
+  color: #4caf50;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  margin-bottom: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.back-button:hover {
+  color: #2e7d32;
+}
+
+.event-info-download h2 {
+  font-size: 1.8rem;
+  color: #2c5e2e;
+  margin-bottom: 0.5rem;
+}
+
+.event-meta {
+  display: flex;
+  gap: 1.5rem;
+  color: #6b8c6b;
+  font-size: 0.9rem;
+}
+
+.download-all-btn {
+  margin-top: 1rem;
+  background: linear-gradient(135deg, #4caf50, #2e7d32);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.download-all-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+.download-all-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Search Bar */
+.search-bar-download {
+  margin-bottom: 2rem;
+}
+
+.search-input-download {
+  width: 100%;
+  max-width: 400px;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e0e8e0;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: all 0.3s;
+  background: white;
+}
+
+.search-input-download:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+/* Photos Grid */
+.photos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.photo-card-download {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.photo-card-download:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.photo-image-wrapper {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 1;
+  cursor: pointer;
+}
+
+.photo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.photo-image-wrapper:hover .photo-image {
+  transform: scale(1.05);
+}
+
+.featured-badge-download {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: linear-gradient(135deg, #ffd700, #ffb347);
+  padding: 0.25rem 0.5rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.download-photo-btn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.photo-image-wrapper:hover .download-photo-btn {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.download-photo-btn:hover {
+  background: #4caf50;
+  transform: scale(1.1);
+}
+
+.photo-info-download {
+  padding: 1rem;
+}
+
+.photo-caption-download {
+  font-size: 0.9rem;
+  color: #4a6b4a;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.photo-tags-download {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.tag-download {
+  background: #e8f5e8;
+  color: #2e7d32;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.photo-date-download {
+  font-size: 0.7rem;
+  color: #8aa88a;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Loading States */
+.loading-container {
+  text-align: center;
+  padding: 3rem;
+}
+
+.loading-spinner-large {
+  width: 50px;
+  height: 50px;
+  border: 3px solid #e0e8e0;
+  border-top-color: #4caf50;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e0e8e0;
+  border-top-color: #4caf50;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+.spinner-small-download {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Empty State */
+.empty-state-download {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 16px;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.empty-state-download h3 {
+  font-size: 1.5rem;
+  color: #2c5e2e;
+  margin-bottom: 0.5rem;
+}
+
+.empty-state-download p {
+  color: #6b8c6b;
+  margin-bottom: 1.5rem;
+}
+
+.back-button-secondary {
+  background: #4caf50;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.back-button-secondary:hover {
+  background: #2e7d32;
+}
+
+/* Lightbox Modal */
+.lightbox-overlay-download {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.lightbox-content-download {
+  max-width: 90vw;
+  max-height: 90vh;
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.lightbox-close-download {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  transition: background 0.3s;
+}
+
+.lightbox-close-download:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.lightbox-image-download {
+  max-width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+  display: block;
+}
+
+.lightbox-info-download {
+  padding: 1.5rem;
+  background: white;
+}
+
+.lightbox-info-download h3 {
+  font-size: 1.3rem;
+  color: #2c5e2e;
+  margin-bottom: 0.5rem;
+}
+
+.lightbox-caption {
+  color: #4a6b4a;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.lightbox-meta-download {
+  color: #6b8c6b;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.lightbox-tags-download {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.lightbox-download-btn {
+  background: linear-gradient(135deg, #4caf50, #2e7d32);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: transform 0.3s;
+}
+
+.lightbox-download-btn:hover {
+  transform: translateY(-2px);
+}
+
+.no-results {
+  text-align: center;
+  padding: 2rem;
+  color: #6b8c6b;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .photo-download-container {
+    padding: 1rem;
+  }
+
+  .header-section-download h1 {
+    font-size: 1.8rem;
+  }
+
+  .events-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .photos-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .event-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .event-meta {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .gallery-header-download {
+    padding: 1rem;
+  }
+
+  .lightbox-content-download {
+    max-width: 95vw;
+  }
+
+  .lightbox-image-download {
+    max-height: 50vh;
+  }
+}
+
+@media (max-width: 480px) {
+  .event-card-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 2rem;
+  }
+
+  .download-all-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

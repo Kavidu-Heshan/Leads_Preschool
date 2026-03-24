@@ -118,7 +118,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* --- 5. TESTIMONIALS --- */}
+      {/* --- 5. TESTIMONIALS ---
       <section className="testimonials-section" id="reviews">
         <div className="container">
           <div className="section-title">
@@ -139,7 +139,7 @@ const HomePage = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* --- 6. FOOTER --- */}
       <footer className="footer-section">
@@ -155,7 +155,13 @@ const HomePage = () => {
                 <Link to="/">Home</Link>
               </li>
               <li>
-                <Link to="/childenroll">Enroll</Link>
+                <Link to="/userevent">Events</Link>
+              </li>
+              <li>
+                <Link to="/teacher">Teacher</Link>
+              </li>
+              <li>
+                <Link to="/message">Message</Link>
               </li>
             </ul>
           </div>

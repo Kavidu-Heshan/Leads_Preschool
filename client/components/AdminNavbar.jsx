@@ -53,7 +53,8 @@ const NavigationBar = () => {
     { path: '/admindaycaredashboard', name: 'Daycare', icon: '🧸' },
     { path: '/admineditevent', name: 'Events', icon: '📅' },
     { path: '/adminmessage', name: 'Messages', icon: '💬' },
-    { path: '/uploadPhoto', name: 'Gallery', icon: '🖼️' }
+    { path: '/uploadPhoto', name: 'Gallery', icon: '🖼️' },
+    { path: '/qrscanner', name: 'Mark Attendance', icon: '🌱' }
   ];
 
   const isActive = (path) => {

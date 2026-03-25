@@ -1478,3 +1478,1171 @@
     font-size: 0.875rem;
   }
 }
+.loading-message-qr {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.loading-icon {
+  font-size: 20px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.source-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.url-source {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.qr-source {
+  background: #e2e8f0;
+  color: #4a5568;
+}
+/* Save & Clear Today's Records Button - Enhanced with Animation */
+.save-attendance-btn {
+  background: linear-gradient(135deg, #48bb78, #38a169);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.85rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.save-attendance-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.save-attendance-btn:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.save-attendance-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
+  background: linear-gradient(135deg, #38a169, #2f855a);
+}
+
+.save-attendance-btn:active {
+  transform: translateY(0);
+}
+
+/* Daily Attendance Section - Container Animation */
+.attendance-section {
+  margin-top: 2rem;
+  animation: slideInUp 0.5s ease-out;
+}
+
+/* Attendance Date Cards Container */
+.attendance-dates-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* Individual Date Card */
+.attendance-date-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid #e2e8f0;
+  animation: fadeInCard 0.4s ease-out forwards;
+  opacity: 0;
+  transform-origin: top;
+}
+
+.attendance-date-card:nth-child(1) { animation-delay: 0.05s; }
+.attendance-date-card:nth-child(2) { animation-delay: 0.1s; }
+.attendance-date-card:nth-child(3) { animation-delay: 0.15s; }
+.attendance-date-card:nth-child(4) { animation-delay: 0.2s; }
+.attendance-date-card:nth-child(5) { animation-delay: 0.25s; }
+
+@keyframes fadeInCard {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.attendance-date-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Date Header */
+.attendance-date-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #f7fafc, #ffffff);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.attendance-date-header:hover {
+  background: linear-gradient(135deg, #f0f4f9, #ffffff);
+}
+
+.date-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.date-icon {
+  font-size: 1.5rem;
+  animation: bounce 2s infinite;
+  display: inline-block;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.date-info h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin: 0;
+}
+
+.student-count {
+  font-size: 0.8rem;
+  color: #718096;
+  background: #edf2f7;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+}
+
+.date-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* Export Date Button */
+.export-date-btn {
+  background: #48bb78;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.export-date-btn:hover {
+  background: #38a169;
+  transform: scale(1.05);
+}
+
+.export-date-btn:active {
+  transform: scale(0.95);
+}
+
+/* Toggle Expand Button */
+.toggle-expand-btn {
+  background: #edf2f7;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4a5568;
+}
+
+.toggle-expand-btn:hover {
+  background: #cbd5e0;
+  transform: scale(1.1);
+}
+
+.toggle-expand-btn:active {
+  transform: scale(0.95);
+}
+
+/* Attendance Table Container - With Expand/Collapse Animation */
+.attendance-table-container {
+  overflow: hidden;
+  animation: expandTable 0.4s ease-out;
+  transform-origin: top;
+}
+
+@keyframes expandTable {
+  from {
+    opacity: 0;
+    max-height: 0;
+    transform: scaleY(0);
+  }
+  to {
+    opacity: 1;
+    max-height: 1000px;
+    transform: scaleY(1);
+  }
+}
+
+/* Attendance Table */
+.attendance-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.attendance-table th {
+  background: #f7fafc;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #4a5568;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.attendance-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #edf2f7;
+  font-size: 0.85rem;
+  color: #2d3748;
+  transition: all 0.3s ease;
+}
+
+.attendance-table tr {
+  transition: all 0.3s ease;
+}
+
+.attendance-table tr:hover {
+  background: #f7fafc;
+  transform: translateX(2px);
+}
+
+/* Scan Count Badge */
+.scan-count-badge {
+  display: inline-block;
+  background: #edf2f7;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #4a5568;
+  transition: all 0.3s ease;
+}
+
+.attendance-table tr:hover .scan-count-badge {
+  background: #cbd5e0;
+  transform: scale(1.05);
+}
+
+/* Status Badge Present */
+.status-badge.present {
+  background: #c6f6d5;
+  color: #22543d;
+  animation: pulseStatus 2s infinite;
+}
+
+@keyframes pulseStatus {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Delete Attendance Button */
+.delete-attendance-btn {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  opacity: 0.5;
+}
+
+.delete-attendance-btn:hover {
+  opacity: 1;
+  background: #fed7d7;
+  transform: scale(1.1) rotate(5deg);
+}
+
+.delete-attendance-btn:active {
+  transform: scale(0.95);
+}
+
+/* Hint Text */
+.hint-text {
+  font-size: 0.8rem;
+  color: #a0aec0;
+  margin-top: 0.5rem;
+  font-style: italic;
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Save Success Animation */
+@keyframes saveSuccess {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(72, 187, 120, 0.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.save-success {
+  animation: saveSuccess 0.5s ease-out;
+}
+
+/* Loading State for Save Button */
+.save-attendance-btn.loading {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.save-attendance-btn.loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 50%;
+  right: 12px;
+  margin-top: -8px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* New Record Added Animation */
+@keyframes highlightNew {
+  0% {
+    background: rgba(72, 187, 120, 0.2);
+    transform: scale(1.02);
+  }
+  100% {
+    background: transparent;
+    transform: scale(1);
+  }
+}
+
+.attendance-table tr.new-record {
+  animation: highlightNew 1s ease-out;
+}
+
+/* Responsive Design for Attendance Section */
+@media (max-width: 768px) {
+  .attendance-date-header {
+    padding: 0.75rem 1rem;
+  }
+  
+  .date-info h3 {
+    font-size: 0.9rem;
+  }
+  
+  .student-count {
+    font-size: 0.7rem;
+  }
+  
+  .attendance-table th,
+  .attendance-table td {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+  }
+  
+  .attendance-table th:nth-child(4),
+  .attendance-table td:nth-child(4) {
+    display: none;
+  }
+  
+  .attendance-table th:nth-child(6),
+  .attendance-table td:nth-child(6) {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .attendance-date-header {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .date-info {
+    gap: 0.5rem;
+  }
+  
+  .date-icon {
+    font-size: 1rem;
+  }
+  
+  .date-info h3 {
+    font-size: 0.8rem;
+  }
+  
+  .student-count {
+    font-size: 0.6rem;
+  }
+  
+  .export-date-btn {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.65rem;
+  }
+  
+  .toggle-expand-btn {
+    width: 24px;
+    height: 24px;
+    font-size: 0.7rem;
+  }
+  
+  .attendance-table th,
+  .attendance-table td {
+    padding: 0.4rem 0.5rem;
+    font-size: 0.7rem;
+  }
+  
+  .attendance-table th:nth-child(3),
+  .attendance-table td:nth-child(3) {
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* Hover Effect for Attendance Cards */
+@keyframes cardGlow {
+  0% {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  100% {
+    box-shadow: 0 4px 12px rgba(72, 187, 120, 0.2);
+  }
+}
+
+.attendance-date-card:hover {
+  animation: cardGlow 0.3s ease-out forwards;
+}
+
+/* Scroll Animation for New Items */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.attendance-table tr {
+  animation: slideInRight 0.3s ease-out forwards;
+  opacity: 0;
+}
+
+.attendance-table tr:nth-child(1) { animation-delay: 0.02s; }
+.attendance-table tr:nth-child(2) { animation-delay: 0.04s; }
+.attendance-table tr:nth-child(3) { animation-delay: 0.06s; }
+.attendance-table tr:nth-child(4) { animation-delay: 0.08s; }
+.attendance-table tr:nth-child(5) { animation-delay: 0.1s; }
+.attendance-table tr:nth-child(6) { animation-delay: 0.12s; }
+
+/* Counter Animation for Student Count */
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.student-count.update {
+  animation: countUp 0.3s ease-out;
+}
+
+/* Tooltip for Action Buttons */
+.export-date-btn,
+.toggle-expand-btn,
+.delete-attendance-btn {
+  position: relative;
+}
+
+.export-date-btn::after,
+.toggle-expand-btn::after,
+.delete-attendance-btn::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2d3748;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  margin-bottom: 5px;
+}
+
+.export-date-btn:hover::after,
+.toggle-expand-btn:hover::after,
+.delete-attendance-btn:hover::after {
+  opacity: 1;
+}
+
+/* Smooth Scroll for Attendance Section */
+.attendance-section {
+  scroll-margin-top: 20px;
+  transition: scroll-margin-top 0.3s ease;
+}
+
+/* Celebration Effect for Save Action */
+@keyframes confetti {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.celebration {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  animation: confetti 1s ease-out forwards;
+}
+/* Daily Attendance Section - Container Animation */
+.attendance-section {
+  margin-top: 2rem;
+  animation: slideInUp 0.5s ease-out;
+}
+
+/* Attendance Date Cards Container */
+.attendance-dates-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* Individual Date Card - FIXED: Remove transform that causes disappearance */
+.attendance-date-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid #e2e8f0;
+  animation: fadeInCard 0.4s ease-out forwards;
+  opacity: 0;
+  transform-origin: top;
+  position: relative;
+  z-index: 1;
+}
+
+.attendance-date-card:nth-child(1) { animation-delay: 0.05s; }
+.attendance-date-card:nth-child(2) { animation-delay: 0.1s; }
+.attendance-date-card:nth-child(3) { animation-delay: 0.15s; }
+.attendance-date-card:nth-child(4) { animation-delay: 0.2s; }
+.attendance-date-card:nth-child(5) { animation-delay: 0.25s; }
+
+@keyframes fadeInCard {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* FIXED: Remove transform that causes disappearance on hover */
+.attendance-date-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  /* Removed transform: translateY(-2px); */
+  transform: none;
+}
+
+/* Date Header - FIXED: Ensure it stays visible */
+.attendance-date-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #f7fafc, #ffffff);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-bottom: 1px solid #e2e8f0;
+  position: relative;
+  z-index: 2;
+}
+
+.attendance-date-header:hover {
+  background: linear-gradient(135deg, #f0f4f9, #ffffff);
+  /* Removed any transform that might cause issues */
+  transform: none;
+}
+
+.date-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.date-icon {
+  font-size: 1.5rem;
+  animation: bounce 2s infinite;
+  display: inline-block;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.date-info h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin: 0;
+}
+
+.student-count {
+  font-size: 0.8rem;
+  color: #718096;
+  background: #edf2f7;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.date-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* Export Date Button - FIXED: No transform issues */
+.export-date-btn {
+  background: #48bb78;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.export-date-btn:hover {
+  background: #38a169;
+  transform: scale(1.05);
+}
+
+.export-date-btn:active {
+  transform: scale(0.95);
+}
+
+/* Toggle Expand Button - FIXED */
+.toggle-expand-btn {
+  background: #edf2f7;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4a5568;
+}
+
+.toggle-expand-btn:hover {
+  background: #cbd5e0;
+  transform: scale(1.1);
+}
+
+.toggle-expand-btn:active {
+  transform: scale(0.95);
+}
+
+/* Attendance Table Container - FIXED */
+.attendance-table-container {
+  overflow: hidden;
+  animation: expandTable 0.4s ease-out;
+  transform-origin: top;
+  background: white;
+}
+
+@keyframes expandTable {
+  from {
+    opacity: 0;
+    max-height: 0;
+    transform: scaleY(0);
+  }
+  to {
+    opacity: 1;
+    max-height: 1000px;
+    transform: scaleY(1);
+  }
+}
+
+/* Attendance Table */
+.attendance-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.attendance-table th {
+  background: #f7fafc;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #4a5568;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.attendance-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #edf2f7;
+  font-size: 0.85rem;
+  color: #2d3748;
+  transition: all 0.3s ease;
+}
+
+.attendance-table tr {
+  transition: all 0.3s ease;
+}
+
+.attendance-table tr:hover {
+  background: #f7fafc;
+  /* Removed transform that might cause layout shifts */
+  transform: none;
+}
+
+/* Scan Count Badge */
+.scan-count-badge {
+  display: inline-block;
+  background: #edf2f7;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #4a5568;
+  transition: all 0.3s ease;
+}
+
+.attendance-table tr:hover .scan-count-badge {
+  background: #cbd5e0;
+  /* Removed transform that might cause issues */
+  transform: none;
+}
+
+/* Status Badge Present */
+.status-badge.present {
+  background: #c6f6d5;
+  color: #22543d;
+  animation: pulseStatus 2s infinite;
+}
+
+@keyframes pulseStatus {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Delete Attendance Button - FIXED */
+.delete-attendance-btn {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  opacity: 0.5;
+}
+
+.delete-attendance-btn:hover {
+  opacity: 1;
+  background: #fed7d7;
+  transform: scale(1.1) rotate(5deg);
+}
+
+.delete-attendance-btn:active {
+  transform: scale(0.95);
+}
+
+/* Hint Text */
+.hint-text {
+  font-size: 0.8rem;
+  color: #a0aec0;
+  margin-top: 0.5rem;
+  font-style: italic;
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Save Success Animation */
+@keyframes saveSuccess {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(72, 187, 120, 0.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.save-success {
+  animation: saveSuccess 0.5s ease-out;
+}
+
+/* Loading State for Save Button */
+.save-attendance-btn.loading {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.save-attendance-btn.loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 50%;
+  right: 12px;
+  margin-top: -8px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* New Record Added Animation */
+@keyframes highlightNew {
+  0% {
+    background: rgba(72, 187, 120, 0.2);
+    transform: scale(1.02);
+  }
+  100% {
+    background: transparent;
+    transform: scale(1);
+  }
+}
+
+.attendance-table tr.new-record {
+  animation: highlightNew 1s ease-out;
+}
+
+/* Responsive Design for Attendance Section */
+@media (max-width: 768px) {
+  .attendance-date-header {
+    padding: 0.75rem 1rem;
+  }
+  
+  .date-info h3 {
+    font-size: 0.9rem;
+  }
+  
+  .student-count {
+    font-size: 0.7rem;
+  }
+  
+  .attendance-table th,
+  .attendance-table td {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+  }
+  
+  .attendance-table th:nth-child(4),
+  .attendance-table td:nth-child(4) {
+    display: none;
+  }
+  
+  .attendance-table th:nth-child(6),
+  .attendance-table td:nth-child(6) {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .attendance-date-header {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .date-info {
+    gap: 0.5rem;
+  }
+  
+  .date-icon {
+    font-size: 1rem;
+  }
+  
+  .date-info h3 {
+    font-size: 0.8rem;
+  }
+  
+  .student-count {
+    font-size: 0.6rem;
+  }
+  
+  .export-date-btn {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.65rem;
+  }
+  
+  .toggle-expand-btn {
+    width: 24px;
+    height: 24px;
+    font-size: 0.7rem;
+  }
+  
+  .attendance-table th,
+  .attendance-table td {
+    padding: 0.4rem 0.5rem;
+    font-size: 0.7rem;
+  }
+  
+  .attendance-table th:nth-child(3),
+  .attendance-table td:nth-child(3) {
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* Hover Effect for Attendance Cards - FIXED: No transform that causes disappearance */
+@keyframes cardGlow {
+  0% {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  100% {
+    box-shadow: 0 4px 12px rgba(72, 187, 120, 0.2);
+  }
+}
+
+.attendance-date-card:hover {
+  animation: cardGlow 0.3s ease-out forwards;
+  /* Ensure the card stays visible */
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Scroll Animation for New Items */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.attendance-table tr {
+  animation: slideInRight 0.3s ease-out forwards;
+  opacity: 0;
+}
+
+.attendance-table tr:nth-child(1) { animation-delay: 0.02s; }
+.attendance-table tr:nth-child(2) { animation-delay: 0.04s; }
+.attendance-table tr:nth-child(3) { animation-delay: 0.06s; }
+.attendance-table tr:nth-child(4) { animation-delay: 0.08s; }
+.attendance-table tr:nth-child(5) { animation-delay: 0.1s; }
+.attendance-table tr:nth-child(6) { animation-delay: 0.12s; }
+
+/* Counter Animation for Student Count */
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.student-count.update {
+  animation: countUp 0.3s ease-out;
+}
+
+/* Tooltip for Action Buttons - FIXED */
+.export-date-btn,
+.toggle-expand-btn,
+.delete-attendance-btn {
+  position: relative;
+}
+
+.export-date-btn::after,
+.toggle-expand-btn::after,
+.delete-attendance-btn::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2d3748;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  margin-bottom: 5px;
+  z-index: 100;
+}
+
+.export-date-btn:hover::after,
+.toggle-expand-btn:hover::after,
+.delete-attendance-btn:hover::after {
+  opacity: 1;
+}
+
+/* Smooth Scroll for Attendance Section */
+.attendance-section {
+  scroll-margin-top: 20px;
+  transition: scroll-margin-top 0.3s ease;
+}
+
+/* Celebration Effect for Save Action */
+@keyframes confetti {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.celebration {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  animation: confetti 1s ease-out forwards;
+}
+
+/* Additional fix: Ensure all elements have proper stacking context */
+.attendance-date-card,
+.attendance-date-header,
+.attendance-table-container,
+.attendance-table {
+  position: relative;
+  z-index: auto;
+}
+
+/* Fix for any potential overflow issues */
+.attendance-dates-container,
+.attendance-date-card,
+.attendance-table-container {
+  overflow: visible;
+}
+
+/* Ensure background doesn't cause hiding */
+.attendance-date-card {
+  background: white;
+  backdrop-filter: none;
+}

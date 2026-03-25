@@ -16,6 +16,7 @@ const EventModel = require("./models/Event.js");
 const TeacherModel = require("./models/Teacher.js");
 const DaycareAttendanceModel = require("./models/DaycareAttendance.js");
 const EventPhotoModel = require("./models/EventPhoto.js");
+const Attendance = require("./models/Attendance");
 
 const app = express();
 
@@ -1787,6 +1788,417 @@ app.get('/messages/stats/summary', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch statistics' });
   }
 });
+
+/* ================================
+   Attendance MANAGEMENT API
+================================ */
+// Import Attendance model
+
+
+// 1. SAVE ATTENDANCE RECORDS
+app.post("/attendance/save", async (req, res) => {
+  try {
+    const { date, attendanceRecords } = req.body;
+    
+    if (!date || !attendanceRecords || !Array.isArray(attendanceRecords)) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "Invalid request: date and attendanceRecords array are required" 
+      });
+    }
+    
+    const savedRecords = [];
+    const errors = [];
+    
+    for (const record of attendanceRecords) {
+      try {
+        // Check if attendance already exists for this child on this date
+        const existingAttendance = await Attendance.findOne({
+          date: date,
+          childId: record.childId
+        });
+        
+        if (existingAttendance) {
+          // Update existing record
+          existingAttendance.scanCount += record.scanCount;
+          existingAttendance.allScanTimes.push(...record.allScanTimes);
+          existingAttendance.firstScanTime = record.firstScanTime;
+          
+          // REMOVED manual updatedAt line here! Mongoose handles it now.
+          await existingAttendance.save();
+          
+          savedRecords.push(existingAttendance);
+        } else {
+          // Create new record
+          const newAttendance = new Attendance({
+            date: date,
+            childId: record.childId,
+            childName: record.childName,
+            firstScanTime: record.firstScanTime,
+            scanCount: record.scanCount,
+            attendanceStatus: record.attendanceStatus || "Present",
+            allScanTimes: record.allScanTimes || [{ time: record.firstScanTime, timestamp: new Date() }]
+          });
+          
+          await newAttendance.save();
+          savedRecords.push(newAttendance);
+        }
+      } catch (err) {
+        console.error("Error saving record:", err);
+        errors.push({ childId: record.childId, error: err.message });
+      }
+    }
+    
+    res.json({
+      success: true,
+      message: `Successfully saved ${savedRecords.length} attendance records`,
+      savedCount: savedRecords.length,
+      errors: errors.length > 0 ? errors : undefined,
+      records: savedRecords
+    });
+    
+  } catch (err) {
+    console.error("Error saving attendance:", err);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to save attendance records",
+      details: err.message 
+    });
+  }
+});
+
+// 2. GET ATTENDANCE HISTORY
+app.get("/attendance/history", async (req, res) => {
+  try {
+    const { startDate, endDate, childId, limit = 100 } = req.query;
+    let query = {};
+    
+    if (startDate || endDate) {
+      query.date = {};
+      if (startDate) query.date.$gte = startDate;
+      if (endDate) query.date.$lte = endDate;
+    }
+    
+    if (childId) query.childId = childId;
+    
+    const attendance = await Attendance.find(query)
+      .sort({ date: -1, childName: 1 })
+      .limit(parseInt(limit));
+    
+    res.json({
+      success: true,
+      total: attendance.length,
+      attendance: attendance
+    });
+    
+  } catch (err) {
+    console.error("Error fetching attendance history:", err);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to fetch attendance history" 
+    });
+  }
+});
+
+// 3. GET ATTENDANCE BY DATE
+app.get("/attendance/date/:date", async (req, res) => {
+  try {
+    const { date } = req.params;
+    
+    const attendance = await Attendance.find({ date: date })
+      .sort({ childName: 1 });
+    
+    res.json({
+      success: true,
+      date: date,
+      total: attendance.length,
+      attendance: attendance
+    });
+    
+  } catch (err) {
+    console.error("Error fetching attendance by date:", err);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to fetch attendance" 
+    });
+  }
+});
+
+// 4. GET ATTENDANCE FOR STUDENT
+app.get("/attendance/student/:childId", async (req, res) => {
+  try {
+    const { childId } = req.params;
+    const { limit = 30 } = req.query;
+    
+    const attendance = await Attendance.find({ 
+      childId: { $regex: new RegExp(`^${childId}$`, 'i') }
+    })
+      .sort({ date: -1 })
+      .limit(parseInt(limit));
+    
+    // Calculate attendance statistics
+    const totalDays = attendance.length;
+    const presentDays = attendance.filter(a => a.attendanceStatus === "Present").length;
+    const lateDays = attendance.filter(a => a.attendanceStatus === "Late").length;
+    const halfDays = attendance.filter(a => a.attendanceStatus === "Half Day").length;
+    
+    res.json({
+      success: true,
+      childId: childId,
+      childName: attendance[0]?.childName || "Unknown",
+      statistics: {
+        totalDays: totalDays,
+        presentDays: presentDays,
+        lateDays: lateDays,
+        halfDays: halfDays,
+        attendancePercentage: totalDays > 0 ? ((presentDays + lateDays + halfDays) / totalDays * 100).toFixed(2) : 0
+      },
+      records: attendance
+    });
+    
+  } catch (err) {
+    console.error("Error fetching student attendance:", err);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to fetch student attendance" 
+    });
+  }
+});
+
+// 5. GET MONTHLY ATTENDANCE SUMMARY
+app.get("/attendance/monthly/:year/:month", async (req, res) => {
+  try {
+    const { year, month } = req.params;
+    
+    const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
+    const endDate = new Date(year, month, 0).toLocaleDateString();
+    
+    const attendance = await Attendance.find({
+      date: { $gte: startDate, $lte: endDate }
+    });
+    
+    const summary = {
+      year: parseInt(year),
+      month: parseInt(month),
+      monthName: new Date(year, month - 1, 1).toLocaleString('default', { month: 'long' }),
+      totalAttendanceRecords: attendance.length,
+      uniqueStudents: new Set(attendance.map(a => a.childId)).size,
+      attendanceByDay: {},
+      studentAttendance: {}
+    };
+    
+    attendance.forEach(record => {
+      // Group by day
+      if (!summary.attendanceByDay[record.date]) {
+        summary.attendanceByDay[record.date] = {
+          present: 0,
+          late: 0,
+          halfDay: 0,
+          total: 0
+        };
+      }
+      summary.attendanceByDay[record.date][record.attendanceStatus.toLowerCase()]++;
+      summary.attendanceByDay[record.date].total++;
+      
+      // Group by student
+      if (!summary.studentAttendance[record.childId]) {
+        summary.studentAttendance[record.childId] = {
+          childId: record.childId,
+          childName: record.childName,
+          daysPresent: 0,
+          daysLate: 0,
+          daysHalfDay: 0
+        };
+      }
+      summary.studentAttendance[record.childId][`days${record.attendanceStatus}`]++;
+    });
+    
+    res.json({
+      success: true,
+      summary: summary
+    });
+    
+  } catch (err) {
+    console.error("Error fetching monthly summary:", err);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to fetch monthly summary" 
+    });
+  }
+});
+
+// 6. UPDATE ATTENDANCE STATUS
+app.patch("/attendance/:attendanceId", async (req, res) => {
+  try {
+    const { attendanceId } = req.params;
+    const { attendanceStatus, remarks } = req.body;
+    
+    if (!attendanceStatus || !["Present", "Absent", "Late", "Half Day"].includes(attendanceStatus)) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "Invalid attendance status" 
+      });
+    }
+    
+    const updatedAttendance = await Attendance.findByIdAndUpdate(
+      attendanceId,
+      { 
+        $set: { 
+          attendanceStatus: attendanceStatus,
+          remarks: remarks,
+          updatedAt: new Date()
+        } 
+      },
+      { new: true }
+    );
+    
+    if (!updatedAttendance) {
+      return res.status(404).json({ 
+        success: false, 
+        error: "Attendance record not found" 
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: "Attendance status updated successfully",
+      attendance: updatedAttendance
+    });
+    
+  } catch (err) {
+    console.error("Error updating attendance:", err);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to update attendance status" 
+    });
+  }
+});
+
+// 7. DELETE ATTENDANCE RECORD
+app.delete("/attendance/:attendanceId", async (req, res) => {
+  try {
+    const { attendanceId } = req.params;
+    
+    const deletedAttendance = await Attendance.findByIdAndDelete(attendanceId);
+    
+    if (!deletedAttendance) {
+      return res.status(404).json({ 
+        success: false, 
+        error: "Attendance record not found" 
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: "Attendance record deleted successfully",
+      deletedRecord: deletedAttendance
+    });
+    
+  } catch (err) {
+    console.error("Error deleting attendance:", err);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to delete attendance record" 
+    });
+  }
+});
+
+// 8. GET ATTENDANCE STATISTICS
+app.get("/attendance/stats/overview", async (req, res) => {
+  try {
+    const today = new Date().toLocaleDateString();
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toLocaleDateString();
+    const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toLocaleDateString();
+    
+    const [
+      totalAttendance,
+      todayAttendance,
+      weekAttendance,
+      monthAttendance,
+      uniqueStudents
+    ] = await Promise.all([
+      Attendance.countDocuments(),
+      Attendance.countDocuments({ date: today }),
+      Attendance.countDocuments({ date: { $gte: weekAgo, $lte: today } }),
+      Attendance.countDocuments({ date: { $gte: monthAgo, $lte: today } }),
+      Attendance.distinct("childId")
+    ]);
+    
+    res.json({
+      success: true,
+      statistics: {
+        totalAttendanceRecords: totalAttendance,
+        todayAttendance: todayAttendance,
+        weeklyAttendance: weekAttendance,
+        monthlyAttendance: monthAttendance,
+        uniqueStudents: uniqueStudents.length,
+        averageDailyAttendance: totalAttendance > 0 ? (totalAttendance / 30).toFixed(2) : 0
+      }
+    });
+    
+  } catch (err) {
+    console.error("Error fetching attendance statistics:", err);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to fetch attendance statistics" 
+    });
+  }
+});
+
+// 9. EXPORT ATTENDANCE TO CSV
+app.get("/attendance/export/csv", async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    let query = {};
+    
+    if (startDate || endDate) {
+      query.date = {};
+      if (startDate) query.date.$gte = startDate;
+      if (endDate) query.date.$lte = endDate;
+    }
+    
+    const attendance = await Attendance.find(query).sort({ date: -1, childName: 1 });
+    
+    if (attendance.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        error: "No attendance data found for the selected period" 
+      });
+    }
+    
+    // Create CSV
+    const headers = ["Date", "Child ID", "Child Name", "First Scan Time", "Scan Count", "Status", "School Year"];
+    const csvRows = [
+      headers.join(","),
+      ...attendance.map(record => {
+        return [
+          `"${record.date}"`,
+          `"${record.childId}"`,
+          `"${record.childName}"`,
+          `"${record.firstScanTime}"`,
+          `"${record.scanCount}"`,
+          `"${record.attendanceStatus}"`,
+          `"${record.schoolYear}"`
+        ].join(",");
+      })
+    ];
+    
+    const csvContent = csvRows.join("\n");
+    const fileName = `attendance_${startDate || 'all'}_to_${endDate || 'all'}.csv`;
+    
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.send(csvContent);
+    
+  } catch (err) {
+    console.error("Error exporting attendance:", err);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to export attendance data" 
+    });
+  }
+});
+
 
 // --- SERVER INITIALIZATION ---
 const PORT = process.env.PORT || 3002;

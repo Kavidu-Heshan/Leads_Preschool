@@ -19,6 +19,7 @@ const QRScanner = () => {
   
   const scannerRef = useRef(null);
   const qrBoxRef = useRef(null);
+  const isProcessingRef = useRef(false); // Add ref to prevent multiple scans
 
   // Load scanned data from localStorage on component mount
   useEffect(() => {
@@ -55,6 +56,7 @@ const QRScanner = () => {
     setScanner(qrScanner);
     setScanning(true);
     setError("");
+    isProcessingRef.current = false; // Reset processing flag
   };
 
   const stopScanner = () => {
@@ -63,10 +65,18 @@ const QRScanner = () => {
       setScanner(null);
       setScanning(false);
     }
+    isProcessingRef.current = false; // Reset processing flag
   };
 
   // eslint-disable-next-line no-unused-vars
   const onScanSuccess = async (decodedText, decodedResult) => {
+    // Prevent multiple scans while processing
+    if (isProcessingRef.current) {
+      return;
+    }
+    
+    isProcessingRef.current = true;
+    
     try {
       // Parse QR code data (expected format: "CHILD_ID|CHILD_NAME" or JSON)
       let childId, childName;
@@ -95,6 +105,7 @@ const QRScanner = () => {
 
       if (!childId) {
         setError("Invalid QR code format. Please scan a valid child QR code.");
+        isProcessingRef.current = false;
         return;
       }
 
@@ -127,6 +138,7 @@ const QRScanner = () => {
 
       if (recentScan) {
         setError(`${childName} (${childId}) was scanned recently. Please wait before scanning again.`);
+        isProcessingRef.current = false;
         return;
       }
 
@@ -144,10 +156,18 @@ const QRScanner = () => {
         navigator.vibrate(200);
       }
       
+      // Auto stop scanner after successful scan
+      setTimeout(() => {
+        stopScanner();
+        setSuccess(prevSuccess => prevSuccess + " Scanner stopped automatically.");
+        setTimeout(() => setSuccess(""), 3000);
+      }, 500); // Small delay to ensure the scan is processed before stopping
+      
     } catch (err) {
       console.error("Error processing QR code:", err);
       setError("Failed to process QR code. Please try again.");
       setTimeout(() => setError(""), 3000);
+      isProcessingRef.current = false;
     }
   };
 
@@ -303,6 +323,10 @@ const QRScanner = () => {
                   <div className="instruction-item">
                     <span className="instruction-icon">3️⃣</span>
                     <span>Position QR code in the scanning area</span>
+                  </div>
+                  <div className="instruction-item">
+                    <span className="instruction-icon">✨</span>
+                    <span>Scanner will automatically stop after each successful scan</span>
                   </div>
                 </div>
               </div>

@@ -1,4 +1,3 @@
-// NavigationBar.jsx
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import '../css/AdminNavbar.css';
@@ -6,9 +5,24 @@ import '../css/AdminNavbar.css';
 const NavigationBar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [adminInfo, setAdminInfo] = useState(null);
   
   const location = useLocation();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Get admin info from localStorage
+    const storedAdmin = localStorage.getItem('adminInfo');
+    if (storedAdmin) {
+      try {
+        const admin = JSON.parse(storedAdmin);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setAdminInfo(admin);
+      } catch (e) {
+        console.error('Error parsing admin info:', e);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     // Handle scroll effect
@@ -26,6 +40,7 @@ const NavigationBar = () => {
     localStorage.removeItem('adminName');
     localStorage.removeItem('adminRole');
     localStorage.removeItem('adminId');
+    localStorage.removeItem('adminInfo');
     
     // Redirect to login page
     navigate('/childenroll');
@@ -54,11 +69,20 @@ const NavigationBar = () => {
     { path: '/admineditevent', name: 'Events', icon: '📅' },
     { path: '/adminmessage', name: 'Messages', icon: '💬' },
     { path: '/uploadPhoto', name: 'Gallery', icon: '🖼️' },
-    { path: '/qrscanner', name: 'Mark Attendance', icon: '🌱' }
+    { path: '/adminStudentManagement', name: 'Students', icon: '👥' },
+    { path: '/qrscanner', name: 'Attendance', icon: '🌱' }
   ];
 
   const isActive = (path) => {
     return location.pathname === path;
+  };
+
+  // Get admin initials for avatar
+  const getInitials = () => {
+    if (adminInfo?.name) {
+      return adminInfo.name.charAt(0).toUpperCase();
+    }
+    return 'A';
   };
 
   return (
@@ -72,16 +96,24 @@ const NavigationBar = () => {
             </div>
             <div className="logo-text">
               <span className="logo-title">Preschool Admin</span>
-              <span className="logo-subtitle">Management System</span>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
           <div className={`nav-menu ${isMobileMenuOpen ? 'active' : ''}`}>
             
-            {/* Mobile Menu Close Button (Header removed) */}
-            <div className="mobile-menu-header" style={{ justifyContent: 'flex-end', padding: '15px' }}>
-              <button className="mobile-close-btn" onClick={closeMobileMenu}>
+            {/* Mobile Menu Header */}
+            <div className="mobile-menu-header">
+              <div className="mobile-user-info">
+                <div className="mobile-avatar">
+                  {getInitials()}
+                </div>
+                <div className="mobile-user-details">
+                  <span className="mobile-user-name">{adminInfo?.name || 'Admin'}</span>
+                  <span className="mobile-user-role">{adminInfo?.role || 'Administrator'}</span>
+                </div>
+              </div>
+              <button className="mobile-close-btn" onClick={closeMobileMenu} aria-label="Close menu">
                 ✕
               </button>
             </div>
@@ -113,25 +145,28 @@ const NavigationBar = () => {
             </div>
           </div>
 
-          {/* Desktop Logout Button (Replaced Profile Dropdown) */}
+          {/* Desktop Profile Section */}
           <div className="nav-profile">
-             <button onClick={handleLogout} className="desktop-logout-btn" style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '8px 16px',
-                background: '#ffebee',
-                border: '1px solid #ffcdd2',
-                borderRadius: '8px',
-                color: '#d32f2f',
-                fontSize: '14px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease'
-             }}>
-                <span>🚪</span>
-                Logout
-             </button>
+            <div className="profile-dropdown">
+              <button className="profile-btn" aria-label="Profile menu">
+                <div className="profile-avatar">
+                  {getInitials()}
+                </div>
+                <div className="profile-info">
+                  <span className="profile-name">{adminInfo?.name || 'Admin'}</span>
+                  <span className="profile-role">{adminInfo?.role || 'Administrator'}</span>
+                </div>
+                <span className="dropdown-arrow">▼</span>
+              </button>
+              <div className="dropdown-content">
+                
+                <div className="dropdown-divider"></div>
+                <button onClick={handleLogout} className="dropdown-item logout">
+                  <span>🚪</span>
+                  <span>Logout</span>
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Mobile Menu Button */}

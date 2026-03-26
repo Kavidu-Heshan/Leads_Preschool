@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Html5QrcodeScanner } from "html5-qrcode";
 import "../css/QRScanner.css";
-import UserNavbar from '../components/UserNavbar';
+import AdminNavbar from '../components/AdminNavbar';
 
 const QRScanner = () => {
   const [scanner, setScanner] = useState(null);
@@ -641,7 +641,7 @@ const QRScanner = () => {
 
   return (
     <>
-      <UserNavbar />
+      <AdminNavbar />
       <div className="qr-scanner-wrapper">
         <div className="qr-scanner-container">
           <div className="nature-bg-qr">

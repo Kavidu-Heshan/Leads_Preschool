@@ -2199,6 +2199,631 @@ app.get("/attendance/export/csv", async (req, res) => {
   }
 });
 
+/* ================================
+   ADMIN STUDENT MANAGEMENT API
+================================ */
+
+// 1. GET ALL STUDENTS (Admin)
+app.get("/admin/students", async (req, res) => {
+  try {
+    const students = await StudentProfileModel.find()
+      .sort({ createdAt: -1 })
+      .select('-__v');
+    
+    res.json({ 
+      success: true, 
+      students: students,
+      total: students.length 
+    });
+  } catch (error) {
+    console.error("Error fetching students:", error);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to fetch students" 
+    });
+  }
+});
+
+// 2. GET A SINGLE STUDENT BY CHILD ID (Admin)
+app.get("/admin/students/:childId", async (req, res) => {
+  try {
+    const { childId } = req.params;
+    const student = await StudentProfileModel.findOne({ 
+      childId: { $regex: new RegExp(`^${childId}$`, 'i') }
+    }).select('-__v');
+    
+    if (!student) {
+      return res.status(404).json({ 
+        success: false, 
+        error: "Student not found" 
+      });
+    }
+    
+    res.json({ 
+      success: true, 
+      student: student 
+    });
+  } catch (error) {
+    console.error("Error fetching student:", error);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to fetch student" 
+    });
+  }
+});
+
+// 3. UPDATE STUDENT PROFILE (Admin)
+app.put("/admin/students/:childId", async (req, res) => {
+  try {
+    const { childId } = req.params;
+    const updateData = { ...req.body };
+    
+    // Remove fields that shouldn't be updated directly
+    delete updateData._id;
+    delete updateData.createdAt;
+    delete updateData.__v;
+    
+    // Validate age if provided
+    if (updateData.age !== undefined) {
+      const age = parseInt(updateData.age);
+      if (age < 3 || age > 5) {
+        return res.status(400).json({ 
+          success: false, 
+          error: "Child must be between 3 and 5 years old" 
+        });
+      }
+    }
+    
+    // Validate class based on age
+    if (updateData.age && updateData.class) {
+      const age = parseInt(updateData.age);
+      if (age === 3 && updateData.class !== 'Daycare') {
+        return res.status(400).json({ 
+          success: false, 
+          error: "3-year-old children can only be in Daycare" 
+        });
+      }
+      if (age === 4 && !['Daycare', 'LKG'].includes(updateData.class)) {
+        return res.status(400).json({ 
+          success: false, 
+          error: "4-year-old children can only be in Daycare or LKG" 
+        });
+      }
+      if (age === 5 && !['Daycare', 'UKG'].includes(updateData.class)) {
+        return res.status(400).json({ 
+          success: false, 
+          error: "5-year-old children can only be in Daycare or UKG" 
+        });
+      }
+    }
+    
+    // Handle contact numbers conversion
+    if (updateData.contactNumbers && typeof updateData.contactNumbers === 'string') {
+      updateData.contactNumbers = updateData.contactNumbers.split(',').map(num => num.trim());
+    }
+    
+    // Validate email if provided
+    if (updateData.email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(updateData.email)) {
+        return res.status(400).json({ 
+          success: false, 
+          error: "Please enter a valid email address" 
+        });
+      }
+    }
+    
+    // Validate phone numbers if provided
+    if (updateData.contactNumbers && Array.isArray(updateData.contactNumbers)) {
+      const phoneRegex = /^0\d{9}$/;
+      for (const phone of updateData.contactNumbers) {
+        if (phone && !phoneRegex.test(phone)) {
+          return res.status(400).json({ 
+            success: false, 
+            error: "Phone numbers must be 10 digits and start with 0" 
+          });
+        }
+      }
+    }
+    
+    const updatedStudent = await StudentProfileModel.findOneAndUpdate(
+      { childId: { $regex: new RegExp(`^${childId}$`, 'i') } },
+      { $set: updateData },
+      { new: true, runValidators: true }
+    ).select('-__v');
+    
+    if (!updatedStudent) {
+      return res.status(404).json({ 
+        success: false, 
+        error: "Student not found" 
+      });
+    }
+    
+    res.json({ 
+      success: true, 
+      message: "Student profile updated successfully!", 
+      student: updatedStudent 
+    });
+    
+  } catch (error) {
+    console.error("Error updating student:", error);
+    
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map(e => e.message);
+      return res.status(400).json({ 
+        success: false, 
+        error: errors.join(', ') 
+      });
+    }
+    
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to update student profile" 
+    });
+  }
+});
+
+// 4. DELETE STUDENT PROFILE (Admin)
+app.delete("/admin/students/:childId", async (req, res) => {
+  try {
+    const { childId } = req.params;
+    
+    // Find and delete the student profile
+    const deletedStudent = await StudentProfileModel.findOneAndDelete({ 
+      childId: { $regex: new RegExp(`^${childId}$`, 'i') }
+    });
+    
+    if (!deletedStudent) {
+      return res.status(404).json({ 
+        success: false, 
+        error: "Student not found" 
+      });
+    }
+    
+    // Optional: Also delete associated attendance records
+    await Attendance.deleteMany({ 
+      childId: { $regex: new RegExp(`^${childId}$`, 'i') }
+    });
+    
+    // Optional: Also delete daycare attendance records
+    await DaycareAttendanceModel.deleteMany({ 
+      childId: { $regex: new RegExp(`^${childId}$`, 'i') }
+    });
+    
+    res.json({ 
+      success: true, 
+      message: "Student profile deleted successfully!",
+      deletedStudent: {
+        childId: deletedStudent.childId,
+        fullName: deletedStudent.fullName
+      }
+    });
+    
+  } catch (error) {
+    console.error("Error deleting student:", error);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to delete student profile" 
+    });
+  }
+});
+
+// 5. SEARCH STUDENTS (Admin)
+app.get("/admin/students/search/:query", async (req, res) => {
+  try {
+    const { query } = req.params;
+    const students = await StudentProfileModel.find({
+      $or: [
+        { fullName: { $regex: query, $options: 'i' } },
+        { childId: { $regex: query, $options: 'i' } },
+        { guardianName: { $regex: query, $options: 'i' } },
+        { email: { $regex: query, $options: 'i' } }
+      ]
+    }).sort({ createdAt: -1 });
+    
+    res.json({ 
+      success: true, 
+      students: students,
+      total: students.length 
+    });
+  } catch (error) {
+    console.error("Error searching students:", error);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to search students" 
+    });
+  }
+});
+
+// 6. GET STUDENTS BY CLASS (Admin)
+app.get("/admin/students/class/:className", async (req, res) => {
+  try {
+    const { className } = req.params;
+    const { includeDaycare } = req.query;
+    
+    let query = { class: className };
+    
+    // Filter by daycare inclusion if specified
+    if (includeDaycare !== undefined) {
+      query.includeDaycare = includeDaycare === 'true';
+    }
+    
+    const students = await StudentProfileModel.find(query).sort({ fullName: 1 });
+    
+    res.json({ 
+      success: true, 
+      students: students,
+      total: students.length,
+      className: className
+    });
+  } catch (error) {
+    console.error("Error fetching students by class:", error);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to fetch students by class" 
+    });
+  }
+});
+
+// 7. GET STUDENTS BY AGE GROUP (Admin)
+app.get("/admin/students/age/:age", async (req, res) => {
+  try {
+    const { age } = req.params;
+    const ageNum = parseInt(age);
+    
+    if (isNaN(ageNum) || ageNum < 3 || ageNum > 5) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "Age must be between 3 and 5" 
+      });
+    }
+    
+    const students = await StudentProfileModel.find({ age: ageNum }).sort({ fullName: 1 });
+    
+    res.json({ 
+      success: true, 
+      students: students,
+      total: students.length,
+      age: ageNum
+    });
+  } catch (error) {
+    console.error("Error fetching students by age:", error);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to fetch students by age" 
+    });
+  }
+});
+
+// 8. GET STUDENT STATISTICS (Admin)
+app.get("/admin/students/stats/summary", async (req, res) => {
+  try {
+    const [
+      totalStudents,
+      daycareOnly,
+      lkgOnly,
+      ukgOnly,
+      withDaycare,
+      maleCount,
+      femaleCount,
+      age3Count,
+      age4Count,
+      age5Count
+    ] = await Promise.all([
+      StudentProfileModel.countDocuments(),
+      StudentProfileModel.countDocuments({ class: "Daycare", includeDaycare: false }),
+      StudentProfileModel.countDocuments({ class: "LKG", includeDaycare: false }),
+      StudentProfileModel.countDocuments({ class: "UKG", includeDaycare: false }),
+      StudentProfileModel.countDocuments({ includeDaycare: true }),
+      StudentProfileModel.countDocuments({ gender: "Male" }),
+      StudentProfileModel.countDocuments({ gender: "Female" }),
+      StudentProfileModel.countDocuments({ age: 3 }),
+      StudentProfileModel.countDocuments({ age: 4 }),
+      StudentProfileModel.countDocuments({ age: 5 })
+    ]);
+    
+    // Get blood type distribution
+    const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+    const bloodTypeStats = {};
+    for (const type of bloodTypes) {
+      bloodTypeStats[type] = await StudentProfileModel.countDocuments({ bloodType: type });
+    }
+    
+    res.json({
+      success: true,
+      statistics: {
+        total: totalStudents,
+        byClass: {
+          daycareOnly: daycareOnly,
+          lkgOnly: lkgOnly,
+          ukgOnly: ukgOnly,
+          withDaycare: withDaycare,
+          totalDaycare: daycareOnly + withDaycare,
+          totalLKG: lkgOnly + (withDaycare ? StudentProfileModel.countDocuments({ class: "LKG", includeDaycare: true }) : 0),
+          totalUKG: ukgOnly + (withDaycare ? StudentProfileModel.countDocuments({ class: "UKG", includeDaycare: true }) : 0)
+        },
+        byGender: {
+          male: maleCount,
+          female: femaleCount
+        },
+        byAge: {
+          age3: age3Count,
+          age4: age4Count,
+          age5: age5Count
+        },
+        byBloodType: bloodTypeStats
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching student statistics:", error);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to fetch student statistics" 
+    });
+  }
+});
+
+// 9. BULK DELETE STUDENTS (Admin)
+app.post("/admin/students/bulk-delete", async (req, res) => {
+  try {
+    const { childIds } = req.body;
+    
+    if (!childIds || !Array.isArray(childIds) || childIds.length === 0) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "Array of child IDs is required" 
+      });
+    }
+    
+    const results = {
+      deleted: [],
+      notFound: [],
+      errors: []
+    };
+    
+    for (const childId of childIds) {
+      try {
+        const deletedStudent = await StudentProfileModel.findOneAndDelete({ 
+          childId: { $regex: new RegExp(`^${childId}$`, 'i') }
+        });
+        
+        if (deletedStudent) {
+          results.deleted.push({
+            childId: deletedStudent.childId,
+            fullName: deletedStudent.fullName
+          });
+          
+          // Delete associated records
+          await Attendance.deleteMany({ 
+            childId: { $regex: new RegExp(`^${childId}$`, 'i') }
+          });
+          
+          await DaycareAttendanceModel.deleteMany({ 
+            childId: { $regex: new RegExp(`^${childId}$`, 'i') }
+          });
+        } else {
+          results.notFound.push(childId);
+        }
+      } catch (err) {
+        results.errors.push({ childId, error: err.message });
+      }
+    }
+    
+    res.json({
+      success: true,
+      message: `Deleted ${results.deleted.length} students successfully`,
+      results: results
+    });
+    
+  } catch (error) {
+    console.error("Error in bulk delete:", error);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to perform bulk delete" 
+    });
+  }
+});
+
+// 10. EXPORT STUDENTS TO CSV (Admin)
+app.get("/admin/students/export/csv", async (req, res) => {
+  try {
+    const { class: className, age, gender } = req.query;
+    let query = {};
+    
+    if (className) query.class = className;
+    if (age) query.age = parseInt(age);
+    if (gender) query.gender = gender;
+    
+    const students = await StudentProfileModel.find(query).sort({ fullName: 1 });
+    
+    if (students.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        error: "No students found for the selected criteria" 
+      });
+    }
+    
+    // Create CSV headers
+    const headers = [
+      "Child ID", "Full Name", "Gender", "Class", "Daycare Add-on", 
+      "Date of Birth", "Age", "Blood Type", "Guardian Name", 
+      "Email", "Contact Numbers", "Medical Information", "Registered Date"
+    ];
+    
+    const csvRows = [
+      headers.join(","),
+      ...students.map(student => {
+        return [
+          `"${student.childId}"`,
+          `"${student.fullName}"`,
+          `"${student.gender}"`,
+          `"${student.class}"`,
+          `"${student.includeDaycare ? 'Yes' : 'No'}"`,
+          `"${student.dob ? new Date(student.dob).toLocaleDateString() : ''}"`,
+          `"${student.age}"`,
+          `"${student.bloodType}"`,
+          `"${student.guardianName}"`,
+          `"${student.email}"`,
+          `"${student.contactNumbers ? student.contactNumbers.join(', ') : ''}"`,
+          `"${(student.medicalInformation || '').replace(/"/g, '""')}"`,
+          `"${student.createdAt ? new Date(student.createdAt).toLocaleDateString() : ''}"`
+        ].join(",");
+      })
+    ];
+    
+    const csvContent = csvRows.join("\n");
+    const fileName = `students_export_${new Date().toISOString().split('T')[0]}.csv`;
+    
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.send(csvContent);
+    
+  } catch (error) {
+    console.error("Error exporting students:", error);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to export student data" 
+    });
+  }
+});
+
+// 11. GET RECENT STUDENTS (For Dashboard)
+app.get("/admin/students/recent/:limit", async (req, res) => {
+  try {
+    const { limit = 10 } = req.params;
+    
+    const students = await StudentProfileModel.find()
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit))
+      .select('childId fullName class age profilePhoto createdAt');
+    
+    res.json({
+      success: true,
+      students: students,
+      count: students.length
+    });
+  } catch (error) {
+    console.error("Error fetching recent students:", error);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to fetch recent students" 
+    });
+  }
+});
+
+// 12. GET STUDENTS WITH NO PROFILE PHOTO
+app.get("/admin/students/no-photo", async (req, res) => {
+  try {
+    const students = await StudentProfileModel.find({
+      $or: [
+        { profilePhoto: { $regex: /^[👦👧]$/ } },
+        { profilePhoto: { $exists: false } }
+      ]
+    }).select('childId fullName class gender');
+    
+    res.json({
+      success: true,
+      students: students,
+      count: students.length
+    });
+  } catch (error) {
+    console.error("Error fetching students without photos:", error);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to fetch students" 
+    });
+  }
+});
+
+// 13. UPDATE STUDENT PHOTO (Admin)
+app.put("/admin/students/:childId/photo", async (req, res) => {
+  try {
+    const { childId } = req.params;
+    const { profilePhoto } = req.body;
+    
+    if (!profilePhoto) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "Profile photo is required" 
+      });
+    }
+    
+    const updatedStudent = await StudentProfileModel.findOneAndUpdate(
+      { childId: { $regex: new RegExp(`^${childId}$`, 'i') } },
+      { $set: { profilePhoto: profilePhoto } },
+      { new: true }
+    ).select('childId fullName profilePhoto');
+    
+    if (!updatedStudent) {
+      return res.status(404).json({ 
+        success: false, 
+        error: "Student not found" 
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: "Profile photo updated successfully!",
+      student: updatedStudent
+    });
+    
+  } catch (error) {
+    console.error("Error updating student photo:", error);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to update profile photo" 
+    });
+  }
+});
+
+// 14. GET STUDENT ATTENDANCE SUMMARY (Admin)
+app.get("/admin/students/:childId/attendance-summary", async (req, res) => {
+  try {
+    const { childId } = req.params;
+    const { startDate, endDate } = req.query;
+    
+    let query = { 
+      childId: { $regex: new RegExp(`^${childId}$`, 'i') }
+    };
+    
+    if (startDate || endDate) {
+      query.date = {};
+      if (startDate) query.date.$gte = startDate;
+      if (endDate) query.date.$lte = endDate;
+    }
+    
+    const attendanceRecords = await Attendance.find(query).sort({ date: -1 });
+    
+    const totalDays = attendanceRecords.length;
+    const presentDays = attendanceRecords.filter(a => a.attendanceStatus === "Present").length;
+    const lateDays = attendanceRecords.filter(a => a.attendanceStatus === "Late").length;
+    const halfDays = attendanceRecords.filter(a => a.attendanceStatus === "Half Day").length;
+    const absentDays = attendanceRecords.filter(a => a.attendanceStatus === "Absent").length;
+    
+    res.json({
+      success: true,
+      childId: childId,
+      student: await StudentProfileModel.findOne({ childId: { $regex: new RegExp(`^${childId}$`, 'i') } }).select('fullName class'),
+      attendanceSummary: {
+        totalDays: totalDays,
+        presentDays: presentDays,
+        lateDays: lateDays,
+        halfDays: halfDays,
+        absentDays: absentDays,
+        attendancePercentage: totalDays > 0 ? ((presentDays + lateDays + halfDays) / totalDays * 100).toFixed(2) : 0
+      },
+      recentRecords: attendanceRecords.slice(0, 10)
+    });
+    
+  } catch (error) {
+    console.error("Error fetching attendance summary:", error);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to fetch attendance summary" 
+    });
+  }
+});
+
 
 // --- SERVER INITIALIZATION ---
 const PORT = process.env.PORT || 3002;

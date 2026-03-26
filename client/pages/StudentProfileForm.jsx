@@ -136,7 +136,7 @@ const StudentProfileForm = () => {
       setFormData({ ...formData, dob: value, age: calculatedAge });
       
       const ageError = calculatedAge < 3 ? "Child must be at least 3 years old" : 
-                      calculatedAge > 5 ? "Child cannot be older than 5 years" : "";
+                     calculatedAge > 5 ? "Child cannot be older than 5 years" : "";
       setValidationErrors(prev => ({
         ...prev,
         age: ageError,
@@ -381,7 +381,7 @@ const StudentProfileForm = () => {
               </div>
             </div>
 
-            <div className="form-row">-
+            <div className="form-row">
               <div className="form-group">
                 <label>Gender *</label>
                 <select name="gender" value={formData.gender} onChange={handleInputChange} required>

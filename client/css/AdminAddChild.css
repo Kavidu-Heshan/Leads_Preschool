@@ -228,3 +228,93 @@ body {
 }
 
 /* Rest of your existing styles... */
+
+/* Delete Button Styles */
+.delete-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.delete-button:hover:not(:disabled) {
+  background-color: #c82333;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.delete-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.delete-button:disabled {
+  background-color: #e0a2a9;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.delete-button svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Small Spinner for Delete Button */
+.spinner-small {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Table Actions Column */
+.children-table th:last-child,
+.children-table td:last-child {
+  text-align: center;
+  width: 100px;
+}
+
+/* Add hover effect for delete button row */
+.children-table tr:hover .delete-button {
+  opacity: 1;
+}
+
+/* Bulk Delete Button */
+.bulk-delete-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  margin-left: 15px;
+}
+
+.bulk-delete-button:hover:not(:disabled) {
+  background-color: #c82333;
+  transform: translateY(-1px);
+}
+
+.bulk-delete-button:disabled {
+  background-color: #e0a2a9;
+  cursor: not-allowed;
+}

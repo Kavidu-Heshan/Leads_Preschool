@@ -2824,6 +2824,165 @@ app.get("/admin/students/:childId/attendance-summary", async (req, res) => {
   }
 });
 
+// ================================
+// CHILD DELETION API
+// ================================
+
+// 1. DELETE CHILD AND ALL ASSOCIATED DATA
+app.delete("/children/:childId", async (req, res) => {
+  try {
+    const { childId } = req.params;
+    
+    console.log(`Attempting to delete child: ${childId}`);
+
+    // First check if child exists
+    const child = await ChildModel.findOne({ 
+      childId: { $regex: new RegExp(`^${childId}$`, 'i') }
+    });
+
+    if (!child) {
+      return res.status(404).json({ 
+        success: false, 
+        error: "Child not found" 
+      });
+    }
+
+    // Store child details for response
+    const childDetails = {
+      childId: child.childId,
+      childName: child.childName
+    };
+
+    // Delete from Child collection
+    const deletedChild = await ChildModel.findOneAndDelete({ 
+      childId: { $regex: new RegExp(`^${childId}$`, 'i') }
+    });
+
+    // Delete from NewChildPwd collection (password changes)
+    const deletedPassword = await NewChildPwdModel.findOneAndDelete({ 
+      childId: { $regex: new RegExp(`^${childId}$`, 'i') }
+    });
+
+    // Delete from StudentProfile collection
+    const deletedProfile = await StudentProfileModel.findOneAndDelete({ 
+      childId: { $regex: new RegExp(`^${childId}$`, 'i') }
+    });
+
+    // Delete from DaycareAttendance collection
+    const deletedDaycareAttendance = await DaycareAttendanceModel.deleteMany({ 
+      childId: { $regex: new RegExp(`^${childId}$`, 'i') }
+    });
+
+    // Delete from Attendance collection
+    const deletedAttendance = await Attendance.deleteMany({ 
+      childId: { $regex: new RegExp(`^${childId}$`, 'i') }
+    });
+
+    console.log(`Successfully deleted child: ${childId}`);
+    console.log(`- Profile deleted: ${!!deletedProfile}`);
+    console.log(`- Password records deleted: ${!!deletedPassword}`);
+    console.log(`- Attendance records deleted: ${deletedAttendance.deletedCount}`);
+    console.log(`- Daycare records deleted: ${deletedDaycareAttendance.deletedCount}`);
+
+    res.status(200).json({ 
+      success: true, 
+      message: `Child "${childDetails.childName}" has been deleted successfully!`,
+      deletedChild: childDetails,
+      stats: {
+        profileDeleted: !!deletedProfile,
+        passwordDeleted: !!deletedPassword,
+        attendanceDeleted: deletedAttendance.deletedCount,
+        daycareDeleted: deletedDaycareAttendance.deletedCount
+      }
+    });
+
+  } catch (err) {
+    console.error("Delete error:", err);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to delete child. Please try again." 
+    });
+  }
+});
+
+// 2. BULK DELETE CHILDREN (Admin)
+app.post("/children/bulk-delete", async (req, res) => {
+  try {
+    const { childIds } = req.body;
+    
+    if (!childIds || !Array.isArray(childIds) || childIds.length === 0) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "Array of child IDs is required" 
+      });
+    }
+
+    const results = {
+      deleted: [],
+      notFound: [],
+      errors: []
+    };
+
+    for (const childId of childIds) {
+      try {
+        // Find the child first
+        const child = await ChildModel.findOne({ 
+          childId: { $regex: new RegExp(`^${childId}$`, 'i') }
+        });
+
+        if (!child) {
+          results.notFound.push(childId);
+          continue;
+        }
+
+        const childDetails = {
+          childId: child.childId,
+          childName: child.childName
+        };
+
+        // Delete from all collections
+        await ChildModel.findOneAndDelete({ 
+          childId: { $regex: new RegExp(`^${childId}$`, 'i') }
+        });
+        
+        await NewChildPwdModel.findOneAndDelete({ 
+          childId: { $regex: new RegExp(`^${childId}$`, 'i') }
+        });
+        
+        await StudentProfileModel.findOneAndDelete({ 
+          childId: { $regex: new RegExp(`^${childId}$`, 'i') }
+        });
+        
+        await DaycareAttendanceModel.deleteMany({ 
+          childId: { $regex: new RegExp(`^${childId}$`, 'i') }
+        });
+        
+        await Attendance.deleteMany({ 
+          childId: { $regex: new RegExp(`^${childId}$`, 'i') }
+        });
+
+        results.deleted.push(childDetails);
+        
+      } catch (err) {
+        results.errors.push({ childId, error: err.message });
+      }
+    }
+
+    res.json({
+      success: true,
+      message: `Deleted ${results.deleted.length} children successfully`,
+      results: results
+    });
+
+  } catch (error) {
+    console.error("Error in bulk delete:", error);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to perform bulk delete" 
+    });
+  }
+});
+
 
 // --- SERVER INITIALIZATION ---
 const PORT = process.env.PORT || 3002;

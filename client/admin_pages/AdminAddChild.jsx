@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../css/AdminAddChild.css";
-// CHANGE 1: Import the correct NavigationBar component
 import AdminNavbar from "../components/AdminNavbar"; 
 
 const AdminAddChild = () => {
@@ -9,11 +8,17 @@ const AdminAddChild = () => {
   const [childName, setChildName] = useState("");
   const [children, setChildren] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
   // LOAD CHILDREN FROM DATABASE
   useEffect(() => {
+    fetchChildren();
+  }, []);
+
+  const fetchChildren = () => {
     axios.get("http://localhost:3002/children")
       .then(res => {
         setChildren(res.data);
@@ -22,7 +27,7 @@ const AdminAddChild = () => {
         console.log("Fetch error:", err);
         setError("Failed to load children data");
       });
-  }, []);
+  };
 
   const isChildIdUnique = (id) => {
     return !children.some(child => child.childId.toLowerCase() === id.toLowerCase());
@@ -99,6 +104,89 @@ const AdminAddChild = () => {
       });
   };
 
+  const handleDeleteChild = async (childId, childName) => {
+    // Show confirmation dialog
+    const confirmDelete = window.confirm(
+      `⚠️ WARNING: This will permanently delete "${childName}" (${childId}) and ALL associated data including:\n\n` +
+      `• Student Profile\n• Attendance Records\n• Daycare Records\n• Password Changes\n\n` +
+      `This action CANNOT be undone. Are you sure you want to proceed?`
+    );
+    
+    if (!confirmDelete) {
+      return;
+    }
+
+    setDeletingId(childId);
+    setIsDeleting(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      // Send delete request to backend
+      const response = await axios.delete(`http://localhost:3002/children/${childId}`);
+      
+      if (response.data.success) {
+        // Remove the child from the local state
+        setChildren(children.filter(child => child.childId !== childId));
+        setSuccess(response.data.message || `Child "${childName}" has been deleted successfully!`);
+        
+        // Log deletion stats
+        if (response.data.stats) {
+          console.log("Deletion stats:", response.data.stats);
+        }
+      }
+    } catch (err) {
+      console.error("Delete error:", err);
+      if (err.response && err.response.data && err.response.data.error) {
+        setError(err.response.data.error);
+      } else {
+        setError("Failed to delete child. Please try again.");
+      }
+    } finally {
+      setIsDeleting(false);
+      setDeletingId(null);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    // For bulk deletion functionality
+    const childIdsToDelete = children.map(child => child.childId);
+    
+    if (childIdsToDelete.length === 0) {
+      setError("No children to delete");
+      return;
+    }
+    
+    const confirmBulkDelete = window.confirm(
+      `⚠️⚠️⚠️ WARNING: This will delete ALL ${childIdsToDelete.length} children and ALL associated data!\n\n` +
+      `This action CANNOT be undone. Are you ABSOLUTELY sure you want to proceed?`
+    );
+    
+    if (!confirmBulkDelete) {
+      return;
+    }
+    
+    setIsDeleting(true);
+    setError("");
+    setSuccess("");
+    
+    try {
+      const response = await axios.post("http://localhost:3002/children/bulk-delete", {
+        childIds: childIdsToDelete
+      });
+      
+      if (response.data.success) {
+        setChildren([]);
+        setSuccess(response.data.message);
+      }
+    } catch (err) {
+      console.error("Bulk delete error:", err);
+      setError("Failed to perform bulk delete. Please try again.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <div className="admin-add-child-wrapper">
       <AdminNavbar />
@@ -121,6 +209,25 @@ const AdminAddChild = () => {
               <span className="stat-value">{children.length}</span>
               <span className="stat-label">Total Children</span>
             </div>
+            {children.length > 0 && (
+              <button 
+                className="bulk-delete-button"
+                onClick={handleBulkDelete}
+                disabled={isDeleting}
+                style={{
+                  marginLeft: '15px',
+                  padding: '8px 16px',
+                  backgroundColor: '#dc3545',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px'
+                }}
+              >
+                Delete All
+              </button>
+            )}
           </div>
         </div>
 
@@ -187,7 +294,7 @@ const AdminAddChild = () => {
                 </div>
               </div>
 
-              <button type="submit" className="submit-button" disabled={isSubmitting}>
+              <button type="submit" className="submit-button" disabled={isSubmitting || isDeleting}>
                 {isSubmitting ? (
                   <>
                     <span className="spinner"></span>
@@ -222,6 +329,7 @@ const AdminAddChild = () => {
                       <th>Child ID</th>
                       <th>Name</th>
                       <th>Registered Date</th>
+                      <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -246,6 +354,23 @@ const AdminAddChild = () => {
                               day: 'numeric'
                             })}
                           </span>
+                        </td>
+                        <td>
+                          <button
+                            className="delete-button"
+                            onClick={() => handleDeleteChild(child.childId, child.childName)}
+                            disabled={isDeleting && deletingId === child.childId}
+                            title={`Delete ${child.childName} and all associated data`}
+                          >
+                            {isDeleting && deletingId === child.childId ? (
+                              <span className="spinner-small"></span>
+                            ) : (
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="currentColor"/>
+                              </svg>
+                            )}
+                            Delete
+                          </button>
                         </td>
                       </tr>
                     ))}

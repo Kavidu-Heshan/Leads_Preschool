@@ -2449,3 +2449,87 @@ tr:hover .teacher-id {
 }
 
 /* Rest of your existing styles... */
+
+/* Fix for table row alignment - Add this to your CSS file */
+
+/* Ensure all table cells in the same row stay together */
+.teachers-table tbody tr {
+  display: table-row;
+  width: 100%;
+}
+
+.teachers-table td {
+  display: table-cell;
+  vertical-align: middle;
+  padding: 1.2rem 1rem;
+  border-bottom: 1px solid var(--gray-light);
+}
+
+/* Fix for experience column */
+.experience-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.experience-years {
+  font-weight: 600;
+  color: var(--primary-dark);
+  display: block;
+}
+
+.previous-school {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+/* Fix for status column */
+.teachers-table td .status-badge {
+  display: inline-block;
+  margin: 0;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+/* Ensure the status cell content is properly aligned */
+.teachers-table td:nth-child(9) {
+  vertical-align: middle;
+  text-align: left;
+}
+
+/* Fix for action buttons column */
+.teachers-table td:nth-child(10) {
+  vertical-align: middle;
+}
+
+/* Ensure the entire row stays intact */
+.teachers-table tr {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+/* Fix any potential flexbox issues in table cells */
+.teachers-table td > div,
+.teachers-table td > span {
+  vertical-align: middle;
+}
+
+/* Specific fix for experience cell content */
+.teachers-table td .experience-info {
+  display: block;
+}
+
+.teachers-table td .experience-info .experience-years {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.teachers-table td .experience-info .previous-school {
+  display: block;
+  font-size: 0.75rem;
+}

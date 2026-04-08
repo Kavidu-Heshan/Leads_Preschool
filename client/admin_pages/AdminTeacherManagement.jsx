@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import '../css/AdminTeacherManagement.css';
 import NavigationBar from '../components/AdminNavbar';
 
@@ -266,6 +268,133 @@ const AdminTeacherManagement = () => {
       console.error('Error fetching class summary:', err);
     }
   };
+
+  // PDF Export Function
+ // PDF Export Function
+const exportToPDF = () => {
+  if (filteredTeachers.length === 0) {
+    setError('No teachers to export');
+    return;
+  }
+
+  // Create new PDF document
+  const doc = new jsPDF('landscape');
+  
+  // Add title
+  doc.setFontSize(18);
+  doc.setTextColor(44, 62, 80);
+  doc.text('Teacher Management Report', 14, 15);
+  
+  // Add subtitle with date
+  doc.setFontSize(10);
+  doc.setTextColor(100, 100, 100);
+  const dateStr = new Date().toLocaleString();
+  doc.text(`Generated on: ${dateStr}`, 14, 25);
+  
+  // Add filters info if any
+  let filterText = '';
+  if (filterStatus) filterText += `Status: ${filterStatus} | `;
+  if (filterClass) filterText += `Class: ${filterClass} | `;
+  if (searchTerm) filterText += `Search: ${searchTerm} | `;
+  
+  if (filterText) {
+    doc.setFontSize(9);
+    doc.setTextColor(150, 150, 150);
+    doc.text(`Filters: ${filterText.slice(0, -3)}`, 14, 33);
+  }
+  
+  // Prepare table data - without Photo column
+  const tableColumn = [
+    'Teacher ID',
+    'Registered Name',
+    'Contact',
+    'Qualification',
+    'Assigned Classes',
+    'Experience',
+    'Status'
+  ];
+  
+  const tableRows = [];
+  
+  for (const teacher of filteredTeachers) {
+    // Get contact info
+    const contactInfo = `${teacher.email || 'N/A'}\n${teacher.phoneNumber || 'N/A'}`;
+    
+    // Get qualification info
+    const qualInfo = `${teacher.qualification || 'N/A'}\n${teacher.specialization || ''}`;
+    
+    // Get assigned classes without emojis
+    const assignedClasses = teacher.assignedClasses && teacher.assignedClasses.length > 0
+      ? teacher.assignedClasses.map(c => `${c.className}${c.section ? `-${c.section}` : ''}${c.isClassTeacher ? ' (Class Teacher)' : ''}`).join(', ')
+      : 'Not Assigned';
+    
+    // Get experience
+    const experienceText = `${teacher.experience || 0} years`;
+    
+    tableRows.push([
+      teacher.teacherId || 'N/A',
+      teacher.teacherName || 'N/A',
+      contactInfo,
+      qualInfo,
+      assignedClasses,
+      experienceText,
+      teacher.status || 'N/A'
+    ]);
+  }
+  
+  // Add table to PDF using autoTable
+  autoTable(doc, {
+    head: [tableColumn],
+    body: tableRows,
+    startY: 40,
+    theme: 'grid',
+    styles: {
+      fontSize: 8,
+      cellPadding: 2,
+      lineColor: [200, 200, 200],
+      lineWidth: 0.1,
+    },
+    headStyles: {
+      fillColor: [52, 152, 219],
+      textColor: [255, 255, 255],
+      fontSize: 9,
+      fontStyle: 'bold',
+      halign: 'center',
+    },
+    columnStyles: {
+      0: { cellWidth: 30 },
+      1: { cellWidth: 40 },
+      2: { cellWidth: 45 },
+      3: { cellWidth: 40 },
+      4: { cellWidth: 50 },
+      5: { cellWidth: 25, halign: 'center' },
+      6: { cellWidth: 30, halign: 'center' },
+    },
+    alternateRowStyles: {
+      fillColor: [245, 245, 245],
+    },
+    margin: { left: 10, right: 10 },
+  });
+  
+  // Add footer with page numbers
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8);
+    doc.setTextColor(150, 150, 150);
+    doc.text(
+      `Page ${i} of ${pageCount} | Total Teachers: ${filteredTeachers.length}`,
+      doc.internal.pageSize.getWidth() / 2,
+      doc.internal.pageSize.getHeight() - 10,
+      { align: 'center' }
+    );
+  }
+  
+  // Save the PDF
+  doc.save(`teachers_report_${new Date().toISOString().split('T')[0]}.pdf`);
+  setSuccess('PDF exported successfully!');
+  setTimeout(() => setSuccess(''), 3000);
+};
 
   const validateForm = () => {
     const errors = {};
@@ -1514,7 +1643,7 @@ const AdminTeacherManagement = () => {
                                   checked={teacher.selected || false}
                                   onChange={() => toggleTeacherSelection(teacher.teacherId)}
                                 />
-                              </td>
+                               </td>
                               <td>
                                 <div className="teacher-photo-cell">
                                   {photoUrl ? (
@@ -1535,10 +1664,10 @@ const AdminTeacherManagement = () => {
                                     </div>
                                   )}
                                 </div>
-                              </td>
+                               </td>
                               <td>
                                 <span className="teacher-id">{teacher.teacherId}</span>
-                              </td>
+                               </td>
                               <td>
                                 <div className="teacher-name-cell">
                                   <strong>{teacher.teacherName}</strong>
@@ -1546,19 +1675,19 @@ const AdminTeacherManagement = () => {
                                     <span className="class-teacher-badge">Class Teacher</span>
                                   )}
                                 </div>
-                              </td>
+                               </td>
                               <td>
                                 <div className="contact-info">
                                   <div>{teacher.email}</div>
                                   <div className="phone">{teacher.phoneNumber}</div>
                                 </div>
-                              </td>
+                               </td>
                               <td>
                                 <div className="qualification-info">
                                   <div>{teacher.qualification}</div>
                                   <div className="specialization">{teacher.specialization}</div>
                                 </div>
-                              </td>
+                               </td>
                               <td>
                                 <div className="assigned-classes">
                                   {teacher.assignedClasses && teacher.assignedClasses.length > 0 ? (
@@ -1581,7 +1710,7 @@ const AdminTeacherManagement = () => {
                                     <span className="not-assigned">Not Assigned</span>
                                   )}
                                 </div>
-                              </td>
+                               </td>
                               <td>
                                 <div className="experience-info">
                                   <span className="experience-years">{teacher.experience} years</span>
@@ -1591,12 +1720,12 @@ const AdminTeacherManagement = () => {
                                     </div>
                                   )}
                                 </div>
-                              </td>
+                               </td>
                               <td>
                                 <span className={`status-badge ${getStatusBadgeClass(teacher.status)}`}>
                                   {teacher.status}
                                 </span>
-                              </td>
+                               </td>
                               <td>
                                 <div className="action-buttons">
                                   <button
@@ -1628,8 +1757,8 @@ const AdminTeacherManagement = () => {
                                     📸
                                   </button>
                                 </div>
-                              </td>
-                            </tr>
+                               </td>
+                             </tr>
                           );
                         })
                       )}
@@ -1681,31 +1810,8 @@ const AdminTeacherManagement = () => {
                 Showing {filteredTeachers.length} of {teachers.length} teachers
               </div>
               <div className="footer-actions">
-                <button className="export-btn" onClick={() => {
-                  // Export functionality
-                  const csvContent = [
-                    ['Teacher ID', 'Name', 'Email', 'Phone', 'Qualification', 'Specialization', 'Assigned Classes', 'Experience', 'Status'],
-                    ...filteredTeachers.map(t => [
-                      t.teacherId,
-                      t.teacherName,
-                      t.email,
-                      t.phoneNumber,
-                      t.qualification,
-                      t.specialization,
-                      t.assignedClasses?.map(c => `${c.className}${c.section ? `-${c.section}` : ''}`).join('; ') || 'Not Assigned',
-                      t.experience,
-                      t.status
-                    ])
-                  ].map(row => row.join(',')).join('\n');
-                  
-                  const blob = new Blob([csvContent], { type: 'text/csv' });
-                  const url = window.URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = `teachers_${new Date().toISOString().split('T')[0]}.csv`;
-                  a.click();
-                }}>
-                  📥 Export to CSV
+                <button className="export-btn" onClick={exportToPDF}>
+                  📄 Export to PDF
                 </button>
               </div>
             </div>

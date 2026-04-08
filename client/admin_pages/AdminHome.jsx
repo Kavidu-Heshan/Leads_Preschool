@@ -7,6 +7,7 @@ import NavigationBar from '../components/AdminNavbar';
 
 const AdminHome = () => {
   // State for dashboard data
+  // eslint-disable-next-line no-unused-vars
   const [stats, setStats] = useState({
     totalChildren: 0,
     totalTeachers: 0,
@@ -230,58 +231,6 @@ const AdminHome = () => {
     });
   };
 
-  // Quick Stats data
-  const quickStats = [
-    { 
-      label: 'Total Children', 
-      value: stats.totalChildren, 
-      icon: '👧', 
-      trend: '+12%', 
-      trendUp: true,
-      color: '#4caf50'
-    },
-    { 
-      label: 'Total Teachers', 
-      value: stats.totalTeachers, 
-      icon: '👩‍🏫', 
-      trend: '+2', 
-      trendUp: true,
-      color: '#8bc34a'
-    },
-    { 
-      label: 'Today\'s Events', 
-      value: stats.todayEvents, 
-      icon: '📅', 
-      trend: stats.todayEvents > 0 ? `${stats.todayEvents} today` : 'No events',
-      trendUp: stats.todayEvents > 0,
-      color: '#ff9800'
-    },
-    { 
-      label: 'Upcoming Events', 
-      value: stats.upcomingEvents, 
-      icon: '⏳', 
-      trend: `${stats.upcomingEvents} upcoming`,
-      trendUp: stats.upcomingEvents > 0,
-      color: '#2196f3'
-    },
-    { 
-      label: 'Pending Messages', 
-      value: stats.pendingMessages, 
-      icon: '💬', 
-      trend: stats.pendingMessages > 0 ? 'Needs attention' : 'All resolved',
-      trendUp: stats.pendingMessages === 0,
-      color: '#f44336'
-    },
-    { 
-      label: 'Daycare Present', 
-      value: `${stats.daycarePresent}/5`, 
-      icon: '🏫', 
-      trend: stats.daycarePresent >= 5 ? 'Full capacity' : `${5 - stats.daycarePresent} spots left`,
-      trendUp: stats.daycarePresent < 5,
-      color: '#9c27b0'
-    }
-  ];
-
   return (
     <div className="admin-home-wrapper">
       <NavigationBar />
@@ -353,31 +302,6 @@ const AdminHome = () => {
             </div>
           ) : (
             <>
-              {/* Quick Stats Cards */}
-              <div className="stats-section">
-                <h2 className="section-title animate-fade-in">Quick Overview</h2>
-                <div className="stats-grid">
-                  {quickStats.map((stat, index) => (
-                    <div 
-                      key={stat.label} 
-                      className="stat-card animate-scale-up"
-                      style={{ animationDelay: `${index * 0.05}s` }}
-                    >
-                      <div className="stat-icon-wrapper" style={{ backgroundColor: `${stat.color}15` }}>
-                        <span className="stat-icon">{stat.icon}</span>
-                      </div>
-                      <div className="stat-info">
-                        <h3 className="stat-value">{stat.value}</h3>
-                        <p className="stat-label">{stat.label}</p>
-                      </div>
-                      <div className={`stat-trend ${stat.trendUp ? 'trend-up' : 'trend-down'}`}>
-                        {stat.trend}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
               {/* Main Dashboard Cards */}
               <div className="dashboard-section">
                 <h2 className="section-title animate-fade-in">Management Tools</h2>
@@ -492,37 +416,6 @@ const AdminHome = () => {
                       )}
                     </div>
                   </div>
-                </div>
-              </div>
-
-              {/* Quick Actions Section */}
-              <div className="quick-actions-section">
-                <h2 className="section-title animate-fade-in">Quick Actions</h2>
-                <div className="quick-actions-grid">
-                  <Link to="/adminaddchild" className="quick-action-btn animate-pulse-hover">
-                    <span className="action-icon">👧</span>
-                    <span>Add Child</span>
-                  </Link>
-                  <Link to="/adminteachermanagement" className="quick-action-btn animate-pulse-hover">
-                    <span className="action-icon">👩‍🏫</span>
-                    <span>Add Teacher</span>
-                  </Link>
-                  <Link to="/adminevent" className="quick-action-btn animate-pulse-hover">
-                    <span className="action-icon">📅</span>
-                    <span>Create Event</span>
-                  </Link>
-                  <Link to="/uploadPhoto" className="quick-action-btn animate-pulse-hover">
-                    <span className="action-icon">📸</span>
-                    <span>Upload Photos</span>
-                  </Link>
-                  <Link to="/adminmessage" className="quick-action-btn animate-pulse-hover">
-                    <span className="action-icon">💬</span>
-                    <span>View Messages</span>
-                  </Link>
-                  <Link to="/admindaycaredashboard" className="quick-action-btn animate-pulse-hover">
-                    <span className="action-icon">🏫</span>
-                    <span>Daycare Report</span>
-                  </Link>
                 </div>
               </div>
 

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../css/AdminAddChild.css";
 import AdminNavbar from "../components/AdminNavbar"; 
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const AdminAddChild = () => {
   const [childId, setChildId] = useState("");
@@ -12,6 +14,7 @@ const AdminAddChild = () => {
   const [deletingId, setDeletingId] = useState(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [isDownloading, setIsDownloading] = useState(false);
 
   // LOAD CHILDREN FROM DATABASE
   useEffect(() => {
@@ -46,6 +49,122 @@ const AdminAddChild = () => {
       return () => clearTimeout(timer);
     }
   }, [error, success]);
+
+  // PDF DOWNLOAD FUNCTION - FIXED VERSION
+  const downloadPDF = () => {
+    if (children.length === 0) {
+      setError("No children data to download");
+      return;
+    }
+
+    setIsDownloading(true);
+
+    try {
+      // Create new PDF document
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      // Add title
+      doc.setFontSize(20);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(34, 197, 94);
+      doc.text('Children Registration Report', 14, 20);
+      
+      // Add subtitle / date
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(100, 116, 139);
+      const currentDate = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      doc.text(`Generated on: ${currentDate}`, 14, 30);
+      doc.text(`Total Children: ${children.length}`, 14, 37);
+
+      // Add a line separator
+      doc.setDrawColor(226, 232, 240);
+      doc.setLineWidth(0.5);
+      doc.line(14, 42, 200, 42);
+
+      // Prepare table data
+      const tableData = children.map((child) => [
+        child.childId || 'N/A',
+        child.childName || 'N/A',
+        child.registeredDate ? new Date(child.registeredDate).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        }) : 'N/A'
+      ]);
+
+      // Generate table with autoTable - FIXED: using imported autoTable function
+      autoTable(doc, {
+        startY: 48,
+        head: [['Child ID', 'Name', 'Registered Date']],
+        body: tableData,
+        theme: 'grid',
+        headStyles: {
+          fillColor: [34, 197, 94],
+          textColor: [255, 255, 255],
+          fontStyle: 'bold',
+          fontSize: 11,
+          halign: 'center',
+          valign: 'middle'
+        },
+        bodyStyles: {
+          fontSize: 10,
+          textColor: [30, 41, 59],
+          valign: 'middle'
+        },
+        alternateRowStyles: {
+          fillColor: [240, 253, 244]
+        },
+        columnStyles: {
+          0: { cellWidth: 50, halign: 'center' },
+          1: { cellWidth: 70, halign: 'left' },
+          2: { cellWidth: 50, halign: 'center' }
+        },
+        margin: { left: 14, right: 14 }
+      });
+
+      // Add footer on each page
+      const pageCount = doc.internal.getNumberOfPages();
+      doc.setFontSize(8);
+      doc.setTextColor(148, 163, 184);
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.text(
+          `Page ${i} of ${pageCount}`,
+          doc.internal.pageSize.getWidth() / 2,
+          doc.internal.pageSize.getHeight() - 10,
+          { align: 'center' }
+        );
+      }
+
+      // Add summary at the end
+      const finalY = doc.lastAutoTable.finalY + 10;
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'italic');
+      doc.setTextColor(100, 116, 139);
+      doc.text(`* This report includes all registered children in the system.`, 14, finalY);
+      doc.text(`* Total registered children: ${children.length}`, 14, finalY + 6);
+
+      // Save the PDF
+      doc.save(`children_report_${new Date().toISOString().split('T')[0]}.pdf`);
+      setSuccess("PDF downloaded successfully!");
+    } catch (err) {
+      console.error("PDF generation error:", err);
+      setError("Failed to generate PDF. Please try again.");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -105,7 +224,6 @@ const AdminAddChild = () => {
   };
 
   const handleDeleteChild = async (childId, childName) => {
-    // Show confirmation dialog
     const confirmDelete = window.confirm(
       `⚠️ WARNING: This will permanently delete "${childName}" (${childId}) and ALL associated data including:\n\n` +
       `• Student Profile\n• Attendance Records\n• Daycare Records\n• Password Changes\n\n` +
@@ -122,15 +240,12 @@ const AdminAddChild = () => {
     setSuccess("");
 
     try {
-      // Send delete request to backend
       const response = await axios.delete(`http://localhost:3002/children/${childId}`);
       
       if (response.data.success) {
-        // Remove the child from the local state
         setChildren(children.filter(child => child.childId !== childId));
         setSuccess(response.data.message || `Child "${childName}" has been deleted successfully!`);
         
-        // Log deletion stats
         if (response.data.stats) {
           console.log("Deletion stats:", response.data.stats);
         }
@@ -149,7 +264,6 @@ const AdminAddChild = () => {
   };
 
   const handleBulkDelete = async () => {
-    // For bulk deletion functionality
     const childIdsToDelete = children.map(child => child.childId);
     
     if (childIdsToDelete.length === 0) {
@@ -201,8 +315,8 @@ const AdminAddChild = () => {
         
         <div className="dashboard-header">
           <div className="header-content">
-            <h1>Child Management</h1>
-            <p className="header-subtitle">Register and manage children in the system</p>
+            <h1>Parent Management</h1>
+            <p className="header-subtitle">Register and manage parent's children in the system</p>
           </div>
           <div className="header-stats">
             <div className="stat-item">
@@ -210,23 +324,34 @@ const AdminAddChild = () => {
               <span className="stat-label">Total Children</span>
             </div>
             {children.length > 0 && (
-              <button 
-                className="bulk-delete-button"
-                onClick={handleBulkDelete}
-                disabled={isDeleting}
-                style={{
-                  marginLeft: '15px',
-                  padding: '8px 16px',
-                  backgroundColor: '#dc3545',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontSize: '14px'
-                }}
-              >
-                Delete All
-              </button>
+              <>
+                <button 
+                  className="download-pdf-button"
+                  onClick={downloadPDF}
+                  disabled={isDownloading}
+                >
+                  {isDownloading ? (
+                    <>
+                      <span className="spinner-small"></span>
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="currentColor"/>
+                      </svg>
+                      Download PDF
+                    </>
+                  )}
+                </button>
+                <button 
+                  className="bulk-delete-button"
+                  onClick={handleBulkDelete}
+                  disabled={isDeleting}
+                >
+                  Delete All
+                </button>
+              </>
             )}
           </div>
         </div>

@@ -319,7 +319,7 @@ const ChildEnroll = () => {
             <div className="header-icon">
               <span className="tree-icon">{loginType === "child" ? "🌳" : "👩‍🏫"}</span>
             </div>
-            <h1>{loginType === "child" ? "Child Login" : "Teacher Login"}</h1>
+            <h1>{loginType === "child" ? "Parent Login" : "Teacher Login"}</h1>
             <p className="header-subtitle">
               {loginType === "child" 
                 ? "Welcome back! Enter your Child ID and password to continue." 
@@ -335,7 +335,7 @@ const ChildEnroll = () => {
               onClick={() => handleLoginTypeChange("child")}
             >
               <span className="toggle-icon">👧</span>
-              Child Login
+              Parent Login
             </button>
             <button
               type="button"

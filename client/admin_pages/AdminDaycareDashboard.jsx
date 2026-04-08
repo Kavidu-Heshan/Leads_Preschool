@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import '../css/AdminDaycareDashboard.css';
 import AdminNavbar from '../components/AdminNavbar';
 import '../css/AdminDaycareDashboardnavbar.css'
@@ -142,6 +144,92 @@ const AdminDaycareDashboard = () => {
     return student.profilePhoto || student.photo || null;
   };
 
+  // Helper function to get facility
+  const getFacility = (student) => {
+    return getStudentClass(student) === 'Daycare' ? 'Primary' : 'Extended';
+  };
+
+  // Function to download PDF
+  const downloadPDF = () => {
+    // Use presentStudents which only includes eligible students that are present
+    if (presentStudents.length === 0) {
+      alert('No students present today to generate PDF.');
+      return;
+    }
+
+    const doc = new jsPDF('landscape');
+    
+    // Add title
+    doc.setFontSize(18);
+    doc.setTextColor(46, 125, 50);
+    doc.text('Daycare Attendance Report', 14, 15);
+    
+    // Add date
+    doc.setFontSize(11);
+    doc.setTextColor(100, 100, 100);
+    const todayDate = new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    doc.text(`Date: ${todayDate}`, 14, 25);
+    doc.text(`Total Present: ${presentStudents.length} / 5`, 14, 32);
+    
+    // Prepare table data
+    const tableData = presentStudents.map(student => [
+      getStudentId(student),
+      getStudentName(student),
+      getStudentClass(student),
+      getFacility(student)
+    ]);
+    
+    // Generate table
+    autoTable(doc, {
+      startY: 40,
+      head: [['Student ID', 'Student Name', 'Main Class', 'Facility']],
+      body: tableData,
+      headStyles: {
+        fillColor: [76, 175, 80],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+        halign: 'center'
+      },
+      styles: {
+        fontSize: 10,
+        cellPadding: 5,
+        halign: 'center',
+        valign: 'middle'
+      },
+      columnStyles: {
+        0: { cellWidth: 50 },
+        1: { cellWidth: 70 },
+        2: { cellWidth: 60 },
+        3: { cellWidth: 50 }
+      },
+      alternateRowStyles: {
+        fillColor: [240, 248, 240]
+      }
+    });
+    
+    // Add footer
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text(
+        `Generated on ${new Date().toLocaleString()} - Daycare Management System`,
+        doc.internal.pageSize.getWidth() / 2,
+        doc.internal.pageSize.getHeight() - 10,
+        { align: 'center' }
+      );
+    }
+    
+    // Save the PDF
+    doc.save(`daycare_attendance_${new Date().toISOString().split('T')[0]}.pdf`);
+  };
+
   if (loading) {
     return (
       <div className="admin-daycare-wrapper">
@@ -197,9 +285,20 @@ const AdminDaycareDashboard = () => {
                 <h3 className="stat-number">{students.length}</h3>
                 <span className="stat-label">Total Eligible</span>
               </div>
-              <div className={`stat-card ${presentToday.length >= 5 ? 'full' : ''}`}>
-                <h3 className="stat-number">{presentToday.length} / 5</h3>
+              <div className={`stat-card ${presentStudents.length >= 5 ? 'full' : ''}`}>
+                <h3 className="stat-number">{presentStudents.length} / 5</h3>
                 <span className="stat-label">Present Today</span>
+              </div>
+              {/* Download PDF Button */}
+              <div className="stat-card download-card">
+                <button 
+                  className="download-pdf-btn"
+                  onClick={downloadPDF}
+                  disabled={presentStudents.length === 0}
+                >
+                  <span>📄</span>
+                  Download PDF Report
+                </button>
               </div>
             </div>
           </div>
@@ -260,12 +359,18 @@ const AdminDaycareDashboard = () => {
                       Present Today
                     </div>
 
-                    {/* Profile Photo Avatar */}
+                    {/* Profile Photo - Round */}
                     <div className="student-avatar">
                       {getProfilePhoto(student) ? (
-                        <img src={getProfilePhoto(student)} alt={getStudentName(student)} style={{width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover'}} />
+                        <img 
+                          src={getProfilePhoto(student)} 
+                          alt={getStudentName(student)} 
+                          className="avatar-image"
+                        />
                       ) : (
-                        getStudentGender(student) === 'Male' ? '👦' : '👧'
+                        <div className="avatar-placeholder">
+                          {getStudentGender(student) === 'Male' ? '👦' : '👧'}
+                        </div>
                       )}
                     </div>
 
@@ -280,9 +385,7 @@ const AdminDaycareDashboard = () => {
                       </div>
                       <div className="detail-item">
                         <span className="detail-label">Facility</span>
-                        <strong className="detail-value">
-                          {getStudentClass(student) === 'Daycare' ? 'Primary' : 'Extended'}
-                        </strong>
+                        <strong className="detail-value">{getFacility(student)}</strong>
                       </div>
                     </div>
                   </div>
@@ -314,12 +417,18 @@ const AdminDaycareDashboard = () => {
                       Not Present
                     </div>
 
-                    {/* Profile Photo Avatar */}
+                    {/* Profile Photo - Round */}
                     <div className="student-avatar">
                       {getProfilePhoto(student) ? (
-                        <img src={getProfilePhoto(student)} alt={getStudentName(student)} style={{width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover'}} />
+                        <img 
+                          src={getProfilePhoto(student)} 
+                          alt={getStudentName(student)} 
+                          className="avatar-image"
+                        />
                       ) : (
-                        getStudentGender(student) === 'Male' ? '👦' : '👧'
+                        <div className="avatar-placeholder">
+                          {getStudentGender(student) === 'Male' ? '👦' : '👧'}
+                        </div>
                       )}
                     </div>
 
@@ -334,9 +443,7 @@ const AdminDaycareDashboard = () => {
                       </div>
                       <div className="detail-item">
                         <span className="detail-label">Facility</span>
-                        <strong className="detail-value">
-                          {getStudentClass(student) === 'Daycare' ? 'Primary' : 'Extended'}
-                        </strong>
+                        <strong className="detail-value">{getFacility(student)}</strong>
                       </div>
                     </div>
                   </div>

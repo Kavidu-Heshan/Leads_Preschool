@@ -445,10 +445,35 @@
 }
 
 /* Avatar */
-.student-avatar {
-  width: 100px;
-  height: 100px;
+/* Round Profile Photo Styles - Add this at the end of your CSS file */
+
+/* Avatar Image - makes profile photos round */
+.avatar-image {
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Avatar Placeholder - for students without photos */
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  background: linear-gradient(145deg, #E8F5E9, #C8E6C9);
+}
+
+/* Fix for student-avatar to ensure round shape */
+.student-avatar {
+  width: 150px;
+  height: 200px;
+  border-radius: 50%;
+  overflow: hidden;
   background: linear-gradient(145deg, #E8F5E9, #C8E6C9);
   display: flex;
   align-items: center;
@@ -458,6 +483,32 @@
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.05), 0 8px 20px rgba(76, 175, 80, 0.2);
   transition: all 0.3s ease;
   animation: avatarPop 0.6s ease-out;
+}
+
+/* Hover effect for avatar */
+.student-card:hover .student-avatar {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 10px 30px rgba(76, 175, 80, 0.4);
+}
+
+/* Make sure images are perfectly round */
+.student-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* Responsive - smaller avatars on mobile */
+@media (max-width: 768px) {
+  .student-avatar {
+    width: 80px;
+    height: 100px;
+  }
+  
+  .avatar-placeholder {
+    font-size: 2.5rem;
+  }
 }
 
 @keyframes avatarPop {
@@ -980,5 +1031,55 @@
   }
   .student-card.present:hover {
     animation: none;
+  }
+}
+/* Download PDF Button Styles */
+.download-card {
+  background: linear-gradient(135deg, #f5f5f5, #e8f5e9);
+  padding: 10px 20px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.download-pdf-btn {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+}
+
+.download-pdf-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3);
+}
+
+.download-pdf-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.download-pdf-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .download-pdf-btn {
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+  
+  .download-pdf-btn span {
+    font-size: 14px;
   }
 }

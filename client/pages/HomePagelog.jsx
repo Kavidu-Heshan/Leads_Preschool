@@ -1,10 +1,40 @@
-import React from 'react';
+// HomePagelog.jsx
+import React, { useState, useEffect } from 'react';
 import '../css/HomePage.css';
 import p1 from '../src/img/src_pre/p1.avif';
 import p2 from '../src/img/src_pre/p2.avif';
 import { Link } from "react-router-dom";
+import axios from 'axios';
 
 const HomePagelog = () => {
+  const [recentFeedbacks, setRecentFeedbacks] = useState([]);
+  const [loadingFeedbacks, setLoadingFeedbacks] = useState(true);
+
+  // Fetch recent feedback messages
+  useEffect(() => {
+    fetchRecentFeedbacks();
+  }, []);
+
+  const fetchRecentFeedbacks = async () => {
+    try {
+      const response = await axios.get('http://localhost:3002/messages');
+      // Filter only feedback type messages and get the 2 most recent
+      const feedbacks = response.data
+        .filter(msg => msg.messageType === 'feedback' && msg.status === 'reviewed')
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 2);
+      setRecentFeedbacks(feedbacks);
+    } catch (err) {
+      console.error('Error fetching feedbacks:', err);
+    } finally {
+      setLoadingFeedbacks(false);
+    }
+  };
+
+  const renderStars = (rating) => {
+    return '★'.repeat(rating) + '☆'.repeat(5 - rating);
+  };
+
   return (
     <div className="home-page-wrapper">
       
@@ -24,7 +54,6 @@ const HomePagelog = () => {
               <Link to="/childenroll">
                 <button className="btn btn-primary">Enroll Now</button>
               </Link>
-              <button className="btn btn-secondary">Watch Video</button>
             </div>
           </div>
           <div className="hero-image">
@@ -89,7 +118,9 @@ const HomePagelog = () => {
               <li>✅ Safe & Secure Environment</li>
               <li>✅ Modern Montessori Methods</li>
             </ul>
-            <button className="btn btn-text">Learn More &rarr;</button>
+            <Link to="/about">
+              <button className="btn btn-text">Learn More &rarr;</button>
+            </Link>
           </div>
         </div>
       </section>
@@ -116,28 +147,67 @@ const HomePagelog = () => {
         </div>
       </section>
 
-      {/* --- 5. TESTIMONIALS ---
+      {/* --- 5. RECENT FEEDBACKS SECTION (Updated) --- */}
       <section className="testimonials-section" id="reviews">
         <div className="container">
           <div className="section-title">
             <h2>Parents Say</h2>
+            <p>Latest feedback from our wonderful parent community</p>
           </div>
-          <div className="review-grid">
-            <div className="review-card">
-              <p>"The best decision we made for our daughter. She loves the outdoor activities!"</p>
-              <div className="reviewer">
-                <strong>- Sarah P.</strong>
-              </div>
+          
+          {loadingFeedbacks ? (
+            <div className="loading-feedbacks">
+              <div className="spinner"></div>
+              <p>Loading latest feedbacks...</p>
             </div>
-            <div className="review-card">
-              <p>"The teachers are so supportive and kind. Highly recommended for early education."</p>
-              <div className="reviewer">
-                <strong>- Ruwan D.</strong>
-              </div>
+          ) : recentFeedbacks.length === 0 ? (
+            <div className="no-feedbacks">
+              <div className="no-feedbacks-icon">💬</div>
+              <h3>No Feedbacks Yet</h3>
+              
             </div>
-          </div>
+          ) : (
+            <div className="review-grid">
+              {recentFeedbacks.map((feedback) => (
+                <div key={feedback._id} className="review-card feedback-card">
+                  <div className="review-header">
+                    <div className="reviewer-avatar">
+                      <span className="avatar-icon">👩‍👧</span>
+                    </div>
+                    <div className="reviewer-info">
+                      <strong className="reviewer-name">
+                        {feedback.isAnonymous ? 'Happy Parent' : feedback.name}
+                      </strong>
+                      <div className="review-rating">
+                        <span className="stars">{renderStars(feedback.rating || 5)}</span>
+                        <span className="rating-text">({feedback.rating || 5}/5)</span>
+                      </div>
+                    </div>
+                    <div className="feedback-badge">
+                      <span className="badge-feedback">⭐ Feedback</span>
+                    </div>
+                  </div>
+                  <div className="review-subject">
+                    <h4>{feedback.subject}</h4>
+                  </div>
+                  <p className="review-message">"{feedback.message}"</p>
+                  <div className="review-footer">
+                    <small className="review-date">
+                      📅 {new Date(feedback.createdAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </small>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          
+          
         </div>
-      </section> */}
+      </section>
 
       {/* --- 6. FOOTER --- */}
       <footer className="footer-section">

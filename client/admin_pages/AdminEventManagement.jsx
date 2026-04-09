@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import '../css/AdminEventManagement.css';
 import NavigationBar from '../components/AdminNavbar';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const AdminEventManagement = () => {
   const [activeTab, setActiveTab] = useState('all');
@@ -94,6 +96,241 @@ const AdminEventManagement = () => {
     }
   };
 
+  // Helper function to format time for PDF
+  const formatTimeForPDF = (timeString) => {
+    if (!timeString) return '';
+    const [hours, minutes] = timeString.split(':');
+    const date = new Date();
+    date.setHours(parseInt(hours), parseInt(minutes));
+    return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+  };
+
+  // Helper function to format date for PDF
+  const formatDateForPDF = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
+
+  // Check if event is today
+  const isToday = (dateString) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const eventDate = new Date(dateString);
+    eventDate.setHours(0, 0, 0, 0);
+    return eventDate.getTime() === today.getTime();
+  };
+
+  // Check if event is upcoming
+  const isUpcoming = (dateString) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const eventDate = new Date(dateString);
+    eventDate.setHours(0, 0, 0, 0);
+    return eventDate.getTime() > today.getTime();
+  };
+
+  // Check if event is past
+  const isPast = (dateString) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const eventDate = new Date(dateString);
+    eventDate.setHours(0, 0, 0, 0);
+    return eventDate.getTime() < today.getTime();
+  };
+
+  // PDF Download Function - Single PDF with 3 Tables
+  const downloadCompleteEventsPDF = async () => {
+    try {
+      setLoading(true);
+      
+      // Fetch all events
+      const response = await fetch('http://localhost:3002/events');
+      const allEvents = await response.json();
+      
+      if (!allEvents || allEvents.length === 0) {
+        setError('No events available to download');
+        setTimeout(() => setError(''), 3000);
+        setLoading(false);
+        return;
+      }
+
+      // Categorize events
+      const todayEvents = allEvents.filter(event => isToday(event.eventDate));
+      const upcomingEvents = allEvents.filter(event => isUpcoming(event.eventDate));
+      const pastEvents = allEvents.filter(event => isPast(event.eventDate));
+
+      // Create PDF document
+      const doc = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      let currentY = 15;
+      
+      // Header
+      doc.setFontSize(22);
+      doc.setTextColor(41, 128, 185);
+      doc.text('DAYCARE MANAGEMENT SYSTEM', 14, currentY);
+      currentY += 12;
+      
+      doc.setFontSize(18);
+      doc.setTextColor(0, 0, 0);
+      doc.text('Complete Events Report', 14, currentY);
+      currentY += 12;
+      
+      // Report details
+      doc.setFontSize(11);
+      doc.setTextColor(100, 100, 100);
+      const currentDate = new Date().toLocaleDateString('en-US', { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+      doc.text(`Report Date: ${currentDate}`, 14, currentY);
+      currentY += 8;
+      
+      const generationTime = new Date().toLocaleString();
+      doc.text(`Generated: ${generationTime}`, 14, currentY);
+      currentY += 12;
+      
+      // Summary
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0);
+      doc.text('Summary Statistics:', 14, currentY);
+      currentY += 7;
+      
+      doc.setFontSize(10);
+      doc.text(`• Total Events: ${allEvents.length}`, 14, currentY);
+      currentY += 6;
+      doc.text(`• Today's Events: ${todayEvents.length}`, 14, currentY);
+      currentY += 6;
+      doc.text(`• Upcoming Events: ${upcomingEvents.length}`, 14, currentY);
+      currentY += 6;
+      doc.text(`• Past Events: ${pastEvents.length}`, 14, currentY);
+      currentY += 12;
+      
+      const columns = ["Event Name", "Type", "Date", "Time", "Venue", "Organizer"];
+      
+      // Helper function to add a table section
+      const addTableSection = (title, eventsData, titleColor) => {
+        if (currentY > 180) {
+          doc.addPage();
+          currentY = 20;
+        }
+        
+        // Add title
+        doc.setFontSize(14);
+        doc.setTextColor(titleColor[0], titleColor[1], titleColor[2]);
+        doc.text(title, 14, currentY);
+        currentY += 8;
+        
+        if (eventsData.length === 0) {
+          doc.setFontSize(10);
+          doc.setTextColor(150, 150, 150);
+          doc.text(`No ${title.toLowerCase().replace('📅 ', '').replace('⏳ ', '').replace('✅ ', '')} events found.`, 14, currentY);
+          currentY += 15;
+          return;
+        }
+        
+        // Prepare table data
+        const tableRows = [];
+        
+        eventsData.forEach((event) => {
+          const startTime = formatTimeForPDF(event.eventTime);
+          const endTime = event.endTime ? ` - ${formatTimeForPDF(event.endTime)}` : '';
+          const timeDisplay = startTime + endTime;
+          
+          const eventRow = [
+            event.eventName || 'N/A',
+            event.eventType || 'N/A',
+            formatDateForPDF(event.eventDate),
+            timeDisplay || 'N/A',
+            event.venue || 'N/A',
+            event.organizer || 'N/A'
+          ];
+          tableRows.push(eventRow);
+        });
+        
+        // Add table using autoTable function
+        autoTable(doc, {
+          head: [columns],
+          body: tableRows,
+          startY: currentY,
+          theme: 'striped',
+          headStyles: {
+            fillColor: titleColor,
+            textColor: [255, 255, 255],
+            fontSize: 10,
+            fontStyle: 'bold',
+            halign: 'center'
+          },
+          bodyStyles: {
+            fontSize: 9,
+            cellPadding: 2
+          },
+          alternateRowStyles: {
+            fillColor: [245, 245, 245]
+          },
+          columnStyles: {
+            0: { cellWidth: 40 },
+            1: { cellWidth: 25 },
+            2: { cellWidth: 30 },
+            3: { cellWidth: 35 },
+            4: { cellWidth: 40 },
+            5: { cellWidth: 35 }
+          },
+          margin: { left: 14, right: 14 }
+        });
+        
+        // Update currentY position
+        currentY = doc.lastAutoTable.finalY + 10;
+      };
+      
+      // Add Today's Events table
+      addTableSection("TODAY'S EVENTS", todayEvents, [220, 53, 69]);
+      
+      // Add Upcoming Events table
+      addTableSection("UPCOMING EVENTS", upcomingEvents, [40, 167, 69]);
+      
+      // Add Past Events table
+      addTableSection("PAST EVENTS", pastEvents, [108, 117, 125]);
+      
+      // Add footer with page numbers
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(150, 150, 150);
+        doc.text(
+          `Daycare Management System - Complete Events Report | Page ${i} of ${pageCount}`,
+          doc.internal.pageSize.getWidth() / 2,
+          doc.internal.pageSize.getHeight() - 8,
+          { align: 'center' }
+        );
+      }
+      
+      // Save the PDF
+      const fileName = `daycare_complete_events_${new Date().toISOString().split('T')[0]}.pdf`;
+      doc.save(fileName);
+      
+      setSuccess('Complete events report downloaded successfully!');
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err) {
+      console.error('Error generating PDF:', err);
+      setError('Failed to generate PDF. Please try again.');
+      setTimeout(() => setError(''), 3000);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // 100% CRASH-PROOF VALIDATION
   const validateForm = () => {
     try {
@@ -103,7 +340,6 @@ const AdminEventManagement = () => {
 
       console.log("Starting validation with data:", formData);
 
-      // Safe string checks (Removed optional chaining ? just in case it's breaking)
       if (!formData.eventName || formData.eventName.trim() === '') errors.eventName = 'Event name is required';
       if (!formData.eventDate) errors.eventDate = 'Event date is required';
       if (!formData.eventTime) errors.eventTime = 'Event time is required';
@@ -236,7 +472,6 @@ const AdminEventManagement = () => {
     }
   };
 
-  // CRASH-PROOF SUBMIT HANDLER
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("1. Submit Button Clicked!");
@@ -405,6 +640,19 @@ const AdminEventManagement = () => {
                 <span className="stat-value">{stats.past}</span>
               </div>
             </div>
+          </div>
+
+          {/* PDF Download Button */}
+          <div className="pdf-download-section">
+            <button 
+              className="download-pdf-btn"
+              onClick={downloadCompleteEventsPDF}
+              disabled={loading || stats.total === 0}
+            >
+              <span className="pdf-icon">📄</span>
+              Download Complete Events Report (PDF)
+              <span className="pdf-badge">Today • Upcoming • Past</span>
+            </button>
           </div>
 
           {/* Action Bar */}
@@ -833,13 +1081,7 @@ const AdminEventManagement = () => {
                             >
                               🗑️
                             </button>
-                            <button
-                              className="action-btn view"
-                              onClick={() => window.open(`/event/${event.eventId}`, '_blank')}
-                              title="View details"
-                            >
-                              👁️
-                            </button>
+                          
                           </div>
                         </td>
                       </tr>
@@ -857,7 +1099,6 @@ const AdminEventManagement = () => {
             </div>
             <div className="footer-actions">
               <button className="export-btn" onClick={() => {
-                // Export functionality
                 const csvContent = [
                   ['Event Name', 'Type', 'Date', 'Time', 'Venue', 'Organizer', 'Status'],
                   ...filteredEvents.map(e => [

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import '../css/AdminStudentManagement.css';
 import AdminNavbar from '../components/AdminNavbar';
 
@@ -55,6 +57,160 @@ const AdminStudentManagement = () => {
       setError('Failed to connect to server');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // PDF Download Function - FIXED VERSION
+  const downloadPDF = () => {
+    try {
+      // Create new PDF document
+      const doc = new jsPDF('landscape', 'mm', 'a4');
+      
+      // Add title
+      doc.setFontSize(18);
+      doc.setTextColor(33, 33, 33);
+      doc.text('Student Management Report', 14, 20);
+      
+      // Add subtitle with date
+      doc.setFontSize(10);
+      doc.setTextColor(100, 100, 100);
+      const currentDate = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      doc.text(`Generated on: ${currentDate}`, 14, 28);
+      
+      // Add filter information if applied
+      let filterInfo = '';
+      if (searchTerm) filterInfo += `Search: "${searchTerm}" `;
+      if (filterClass) filterInfo += `Class: ${filterClass} `;
+      if (filterInfo) {
+        doc.setFontSize(9);
+        doc.setTextColor(150, 150, 150);
+        doc.text(`Filters: ${filterInfo}`, 14, 35);
+      }
+      
+      // Prepare table data
+      const tableColumn = [
+        'Child ID',
+        'Full Name',
+        'Gender',
+        'Blood Type',
+        'Date of Birth',
+        'Class',
+        'Guardian Name',
+        'Email',
+        'Contact Numbers',
+        'Medical Information'
+      ];
+      
+      // Prepare table rows data
+      const tableRows = filteredStudents.map(student => {
+        // Format date of birth
+        let formattedDOB = '';
+        if (student.dob) {
+          const date = new Date(student.dob);
+          formattedDOB = date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          });
+        }
+        
+        // Format class with daycare info
+        let classDisplay = student.class;
+        if (student.includeDaycare) {
+          classDisplay = `${student.class} + Daycare`;
+        }
+        
+        // Format contact numbers
+        let contactNumbersDisplay = '';
+        if (student.contactNumbers && Array.isArray(student.contactNumbers)) {
+          contactNumbersDisplay = student.contactNumbers.join(', ');
+        } else if (typeof student.contactNumbers === 'string') {
+          contactNumbersDisplay = student.contactNumbers;
+        }
+        
+        return [
+          student.childId || 'N/A',
+          student.fullName || 'N/A',
+          student.gender || 'N/A',
+          student.bloodType || 'N/A',
+          formattedDOB || 'N/A',
+          classDisplay || 'N/A',
+          student.guardianName || 'N/A',
+          student.email || 'N/A',
+          contactNumbersDisplay || 'N/A',
+          student.medicalInformation || 'None'
+        ];
+      });
+      
+      // Add summary statistics
+      const startY = filterInfo ? 42 : 38;
+      doc.setFontSize(10);
+      doc.setTextColor(80, 80, 80);
+      doc.text(`Total Students: ${filteredStudents.length}`, 14, startY);
+      doc.text(`Daycare: ${filteredStudents.filter(s => s.class === 'Daycare').length}`, 14, startY + 5);
+      doc.text(`LKG: ${filteredStudents.filter(s => s.class === 'LKG').length}`, 14, startY + 10);
+      doc.text(`UKG: ${filteredStudents.filter(s => s.class === 'UKG').length}`, 14, startY + 15);
+      
+      // Generate table using autoTable
+      autoTable(doc, {
+        head: [tableColumn],
+        body: tableRows,
+        startY: startY + 20,
+        theme: 'grid',
+        styles: {
+          fontSize: 8,
+          cellPadding: 2,
+          valign: 'middle',
+          overflow: 'linebreak'
+        },
+        headStyles: {
+          fillColor: [41, 128, 185],
+          textColor: 255,
+          fontSize: 9,
+          fontStyle: 'bold',
+          halign: 'center'
+        },
+        columnStyles: {
+          0: { cellWidth: 25, halign: 'center' },
+          1: { cellWidth: 30 },
+          2: { cellWidth: 15, halign: 'center' },
+          3: { cellWidth: 18, halign: 'center' },
+          4: { cellWidth: 22, halign: 'center' },
+          5: { cellWidth: 25, halign: 'center' },
+          6: { cellWidth: 30 },
+          7: { cellWidth: 35 },
+          8: { cellWidth: 30 },
+          9: { cellWidth: 40 }
+        },
+        margin: { left: 14, right: 14 },
+        didDrawPage: function(data) {
+          // Add page number at the bottom
+          const pageCount = doc.internal.getNumberOfPages();
+          doc.setFontSize(8);
+          doc.setTextColor(150, 150, 150);
+          doc.text(
+            `Page ${data.pageNumber} of ${pageCount}`,
+            doc.internal.pageSize.width - 20,
+            doc.internal.pageSize.height - 10
+          );
+        }
+      });
+      
+      // Save the PDF
+      doc.save(`student_report_${new Date().toISOString().split('T')[0]}.pdf`);
+      
+      // Show success message
+      setSuccess('PDF downloaded successfully!');
+      setTimeout(() => setSuccess(''), 3000);
+      
+    } catch (err) {
+      console.error('Error generating PDF:', err);
+      setError('Failed to generate PDF');
+      setTimeout(() => setError(''), 3000);
     }
   };
 
@@ -342,6 +498,11 @@ const AdminStudentManagement = () => {
             
             <button onClick={fetchStudents} className="refresh-btn">
               <span>🔄</span> Refresh
+            </button>
+
+            {/* PDF Download Button */}
+            <button onClick={downloadPDF} className="pdf-btn" disabled={filteredStudents.length === 0}>
+              <span>📄</span> Download PDF
             </button>
           </div>
 

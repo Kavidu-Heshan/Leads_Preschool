@@ -154,6 +154,47 @@ body {
   text-transform: uppercase;
 }
 
+/* Header Actions Container */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Download PDF Button */
+.download-pdf-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #4ade80, #16a34a);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(74, 222, 128, 0.3);
+}
+
+.download-pdf-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(74, 222, 128, 0.4);
+}
+
+.download-pdf-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  background: linear-gradient(135deg, #94a3b8, #64748b);
+}
+
+.download-pdf-button svg {
+  width: 18px;
+  height: 18px;
+}
+
 /* Bulk Delete Button */
 .bulk-delete-button {
   background-color: #dc3545;
@@ -719,6 +760,22 @@ body {
     font-size: 1.5rem;
   }
 
+  .header-actions {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .download-pdf-button,
+  .bulk-delete-button {
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+  
+  .download-pdf-button svg {
+    width: 14px;
+    height: 14px;
+  }
+
   .form-card, .list-card {
     padding: 20px;
   }
@@ -776,11 +833,6 @@ body {
     max-width: 75px;
   }
 
-  .bulk-delete-button {
-    padding: 10px 16px;
-    font-size: 13px;
-  }
-
   .leaf {
     font-size: 1.8rem;
     opacity: 0.1;
@@ -817,6 +869,17 @@ body {
 
   .stat-label {
     font-size: 0.7rem;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .download-pdf-button,
+  .bulk-delete-button {
+    width: 100%;
+    justify-content: center;
   }
 
   .dashboard-content {
@@ -945,11 +1008,6 @@ body {
   .empty-state p {
     font-size: 0.8rem;
   }
-
-  .bulk-delete-button {
-    padding: 8px 12px;
-    font-size: 12px;
-  }
 }
 
 /* Small Mobile (max-width: 375px) */
@@ -1002,7 +1060,8 @@ body {
 @media (hover: hover) {
   .delete-button:hover:not(:disabled),
   .bulk-delete-button:hover:not(:disabled),
-  .submit-button:hover:not(:disabled) {
+  .submit-button:hover:not(:disabled),
+  .download-pdf-button:hover:not(:disabled) {
     transform: translateY(-2px);
   }
 }
@@ -1010,7 +1069,8 @@ body {
 @media (hover: none) {
   .delete-button:active,
   .bulk-delete-button:active,
-  .submit-button:active {
+  .submit-button:active,
+  .download-pdf-button:active {
     transform: scale(0.98);
   }
 }
@@ -1020,7 +1080,8 @@ body {
   .nature-bg,
   .admin-navbar,
   .delete-button,
-  .bulk-delete-button {
+  .bulk-delete-button,
+  .download-pdf-button {
     display: none;
   }
 
@@ -1038,102 +1099,5 @@ body {
 
   .children-table {
     border: 1px solid #ddd;
-  }
-}
-
-/* Add these styles to your existing AdminAddChild.css */
-
-/* Header Actions Container */
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-/* Download PDF Button */
-.download-pdf-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 20px;
-  background: linear-gradient(135deg, #4ade80, #16a34a);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(74, 222, 128, 0.3);
-}
-
-.download-pdf-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(74, 222, 128, 0.4);
-}
-
-.download-pdf-button:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-  background: linear-gradient(135deg, #94a3b8, #64748b);
-}
-
-.download-pdf-button svg {
-  width: 18px;
-  height: 18px;
-}
-
-/* Update stat-item for better alignment */
-.header-stats {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  flex-wrap: wrap;
-}
-
-.stat-item {
-  text-align: center;
-  padding: 12px 24px;
-  background: var(--primary-soft);
-  border-radius: 20px;
-  transition: transform 0.3s ease;
-  min-width: 100px;
-}
-
-/* Responsive adjustments for new buttons */
-@media (max-width: 768px) {
-  .header-actions {
-    width: 100%;
-    justify-content: center;
-  }
-  
-  .download-pdf-button,
-  .bulk-delete-button {
-    padding: 8px 16px;
-    font-size: 12px;
-  }
-  
-  .download-pdf-button svg {
-    width: 14px;
-    height: 14px;
-  }
-  
-  .stat-item {
-    padding: 8px 16px;
-    min-width: 80px;
-  }
-}
-
-@media (max-width: 576px) {
-  .header-actions {
-    flex-direction: column;
-    width: 100%;
-  }
-  
-  .download-pdf-button,
-  .bulk-delete-button {
-    width: 100%;
-    justify-content: center;
   }
 }

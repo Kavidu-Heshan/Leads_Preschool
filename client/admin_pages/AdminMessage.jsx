@@ -118,26 +118,6 @@ const AdminMessage = () => {
     }
   };
 
-  const getStatusBadgeClass = (status) => {
-    switch(status) {
-      case 'pending': return 'status-pending';
-      case 'reviewed': return 'status-reviewed';
-      case 'resolved': return 'status-resolved';
-      case 'replied': return 'status-replied';
-      default: return '';
-    }
-  };
-
-  const getStatusText = (status) => {
-    switch(status) {
-      case 'pending': return 'Pending';
-      case 'reviewed': return 'Reviewed';
-      case 'resolved': return 'Resolved';
-      case 'replied': return 'Replied';
-      default: return status;
-    }
-  };
-
   const renderStars = (rating) => {
     return '★'.repeat(rating) + '☆'.repeat(5 - rating);
   };
@@ -263,9 +243,6 @@ const AdminMessage = () => {
                         <div className="message-badges">
                           <span className={`message-type ${getMessageTypeClass(message.messageType)}`}>
                             {getMessageTypeIcon(message.messageType)} {message.messageType}
-                          </span>
-                          <span className={`status-badge ${getStatusBadgeClass(message.status)}`}>
-                            {getStatusText(message.status)}
                           </span>
                         </div>
                       </div>

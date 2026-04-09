@@ -59,7 +59,7 @@ const Message = () => {
       errors.name = 'Name is required';
     }
 
-    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) && !formData.isAnonymous) {
       errors.email = 'Please enter a valid email address';
     }
 
@@ -77,10 +77,41 @@ const Message = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === 'checkbox' ? checked : value
-    });
+    
+    // Handle anonymous checkbox change
+    if (name === 'isAnonymous') {
+      setFormData({
+        ...formData,
+        isAnonymous: checked,
+        // Clear name and email when anonymous is checked
+        name: checked ? '' : formData.name,
+        email: checked ? '' : formData.email
+      });
+      
+      // Clear errors for name and email when anonymous is checked
+      if (checked) {
+        setFormErrors({
+          ...formErrors,
+          name: null,
+          email: null
+        });
+      }
+    } 
+    // Handle message type change - reset rating if not feedback
+    else if (name === 'messageType') {
+      setFormData({
+        ...formData,
+        messageType: value,
+        // Reset rating to default if not feedback
+        rating: value === 'feedback' ? formData.rating : 5
+      });
+    }
+    else {
+      setFormData({
+        ...formData,
+        [name]: type === 'checkbox' ? checked : value
+      });
+    }
     
     // Clear error for this field
     if (formErrors[name]) {
@@ -103,11 +134,20 @@ const Message = () => {
     setSuccess('');
 
     try {
-      const response = await axios.post('http://localhost:3002/messages', {
+      // Only include rating if message type is feedback
+      const submitData = {
         ...formData,
         name: formData.isAnonymous ? 'Anonymous' : formData.name,
+        email: formData.isAnonymous ? '' : formData.email,
         ipAddress: 'visitor'
-      });
+      };
+
+      // If message type is not feedback, remove rating from submission
+      if (formData.messageType !== 'feedback') {
+        delete submitData.rating;
+      }
+
+      const response = await axios.post('http://localhost:3002/messages', submitData);
 
       if (response.data.success) {
         setSuccess('Thank you for your message! We appreciate your feedback.');
@@ -151,26 +191,6 @@ const Message = () => {
       case 'suggestion': return 'type-suggestion';
       case 'complaint': return 'type-complaint';
       default: return '';
-    }
-  };
-
-  const getStatusBadgeClass = (status) => {
-    switch(status) {
-      case 'pending': return 'status-pending';
-      case 'reviewed': return 'status-reviewed';
-      case 'resolved': return 'status-resolved';
-      case 'replied': return 'status-replied';
-      default: return '';
-    }
-  };
-
-  const getStatusText = (status) => {
-    switch(status) {
-      case 'pending': return 'Pending';
-      case 'reviewed': return 'Reviewed';
-      case 'resolved': return 'Resolved';
-      case 'replied': return 'Replied';
-      default: return status;
     }
   };
 
@@ -239,33 +259,40 @@ const Message = () => {
               <form onSubmit={handleSubmit} className="message-form">
                 <div className="form-row">
                   <div className="form-group">
-                    <label>Your Name</label>
+                    <label>Your Name {formData.isAnonymous && <span className="optional-badge">(Hidden when anonymous)</span>}</label>
                     <input
                       type="text"
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
                       disabled={formData.isAnonymous}
-                      placeholder="Enter your name"
+                      placeholder={formData.isAnonymous ? "Name will be hidden" : "Enter your name"}
                       className={formErrors.name ? 'error' : ''}
                     />
                     {formErrors.name && (
                       <small className="error-text">{formErrors.name}</small>
                     )}
+                    {formData.isAnonymous && (
+                      <small className="info-text">Your name will not be shown publicly</small>
+                    )}
                   </div>
 
                   <div className="form-group">
-                    <label>Email (Optional)</label>
+                    <label>Email (Optional) {formData.isAnonymous && <span className="optional-badge">(Hidden when anonymous)</span>}</label>
                     <input
                       type="email"
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      placeholder="your@email.com"
+                      disabled={formData.isAnonymous}
+                      placeholder={formData.isAnonymous ? "Email will be hidden" : "your@email.com"}
                       className={formErrors.email ? 'error' : ''}
                     />
                     {formErrors.email && (
                       <small className="error-text">{formErrors.email}</small>
+                    )}
+                    {formData.isAnonymous && (
+                      <small className="info-text">Your email will not be shared</small>
                     )}
                   </div>
                 </div>
@@ -285,21 +312,25 @@ const Message = () => {
                     </select>
                   </div>
 
-                  <div className="form-group">
-                    <label>Rating (1-5)</label>
-                    <div className="rating-input">
-                      {[1, 2, 3, 4, 5].map(star => (
-                        <button
-                          key={star}
-                          type="button"
-                          className={`star-btn ${formData.rating >= star ? 'active' : ''}`}
-                          onClick={() => setFormData({...formData, rating: star})}
-                        >
-                          ★
-                        </button>
-                      ))}
+                  {/* Rating section - only shown when message type is feedback */}
+                  {formData.messageType === 'feedback' && (
+                    <div className="form-group">
+                      <label>Rating (1-5)</label>
+                      <div className="rating-input">
+                        {[1, 2, 3, 4, 5].map(star => (
+                          <button
+                            key={star}
+                            type="button"
+                            className={`star-btn ${formData.rating >= star ? 'active' : ''}`}
+                            onClick={() => setFormData({...formData, rating: star})}
+                          >
+                            ★
+                          </button>
+                        ))}
+                      </div>
+                      <small className="info-text">How would you rate your experience?</small>
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -340,7 +371,7 @@ const Message = () => {
                       checked={formData.isAnonymous}
                       onChange={handleInputChange}
                     />
-                    Submit anonymously
+                    Submit anonymously (name and email will be hidden)
                   </label>
                 </div>
 
@@ -437,9 +468,7 @@ const Message = () => {
                           <span className={`message-type ${getMessageTypeClass(message.messageType)}`}>
                             {getMessageTypeIcon(message.messageType)} {message.messageType}
                           </span>
-                          <span className={`status-badge ${getStatusBadgeClass(message.status)}`}>
-                            {getStatusText(message.status)}
-                          </span>
+                          
                         </div>
                       </div>
 
@@ -451,14 +480,15 @@ const Message = () => {
                         <p>{message.message}</p>
                       </div>
 
-                      {message.rating && (
+                      {/* Only show rating if message type is feedback and rating exists */}
+                      {message.messageType === 'feedback' && message.rating && (
                         <div className="message-rating">
                           <span>Rating: </span>
                           <span className="stars">{renderStars(message.rating)}</span>
                         </div>
                       )}
 
-                      {message.email && (
+                      {message.email && !message.isAnonymous && (
                         <div className="message-email">
                           <span>📧 {message.email}</span>
                         </div>

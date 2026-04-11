@@ -1,8 +1,10 @@
 import React from "react";
-
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import ProtectedRoute from "../components/ProtectedRoute";
+import AuthCheck from "../components/AuthCheck";
 
+// Import all your components
 import HomePage from "../pages/HomePage";  
 import AdminAddChild from "../admin_pages/AdminAddChild";
 import ChildEnroll from "../pages/ChildEnroll";
@@ -32,35 +34,197 @@ function App() {
     <div className="p-4">
       <BrowserRouter>
         <Routes>
+          {/* Public Routes */}
           <Route path="/" element={<HomePagelog />} />
-          <Route path="/userhome" element={<HomePage />} />
-          <Route path="/adminaddchild" element={<AdminAddChild />} />
-          <Route path="/childenroll" element={<ChildEnroll />} />
-          <Route path="/changepwd" element={<ChangePassword />} />
-          <Route path="/studentprofileform" element={<StudentProfileForm />} />
-          <Route path="/studentprofileManagement" element={<StudentProfileManagement />} />
-          <Route path="/childdashboard" element={<ChildDashboard />} />
-          <Route path="/adminevent" element={<EventCreationPage />} />
-          <Route path="/userevent" element={<UserEventsPage />} />
-          <Route path="/admineditevent" element={<AdminEventManagement />} />
-          <Route path="/adminteachermanagement" element={<AdminTeacherManagement/>} />
-          <Route path="/teacher" element={<TeacherDirectory/>} />
-          <Route path="/addDaycare" element={<DaycarePage/>} />
-          <Route path="/admindaycaredashboard" element={<AdminDaycareDashboard/>} />
-          <Route path="/uploadPhoto" element={<EventPhotoUpload/>} />
-          <Route path="/message" element={<Message/>} />
-          <Route path="/adminmessage" element={<AdminMessage/>} />
-          <Route path="/adminhome" element={<AdminHome/>} />
-          <Route path="/photodownload" element={<PhotoDownload/>} />
-          <Route path="/qrscanner" element={<QRScanner/>} />
-          <Route path="/qrcodegenerator" element={<QRCodeGenerator/>} />
-          <Route path="/adminStudentManagement" element={<AdminStudentManagement/>} />
-
-
+          <Route 
+            path="/childenroll" 
+            element={
+              <AuthCheck>
+                <ChildEnroll />
+              </AuthCheck>
+            } 
+          />
+          
+          {/* Child Protected Routes */}
+          <Route 
+            path="/changepwd" 
+            element={
+              <ProtectedRoute allowedUserTypes={["child"]}>
+                <ChangePassword />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/childdashboard" 
+            element={
+              <ProtectedRoute allowedUserTypes={["child"]}>
+                <ChildDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/studentprofileform" 
+            element={
+              <ProtectedRoute allowedUserTypes={["child"]}>
+                <StudentProfileForm />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/studentprofileManagement" 
+            element={
+              <ProtectedRoute allowedUserTypes={["child"]}>
+                <StudentProfileManagement />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/userevent" 
+            element={
+              <ProtectedRoute allowedUserTypes={["child"]}>
+                <UserEventsPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/teacher" 
+            element={
+              <ProtectedRoute allowedUserTypes={["child"]}>
+                <TeacherDirectory />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/message" 
+            element={
+              <ProtectedRoute allowedUserTypes={["child"]}>
+                <Message />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/photodownload" 
+            element={
+              <ProtectedRoute allowedUserTypes={["child"]}>
+                <PhotoDownload />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Teacher/Admin Protected Routes */}
+          <Route 
+            path="/adminhome" 
+            element={
+              <ProtectedRoute allowedUserTypes={["teacher"]}>
+                <AdminHome />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/adminaddchild" 
+            element={
+              <ProtectedRoute allowedUserTypes={["teacher"]}>
+                <AdminAddChild />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/adminevent" 
+            element={
+              <ProtectedRoute allowedUserTypes={["teacher"]}>
+                <EventCreationPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admineditevent" 
+            element={
+              <ProtectedRoute allowedUserTypes={["teacher"]}>
+                <AdminEventManagement />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/adminteachermanagement" 
+            element={
+              <ProtectedRoute allowedUserTypes={["teacher"]}>
+                <AdminTeacherManagement />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/addDaycare" 
+            element={
+              <ProtectedRoute allowedUserTypes={["teacher"]}>
+                <DaycarePage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admindaycaredashboard" 
+            element={
+              <ProtectedRoute allowedUserTypes={["teacher"]}>
+                <AdminDaycareDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/uploadPhoto" 
+            element={
+              <ProtectedRoute allowedUserTypes={["teacher"]}>
+                <EventPhotoUpload />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/adminmessage" 
+            element={
+              <ProtectedRoute allowedUserTypes={["teacher"]}>
+                <AdminMessage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/qrscanner" 
+            element={
+              <ProtectedRoute allowedUserTypes={["teacher"]}>
+                <QRScanner />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/qrcodegenerator" 
+            element={
+              <ProtectedRoute allowedUserTypes={["teacher"]}>
+                <QRCodeGenerator />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/adminStudentManagement" 
+            element={
+              <ProtectedRoute allowedUserTypes={["teacher"]}>
+                <AdminStudentManagement />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Routes accessible by both child and teacher */}
+          <Route 
+            path="/userhome" 
+            element={
+              <ProtectedRoute allowedUserTypes={["child", "teacher"]}>
+                <HomePage />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Catch all - redirect to login */}
+          <Route path="*" element={<Navigate to="/childenroll" replace />} />
         </Routes>
       </BrowserRouter>
     </div>
-  )
+  );
 }
 
 export default App;

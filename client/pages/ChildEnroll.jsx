@@ -28,6 +28,14 @@ const ChildEnroll = () => {
     password: false
   });
 
+  // Clear any existing sessions when reaching login page
+  useEffect(() => {
+    // Clear all existing sessions
+    localStorage.removeItem("currentChild");
+    localStorage.removeItem("currentTeacher");
+    sessionStorage.clear();
+  }, []);
+
   useEffect(() => {
     if (error || success) {
       const timer = setTimeout(() => {
@@ -43,12 +51,21 @@ const ChildEnroll = () => {
     if (!id || id.trim() === "") {
       return "Child ID is required";
     }
+    if (id.trim().length < 3) {
+      return "Child ID must be at least 3 characters";
+    }
+    if (!/^[a-zA-Z0-9]+$/.test(id.trim())) {
+      return "Child ID can only contain letters and numbers";
+    }
     return "";
   };
 
   const validateChildName = (name) => {
     if (!name || name.trim() === "") {
       return "Password is required";
+    }
+    if (name.trim().length < 2) {
+      return "Password must be at least 2 characters";
     }
     return "";
   };
@@ -61,6 +78,9 @@ const ChildEnroll = () => {
     if (user.trim().length < 3) {
       return "Username must be at least 3 characters";
     }
+    if (user.trim().length > 50) {
+      return "Username must be less than 50 characters";
+    }
     return "";
   };
 
@@ -70,6 +90,9 @@ const ChildEnroll = () => {
     }
     if (pwd.trim().length < 6) {
       return "Password must be at least 6 characters";
+    }
+    if (pwd.trim().length > 100) {
+      return "Password must be less than 100 characters";
     }
     return "";
   };
@@ -189,16 +212,32 @@ const ChildEnroll = () => {
       if (response.data.success) {
         setSuccess("✓ Successfully logged in! Redirecting to dashboard...");
         
-        localStorage.setItem("currentChild", JSON.stringify({
+        // Store session with timestamp and expiry
+        const sessionData = {
           childId: response.data.child.childId,
           childName: response.data.child.childName,
           enrolledAt: new Date().toISOString(),
+          expiresAt: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(), // 8 hours expiry
           hasChangedPassword: response.data.hasChangedPassword || false,
-          userType: "child"
+          userType: "child",
+          lastActivity: new Date().toISOString()
+        };
+        
+        localStorage.setItem("currentChild", JSON.stringify(sessionData));
+        
+        // Also store in sessionStorage for additional security
+        sessionStorage.setItem("childSession", JSON.stringify({
+          childId: response.data.child.childId,
+          loginTime: new Date().toISOString()
         }));
 
         setTimeout(() => {
-          navigate("/changepwd");
+          // Check if password needs to be changed
+          if (!response.data.hasChangedPassword) {
+            navigate("/changepwd");
+          } else {
+            navigate("/childdashboard");
+          }
         }, 2000);
       }
     } catch (err) {
@@ -209,8 +248,14 @@ const ChildEnroll = () => {
           case 401:
             setError("❌ Invalid Child ID or Password. Please try again.");
             break;
+          case 403:
+            setError("❌ Account is locked. Please contact administrator.");
+            break;
           case 404:
             setError("❌ Child not found. Please check your credentials.");
+            break;
+          case 429:
+            setError("❌ Too many login attempts. Please try again later.");
             break;
           case 500:
             setError("❌ Server error. Please try again later.");
@@ -252,7 +297,8 @@ const ChildEnroll = () => {
       if (response.data.success) {
         setSuccess("✓ Welcome back, " + response.data.teacher.teacherName + "! Redirecting to dashboard...");
         
-        localStorage.setItem("currentTeacher", JSON.stringify({
+        // Store session with timestamp and expiry
+        const sessionData = {
           teacherId: response.data.teacher.teacherId,
           teacherName: response.data.teacher.teacherName,
           email: response.data.teacher.email,
@@ -260,7 +306,20 @@ const ChildEnroll = () => {
           assignedClasses: response.data.teacher.assignedClasses,
           status: response.data.teacher.status,
           lastLogin: response.data.lastLogin,
-          userType: "teacher"
+          loginTime: new Date().toISOString(),
+          expiresAt: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(), // 8 hours expiry
+          userType: "teacher",
+          lastActivity: new Date().toISOString(),
+          permissions: response.data.teacher.permissions || ["view", "edit"]
+        };
+        
+        localStorage.setItem("currentTeacher", JSON.stringify(sessionData));
+        
+        // Also store in sessionStorage for additional security
+        sessionStorage.setItem("teacherSession", JSON.stringify({
+          teacherId: response.data.teacher.teacherId,
+          username: response.data.teacher.username,
+          loginTime: new Date().toISOString()
         }));
 
         setTimeout(() => {
@@ -275,8 +334,14 @@ const ChildEnroll = () => {
           case 401:
             setError("❌ Invalid username or password. Please try again.");
             break;
+          case 403:
+            setError("❌ Account is disabled or locked. Please contact administrator.");
+            break;
           case 404:
             setError("❌ Teacher account not found.");
+            break;
+          case 429:
+            setError("❌ Too many login attempts. Please try again later.");
             break;
           case 500:
             setError("❌ Server error. Please try again later.");
@@ -296,9 +361,17 @@ const ChildEnroll = () => {
 
   const handleForgotCredentials = () => {
     if (loginType === "child") {
-      setError("Please contact your administrator to retrieve your Child ID and reset your password.");
+      setError("Please contact your administrator or parent to retrieve your Child ID and reset your password.");
+      // Optionally, you can show a modal with contact information
     } else {
-      setError("Please contact your administrator to reset your password.");
+      setError("Please contact your system administrator to reset your password.");
+    }
+  };
+
+  // Handle Enter key press
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !isSubmitting) {
+      handleSubmit(e);
     }
   };
 
@@ -333,6 +406,7 @@ const ChildEnroll = () => {
               type="button"
               className={`toggle-btn ${loginType === "child" ? "active" : ""}`}
               onClick={() => handleLoginTypeChange("child")}
+              disabled={isSubmitting}
             >
               <span className="toggle-icon">👧</span>
               Parent Login
@@ -341,6 +415,7 @@ const ChildEnroll = () => {
               type="button"
               className={`toggle-btn ${loginType === "teacher" ? "active" : ""}`}
               onClick={() => handleLoginTypeChange("teacher")}
+              disabled={isSubmitting}
             >
               <span className="toggle-icon">👩‍🏫</span>
               Teacher Login
@@ -361,7 +436,7 @@ const ChildEnroll = () => {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="enroll-form">
+          <form onSubmit={handleSubmit} className="enroll-form" onKeyPress={handleKeyPress}>
             {loginType === "child" ? (
               <>
                 <div className="form-group">
@@ -380,6 +455,7 @@ const ChildEnroll = () => {
                       disabled={isSubmitting}
                       className={idError ? 'input-error' : ''}
                       autoComplete="off"
+                      maxLength="50"
                     />
                     {childId && !idError && touched.childId && (
                       <span className="input-valid">✓</span>
@@ -407,12 +483,14 @@ const ChildEnroll = () => {
                       disabled={isSubmitting}
                       className={nameError ? 'input-error' : ''}
                       autoComplete="off"
+                      maxLength="100"
                     />
                     <button
                       type="button"
                       className="password-toggle"
                       onClick={() => setShowPassword(!showPassword)}
                       tabIndex="-1"
+                      disabled={isSubmitting}
                     >
                       {showPassword ? "👁️" : "👁️‍🗨️"}
                     </button>
@@ -422,7 +500,7 @@ const ChildEnroll = () => {
                   </div>
                   {nameError && <span className="error-text">{nameError}</span>}
                   <small className="input-hint">
-                    Enter your password (if you changed it, use your new password)
+                    {touched.childName && !childName ? "Enter your password" : "Enter your password (case-sensitive)"}
                   </small>
                 </div>
               </>
@@ -444,6 +522,7 @@ const ChildEnroll = () => {
                       disabled={isSubmitting}
                       className={usernameError ? 'input-error' : ''}
                       autoComplete="off"
+                      maxLength="50"
                     />
                     {username && !usernameError && touched.username && (
                       <span className="input-valid">✓</span>
@@ -451,7 +530,7 @@ const ChildEnroll = () => {
                   </div>
                   {usernameError && <span className="error-text">{usernameError}</span>}
                   <small className="input-hint">
-                    Enter your teacher username
+                    Enter your teacher username (case-sensitive)
                   </small>
                 </div>
 
@@ -471,12 +550,14 @@ const ChildEnroll = () => {
                       disabled={isSubmitting}
                       className={passwordError ? 'input-error' : ''}
                       autoComplete="off"
+                      maxLength="100"
                     />
                     <button
                       type="button"
                       className="password-toggle"
                       onClick={() => setShowPassword(!showPassword)}
                       tabIndex="-1"
+                      disabled={isSubmitting}
                     >
                       {showPassword ? "👁️" : "👁️‍🗨️"}
                     </button>
@@ -486,7 +567,7 @@ const ChildEnroll = () => {
                   </div>
                   {passwordError && <span className="error-text">{passwordError}</span>}
                   <small className="input-hint">
-                    Enter your password
+                    Enter your password (case-sensitive)
                   </small>
                 </div>
               </>
@@ -521,6 +602,7 @@ const ChildEnroll = () => {
                 type="button" 
                 className="forgot-link"
                 onClick={handleForgotCredentials}
+                disabled={isSubmitting}
               >
                 Forgot your password?
               </button>
@@ -535,6 +617,9 @@ const ChildEnroll = () => {
             </div>
             <p className="footer-text">
               Secure login powered by nature's protection 🌿
+            </p>
+            <p className="security-note">
+              🔒 Your session is encrypted and secure
             </p>
           </div>
         </div>

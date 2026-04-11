@@ -379,157 +379,211 @@
 /* Events Grid */
 .events-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 24px;
 }
 
-/* Event Card */
+/* ==================== */
+/* UPDATED EVENT CARD DESIGN */
+/* ==================== */
+
 .event-card {
   background: white;
-  border-radius: 15px;
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-  transition: all 0.3s ease;
-  border: 1px solid #f0f0f0;
-  animation: cardAppear 0.5s ease;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
-@keyframes cardAppear {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+.event-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.event-card:hover::before {
+  opacity: 1;
 }
 
 .event-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-  border-color: transparent;
+  transform: translateY(-8px);
+  box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.15);
 }
 
 .event-card.ongoing-card {
-  border-left: 4px solid #ff6b6b;
-  animation: pulse 2s infinite;
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  background: linear-gradient(135deg, #ffffff 0%, #fff9f9 100%);
 }
 
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.4);
-  }
-  70% {
-    box-shadow: 0 0 0 10px rgba(255, 107, 107, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
-  }
-}
-
+/* Card Header */
 .event-card-header {
-  padding: 15px;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 20px 20px 12px 20px;
   display: flex;
-  justify-content: space-between;
   align-items: flex-start;
-  border-bottom: 1px solid #dee2e6;
+  gap: 14px;
+  background: transparent;
+  border-bottom: none;
+}
+
+.event-type-icon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+  transition: transform 0.2s ease;
+}
+
+.event-card:hover .event-type-icon {
+  transform: scale(1.05) rotate(5deg);
+}
+
+.event-header-content {
+  flex: 1;
 }
 
 .event-card-title {
-  font-size: 1.2rem;
-  color: #333;
-  margin: 0;
-  font-weight: 600;
-  flex: 1;
-  padding-right: 10px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 8px 0;
+  line-height: 1.3;
 }
 
 .event-status-badge {
+  display: inline-block;
   padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  white-space: nowrap;
+  border-radius: 30px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  background: #f0f0f0;
+  color: #666;
 }
 
 .badge-upcoming {
-  background: #e3f2fd;
-  color: #1976d2;
+  background: #e8f0fe;
+  color: #1a73e8;
 }
 
 .badge-ongoing {
   background: #fff3e0;
-  color: #f57c00;
-  animation: blink 1s infinite;
+  color: #ea7c1f;
+  animation: softPulse 1.5s infinite;
 }
 
-@keyframes blink {
+.badge-completed {
+  background: #e6f4ea;
+  color: #1e7e34;
+}
+
+.badge-cancelled {
+  background: #fce8e6;
+  color: #d93025;
+}
+
+@keyframes softPulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.7; }
 }
 
-.badge-completed {
-  background: #e8f5e8;
-  color: #388e3c;
+/* Date & Time Section */
+.event-datetime-section {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  margin: 8px 20px 16px 20px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
-.badge-cancelled {
-  background: #ffebee;
-  color: #d32f2f;
+.event-date-box {
+  background: white;
+  border-radius: 14px;
+  padding: 8px 12px;
+  text-align: center;
+  min-width: 70px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
 }
 
-.event-card-body {
-  padding: 15px;
+.date-day {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #1e293b;
+  line-height: 1;
+}
+
+.date-month {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+.event-time-info {
+  flex: 1;
+}
+
+.event-time {
+  font-weight: 700;
+  color: #0f172a;
+  font-size: 1rem;
+}
+
+.event-end-time {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* Details Grid */
+.event-details-grid {
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
 }
 
 .event-detail {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 10px;
-  color: #555;
-  font-size: 0.95rem;
+  color: #334155;
+  font-size: 0.9rem;
 }
 
 .detail-icon {
   width: 24px;
-  text-align: center;
-  font-size: 1.1rem;
+  font-size: 1rem;
+  opacity: 0.7;
 }
 
-.detail-text {
-  flex: 1;
-}
-
-.today-indicator {
-  color: #ff6b6b;
-  font-weight: 500;
-  margin-left: 5px;
-}
-
-.event-type-badge {
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  background: #f0f0f0;
-  color: #666;
-}
-
-.event-type-badge.cultural { background: #fff3e0; color: #f57c00; }
-.event-type-badge.sports { background: #e8f5e8; color: #388e3c; }
-.event-type-badge.educational { background: #e3f2fd; color: #1976d2; }
-.event-type-badge.parent-teacher { background: #f3e5f5; color: #7b1fa2; }
-.event-type-badge.holiday { background: #ffebee; color: #c62828; }
-.event-type-badge.workshop { background: #e0f7fa; color: #0097a7; }
-
+/* Description */
 .event-description {
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px dashed #dee2e6;
-  color: #666;
-  font-size: 0.9rem;
+  margin: 8px 20px 16px 20px;
+  padding: 12px 0;
+  border-top: 1px dashed #e2e8f0;
+  border-bottom: 1px dashed #e2e8f0;
+  color: #475569;
+  font-size: 0.85rem;
   line-height: 1.5;
 }
 
@@ -537,44 +591,90 @@
   margin: 0;
 }
 
+/* Organizer Section */
 .event-organizer {
-  margin-top: 10px;
-  padding: 8px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  font-size: 0.9rem;
+  margin: 0 20px 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border-radius: 14px;
+}
+
+.organizer-avatar {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.organizer-info {
+  flex: 1;
 }
 
 .organizer-label {
-  color: #666;
-  margin-right: 5px;
+  font-size: 0.7rem;
+  color: #64748b;
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .organizer-name {
-  color: #333;
-  font-weight: 500;
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 0.9rem;
 }
 
+/* Card Footer */
 .event-card-footer {
-  padding: 15px;
-  background: #f8f9fa;
-  border-top: 1px solid #dee2e6;
+  background: #fefefe;
+  border-top: 1px solid #f1f5f9;
+  padding: 14px 20px;
 }
 
 .contact-info {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  font-size: 0.85rem;
-  color: #666;
+  gap: 14px;
 }
 
-.contact-person,
-.contact-phone,
-.contact-email {
-  display: inline-flex;
+.contact-item {
+  display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: #475569;
+  background: #f8fafc;
+  padding: 4px 10px;
+  border-radius: 30px;
+}
+
+.contact-icon {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+/* Ongoing card specific */
+.event-card.ongoing-card .event-datetime-section {
+  background: linear-gradient(135deg, #fff5f0 0%, #ffe8e0 100%);
+  border-left: 3px solid #ff6b6b;
+}
+
+.event-card.ongoing-card .event-date-box {
+  background: #ff6b6b10;
+}
+
+.event-card.ongoing-card .date-day,
+.event-card.ongoing-card .event-time {
+  color: #e25822;
 }
 
 /* No Events Message */
@@ -688,6 +788,15 @@
   .stat-value {
     font-size: 1.5rem;
   }
+
+  .event-datetime-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .event-date-box {
+    align-self: flex-start;
+  }
 }
 
 @media (max-width: 480px) {
@@ -697,16 +806,15 @@
   
   .event-card-header {
     flex-direction: column;
-    gap: 10px;
   }
   
-  .event-status-badge {
-    align-self: flex-start;
+  .event-header-content {
+    width: 100%;
   }
   
   .contact-info {
     flex-direction: column;
-    gap: 5px;
+    gap: 8px;
   }
 }
 
@@ -725,7 +833,6 @@
     border: 1px solid #ddd;
   }
 }
-/* Add this at the beginning of your UserEventsPage.css file */
 
 /* Wrapper to handle navbar spacing */
 .user-events-page-wrapper {
@@ -736,26 +843,8 @@
 
 .user-events-page-wrapper .user-events-container {
   flex: 1;
-  margin-top: 80px; /* Adjust this value based on your navbar height */
+  margin-top: 80px;
   position: relative;
   min-height: calc(100vh - 80px);
   padding: 20px;
 }
-
-/* If your navbar uses position: fixed, use this alternative */
-/* 
-.user-events-page-wrapper .user-events-container {
-  padding-top: 100px;
-}
-*/
-
-/* Keep all your existing CSS below this line */
-.user-events-container {
-  position: relative;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  overflow-x: hidden;
-  padding: 20px;
-}
-
-/* Rest of your existing styles... */

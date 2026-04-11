@@ -134,77 +134,101 @@ const UserEventsPage = () => {
 
   const EventCard = ({ event }) => (
     <div className={`event-card ${isEventOngoing(event) ? 'ongoing-card' : ''}`}>
+      {/* Card Header with Gradient and Visual Flair */}
       <div className="event-card-header">
-        <h3 className="event-card-title">{event.eventName}</h3>
-        <span className={`event-status-badge ${getStatusBadgeClass(event.status)}`}>
-          {event.status}
-          {isEventOngoing(event) && event.status === 'Upcoming' && ' → Ongoing'}
-        </span>
+        <div className="event-type-icon">
+          {event.eventType?.toLowerCase() === 'cultural' && '🎭'}
+          {event.eventType?.toLowerCase() === 'sports' && '⚽'}
+          {event.eventType?.toLowerCase() === 'educational' && '📚'}
+          {event.eventType?.toLowerCase() === 'parent-teacher' && '👪'}
+          {event.eventType?.toLowerCase() === 'holiday' && '🎉'}
+          {!['cultural', 'sports', 'educational', 'parent-teacher', 'holiday'].includes(event.eventType?.toLowerCase()) && '📅'}
+        </div>
+        <div className="event-header-content">
+          <h3 className="event-card-title">{event.eventName}</h3>
+          <span className={`event-status-badge ${getStatusBadgeClass(event.status)}`}>
+            {event.status}
+            {isEventOngoing(event) && event.status === 'Upcoming' && ' → Ongoing'}
+          </span>
+        </div>
       </div>
       
       <div className="event-card-body">
-        <div className="event-detail">
-          <span className="detail-icon">📅</span>
-          <span className="detail-text">
-            {formatDate(event.eventDate)}
-            {formatDate(event.eventDate) === 'Today' && (
-              <span className="today-indicator"> (Today)</span>
+        {/* Modern Date & Time Section */}
+        <div className="event-datetime-section">
+          <div className="event-date-box">
+            <div className="date-day">
+              {formatDate(event.eventDate) === 'Today' ? 'Today' : 
+               formatDate(event.eventDate) === 'Tomorrow' ? 'Tomorrow' :
+               new Date(event.eventDate).getDate()}
+            </div>
+            <div className="date-month">
+              {formatDate(event.eventDate) !== 'Today' && formatDate(event.eventDate) !== 'Tomorrow' ? 
+               new Date(event.eventDate).toLocaleString('default', { month: 'short' }) : ''}
+            </div>
+          </div>
+          <div className="event-time-info">
+            <div className="event-time">{formatTime(event.eventTime)}</div>
+            {event.endTime && (
+              <div className="event-end-time">to {formatTime(event.endTime)}</div>
             )}
-          </span>
+          </div>
         </div>
 
-        <div className="event-detail">
-          <span className="detail-icon">⏰</span>
-          <span className="detail-text">
-            {formatTime(event.eventTime)}
-            {event.endTime && ` - ${formatTime(event.endTime)}`}
-          </span>
+        {/* Venue & Audience with Icons */}
+        <div className="event-details-grid">
+          <div className="event-detail">
+            <span className="detail-icon">📍</span>
+            <span className="detail-text">{event.venue}</span>
+          </div>
+          <div className="event-detail">
+            <span className="detail-icon">👥</span>
+            <span className="detail-text">{event.targetAudience || 'All'}</span>
+          </div>
         </div>
 
-        <div className="event-detail">
-          <span className="detail-icon">📍</span>
-          <span className="detail-text">{event.venue}</span>
-        </div>
-
-        <div className="event-detail">
-          <span className="detail-icon">👥</span>
-          <span className="detail-text">{event.targetAudience || 'All'}</span>
-        </div>
-
-        <div className="event-detail">
-          <span className="detail-icon">🏷️</span>
-          <span className="detail-text">
-            <span className={`event-type-badge ${event.eventType?.toLowerCase()}`}>
-              {event.eventType}
-            </span>
-          </span>
-        </div>
-
+        {/* Description with Gradient Border */}
         {event.description && (
           <div className="event-description">
             <p>{event.description}</p>
           </div>
         )}
 
+        {/* Organizer with Avatar Style */}
         {event.organizer && (
           <div className="event-organizer">
-            <span className="organizer-label">Organized by:</span>
-            <span className="organizer-name">{event.organizer}</span>
+            <div className="organizer-avatar">
+              {event.organizer.charAt(0).toUpperCase()}
+            </div>
+            <div className="organizer-info">
+              <span className="organizer-label">Organized by</span>
+              <span className="organizer-name">{event.organizer}</span>
+            </div>
           </div>
         )}
       </div>
 
+      {/* Footer with Contact Info */}
       {(event.contactPerson || event.contactPhone || event.contactEmail) && (
         <div className="event-card-footer">
           <div className="contact-info">
             {event.contactPerson && (
-              <span className="contact-person">📋 {event.contactPerson}</span>
+              <div className="contact-item">
+                <span className="contact-icon">👤</span>
+                <span>{event.contactPerson}</span>
+              </div>
             )}
             {event.contactPhone && (
-              <span className="contact-phone">📞 {event.contactPhone}</span>
+              <div className="contact-item">
+                <span className="contact-icon">📞</span>
+                <span>{event.contactPhone}</span>
+              </div>
             )}
             {event.contactEmail && (
-              <span className="contact-email">✉️ {event.contactEmail}</span>
+              <div className="contact-item">
+                <span className="contact-icon">✉️</span>
+                <span>{event.contactEmail}</span>
+              </div>
             )}
           </div>
         </div>

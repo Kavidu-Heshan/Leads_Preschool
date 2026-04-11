@@ -25,6 +25,7 @@ import HomePagelog from "../pages/HomePagelog";
 import PhotoDownload from "../pages/PhotoDownload";
 import QRScanner from "../admin_pages/QRScanner";
 import AdminStudentManagement from "../admin_pages/AdminStudentManagement";
+import QRCodeGenerator from "../admin_pages/QRCodeGenerator";
 
 function App() {
   return (
@@ -52,6 +53,7 @@ function App() {
           <Route path="/adminhome" element={<AdminHome/>} />
           <Route path="/photodownload" element={<PhotoDownload/>} />
           <Route path="/qrscanner" element={<QRScanner/>} />
+          <Route path="/qrcodegenerator" element={<QRCodeGenerator/>} />
           <Route path="/adminStudentManagement" element={<AdminStudentManagement/>} />
 
 

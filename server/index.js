@@ -2984,6 +2984,85 @@ app.post("/children/bulk-delete", async (req, res) => {
 });
 
 
+// ================================
+// STUDENT API FOR QR CODE GENERATOR (Using Child Model)
+// ================================
+
+// GET ALL STUDENTS (For QR Code Generator) - Using Child Model
+app.get("/students", async (req, res) => {
+  try {
+    // Fetch all children from the Child model
+    const children = await ChildModel.find()
+      .sort({ childName: 1 })
+      .select('childId childName registeredDate');
+    
+    // If no children found, return empty array
+    if (!children || children.length === 0) {
+      return res.json({ 
+        success: true, 
+        students: [],
+        message: "No students found" 
+      });
+    }
+    
+    // Format the response to match what QRCodeGenerator expects
+    const formattedStudents = children.map(child => ({
+      childId: child.childId,
+      childName: child.childName,
+      className: 'Not Assigned', // You can modify this if you have class info elsewhere
+      registeredDate: child.registeredDate
+    }));
+    
+    res.json({ 
+      success: true, 
+      students: formattedStudents,
+      total: formattedStudents.length 
+    });
+    
+  } catch (error) {
+    console.error("Error fetching students for QR generator:", error);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to fetch students data",
+      details: error.message 
+    });
+  }
+});
+
+// GET SINGLE STUDENT BY ID (For QR Code Generator)
+app.get("/students/:childId", async (req, res) => {
+  try {
+    const { childId } = req.params;
+    
+    const child = await ChildModel.findOne({ 
+      childId: { $regex: new RegExp(`^${childId}$`, 'i') }
+    });
+    
+    if (!child) {
+      return res.status(404).json({ 
+        success: false, 
+        error: "Student not found" 
+      });
+    }
+    
+    res.json({ 
+      success: true, 
+      student: {
+        childId: child.childId,
+        childName: child.childName,
+        className: 'Not Assigned'
+      }
+    });
+    
+  } catch (error) {
+    console.error("Error fetching student:", error);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to fetch student data" 
+    });
+  }
+});
+
 // --- SERVER INITIALIZATION ---
 const PORT = process.env.PORT || 3002;
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

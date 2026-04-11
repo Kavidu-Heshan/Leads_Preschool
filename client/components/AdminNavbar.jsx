@@ -70,7 +70,8 @@ const NavigationBar = () => {
     { path: '/adminmessage', name: 'Messages', icon: '💬' },
     { path: '/uploadPhoto', name: 'Gallery', icon: '🖼️' },
     { path: '/adminStudentManagement', name: 'Students', icon: '👥' },
-    { path: '/qrscanner', name: 'Attendance', icon: '🌱' }
+    { path: '/qrscanner', name: 'Attendance', icon: '🌱' },
+    { path: '/qrcodegenerator', name: 'QR Codes', icon: '📱' }
   ];
 
   const isActive = (path) => {

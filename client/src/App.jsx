@@ -20,7 +20,7 @@ import TeacherDirectory from "../pages/TeacherDirectory";
 import DaycarePage from "../pages/DaycarePage";
 import AdminDaycareDashboard from "../admin_pages/AdminDaycareDashboard";
 import EventPhotoUpload from "../admin_pages/EventPhotoUpload";
-import Message from "../pages/message";
+import Message from "../pages/Message";
 import AdminMessage from "../admin_pages/AdminMessage";
 import AdminHome from "../admin_pages/AdminHome";
 import HomePagelog from "../pages/HomePagelog";

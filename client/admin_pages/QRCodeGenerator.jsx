@@ -32,7 +32,15 @@ const QRCodeGenerator = () => {
       console.log("Full API Response:", response.data);
       
       if (response.data.success) {
-        const studentsData = response.data.students;
+        // Standardize data fields to match what the component expects
+        const rawStudents = response.data.students || [];
+        const studentsData = rawStudents.map(student => ({
+          ...student,
+          childId: student.childId || student._id || student.id,
+          childName: student.childName || student.fullName || student.name || "Unknown",
+          className: student.className || student.class || student.mainClass || "Not Assigned"
+        }));
+        
         console.log("Students data received:", studentsData);
         console.log("Number of students:", studentsData.length);
         
@@ -264,10 +272,10 @@ const QRCodeGenerator = () => {
     }
   };
 
-  // Filter students based on search
+  // Filter students based on search (added safety fallbacks)
   const filteredStudents = students.filter(student =>
-    student.childId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.childName?.toLowerCase().includes(searchTerm.toLowerCase())
+    (student.childId || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (student.childName || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // View student details
@@ -384,6 +392,28 @@ const QRCodeGenerator = () => {
                         <div
                           key={student.childId}
                           className={`student-card ${selectedStudent?.childId === student.childId && !bulkMode ? 'active' : ''} ${selectedStudents.includes(student.childId) && bulkMode ? 'selected' : ''}`}
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'row', // Force horizontal layout
+                            alignItems: 'center',
+                            justifyContent: 'flex-start', // Align to left
+                            padding: '12px 16px',
+                            marginBottom: '12px',
+                            backgroundColor: '#ffffff',
+                            border: '1px solid #e2e8f0',
+                            borderRadius: '10px',
+                            boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            gap: '12px',
+                            height: 'auto',          
+                            minHeight: '85px',       
+                            width: '100%',
+                            boxSizing: 'border-box', 
+                            position: 'relative',
+                            overflow: 'hidden', // Prevent breaking
+                            flexWrap: 'nowrap'
+                          }}
                         >
                           {bulkMode && (
                             <input
@@ -394,22 +424,73 @@ const QRCodeGenerator = () => {
                                 e.stopPropagation();
                                 toggleStudentSelection(student.childId);
                               }}
+                              style={{ width: '18px', height: '18px', cursor: 'pointer', flexShrink: 0, margin: 0 }}
                             />
                           )}
-                          <div className="student-avatar" onClick={() => !bulkMode && viewStudentDetails(student)}>
-                            <span className="avatar-emoji">👨‍🎓</span>
+                          <div 
+                            className="student-avatar" 
+                            onClick={() => !bulkMode && viewStudentDetails(student)}
+                            style={{
+                              width: '45px',
+                              height: '45px',
+                              borderRadius: '50%',
+                              backgroundColor: '#f1f5f9',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '24px',
+                              flexShrink: 0,
+                              margin: 0, // Reset any external margin
+                              overflow: 'hidden'
+                            }}
+                          >
+                            {student.profilePhoto && student.profilePhoto.startsWith('data:image') ? (
+                              <img 
+                                src={student.profilePhoto} 
+                                alt={student.childName} 
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                              />
+                            ) : (
+                              <span className="avatar-emoji">
+                                {student.gender === 'Female' ? '👧' : '👦'}
+                              </span>
+                            )}
                           </div>
-                          <div className="student-info" onClick={() => !bulkMode && viewStudentDetails(student)}>
-                            <h4 className="student-name">{student.childName || "No Name"}</h4>
-                            <p className="student-id-text">
+                          <div 
+                            className="student-info" 
+                            onClick={() => !bulkMode && viewStudentDetails(student)}
+                            style={{ 
+                              flexGrow: 1, 
+                              display: 'flex', 
+                              flexDirection: 'column', 
+                              justifyContent: 'center',
+                              alignItems: 'flex-start',
+                              gap: '4px',
+                              overflow: 'hidden',
+                              textAlign: 'left', // Force left align
+                              margin: 0
+                            }}
+                          >
+                            <h4 className="student-name" style={{ margin: 0, fontSize: '16px', color: '#1e293b', fontWeight: '600', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
+                              {student.childName || "No Name"}
+                            </h4>
+                            <p className="student-id-text" style={{ margin: 0, fontSize: '13px', color: '#64748b' }}>
                               <span className="id-label">🆔</span> {student.childId || "No ID"}
                             </p>
-                            <p className="student-class-text">
+                            <p className="student-class-text" style={{ margin: 0, fontSize: '13px', color: '#64748b' }}>
                               <span className="class-label">📚</span> {student.className || 'Not Assigned'}
                             </p>
                           </div>
                           {!bulkMode && (
-                            <div className="student-actions">
+                            <div className="student-actions" style={{ 
+                                display: 'flex', 
+                                flexDirection: 'row', 
+                                alignItems: 'center',
+                                gap: '8px', 
+                                flexShrink: 0, 
+                                position: 'static', // Override external absolute positioning
+                                margin: 0 
+                              }}>
                               <button 
                                 className="view-details-btn" 
                                 onClick={(e) => {
@@ -417,6 +498,17 @@ const QRCodeGenerator = () => {
                                   viewStudentDetails(student);
                                 }}
                                 title="View Details"
+                                style={{
+                                  padding: '8px',
+                                  borderRadius: '6px',
+                                  border: '1px solid #cbd5e1',
+                                  backgroundColor: '#f8fafc',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  height: '36px'
+                                }}
                               >
                                 👁️
                               </button>
@@ -427,8 +519,22 @@ const QRCodeGenerator = () => {
                                   generateQRCode(student);
                                 }}
                                 title="Generate QR Code"
+                                style={{
+                                  padding: '8px 12px',
+                                  borderRadius: '6px',
+                                  border: 'none',
+                                  backgroundColor: '#3b82f6',
+                                  color: 'white',
+                                  fontWeight: '500',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '6px',
+                                  fontSize: '13px',
+                                  height: '36px'
+                                }}
                               >
-                                🎫 Generate QR
+                                🎫 Generate
                               </button>
                             </div>
                           )}
@@ -571,8 +677,21 @@ const QRCodeGenerator = () => {
                 <button className="modal-close" onClick={closeDetailsModal}>✕</button>
               </div>
               <div className="modal-body">
-                <div className="detail-avatar">
-                  <span className="detail-emoji">👨‍🎓</span>
+                <div 
+                  className="detail-avatar" 
+                  style={{ textAlign: 'center', marginBottom: '20px' }}
+                >
+                  {selectedStudentDetails.profilePhoto && selectedStudentDetails.profilePhoto.startsWith('data:image') ? (
+                    <img 
+                      src={selectedStudentDetails.profilePhoto} 
+                      alt={selectedStudentDetails.childName} 
+                      style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto' }} 
+                    />
+                  ) : (
+                    <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '40px', margin: '0 auto' }}>
+                      <span className="detail-emoji">{selectedStudentDetails.gender === 'Female' ? '👧' : '👦'}</span>
+                    </div>
+                  )}
                 </div>
                 <div className="detail-info">
                   <div className="detail-row">

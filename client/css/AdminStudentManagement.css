@@ -1050,3 +1050,69 @@
 .pdf-btn span {
   font-size: 16px;
 }
+/* Fix for profile photo - Round shape */
+.student-avatar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px 20px 20px;
+  background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+}
+
+.avatar-img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50% !important;
+  object-fit: cover;
+  border: 3px solid white;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-emoji {
+  width: 100px;
+  height: 100px;
+  border-radius: 50% !important;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 50px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Modal view - Profile photo large round */
+.profile-photo-large {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.profile-photo-large img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50% !important;
+  object-fit: cover;
+  border: 4px solid #4caf50;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-large {
+  width: 150px;
+  height: 150px;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 70px;
+  border: 4px solid #4caf50;
+}
+
+/* Edit form preview - Round shape */
+.preview-img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50% !important;
+  object-fit: cover;
+  border: 3px solid #4caf50;
+}

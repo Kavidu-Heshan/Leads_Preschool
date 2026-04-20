@@ -416,7 +416,7 @@ const AdminStudentManagement = () => {
   // Filter students based on search and class filter
   const filteredStudents = students.filter(student => {
     const matchesSearch = student.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         student.childId.toLowerCase().includes(searchTerm.toLowerCase());
+                          student.childId.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesClass = !filterClass || student.class === filterClass;
     return matchesSearch && matchesClass;
   });
@@ -556,9 +556,9 @@ const AdminStudentManagement = () => {
                   </div>
                   <div className="student-avatar">
                     {student.profilePhoto && student.profilePhoto.startsWith('data:image') ? (
-                      <img src={student.profilePhoto} alt={student.fullName} className="avatar-img" />
+                      <img src={student.profilePhoto} alt={student.fullName} className="avatar-img" style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover' }} />
                     ) : (
-                      <div className="avatar-emoji">
+                      <div className="avatar-emoji" style={{ width: '60px', height: '60px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f0f0f0', fontSize: '30px' }}>
                         {student.profilePhoto || (student.gender === 'Male' ? '👦' : '👧')}
                       </div>
                     )}
@@ -602,9 +602,9 @@ const AdminStudentManagement = () => {
                 <div className="view-mode">
                   <div className="profile-photo-large">
                     {selectedStudent.profilePhoto && selectedStudent.profilePhoto.startsWith('data:image') ? (
-                      <img src={selectedStudent.profilePhoto} alt={selectedStudent.fullName} />
+                      <img src={selectedStudent.profilePhoto} alt={selectedStudent.fullName} style={{ width: '120px', height: '120px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto' }} />
                     ) : (
-                      <div className="avatar-large">
+                      <div className="avatar-large" style={{ width: '120px', height: '120px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f0f0f0', fontSize: '60px', margin: '0 auto' }}>
                         {selectedStudent.profilePhoto || (selectedStudent.gender === 'Male' ? '👦' : '👧')}
                       </div>
                     )}
@@ -668,11 +668,11 @@ const AdminStudentManagement = () => {
                 <form onSubmit={handleUpdate} className="edit-form">
                   {/* Profile Photo Upload */}
                   <div className="photo-upload-section">
-                    <div className="photo-preview-container">
+                    <div className="photo-preview-container" style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
                       {photoPreview ? (
-                        <img src={photoPreview} alt="Preview" className="preview-img" />
+                        <img src={photoPreview} alt="Preview" className="preview-img" style={{ width: '120px', height: '120px', borderRadius: '50%', objectFit: 'cover' }} />
                       ) : (
-                        <div className="avatar-large">
+                        <div className="avatar-large" style={{ width: '120px', height: '120px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f0f0f0', fontSize: '60px' }}>
                           {formData.profilePhoto && !formData.profilePhoto.startsWith('data:image') ? formData.profilePhoto : '📷'}
                         </div>
                       )}

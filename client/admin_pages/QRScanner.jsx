@@ -78,7 +78,10 @@ const QRScanner = () => {
     
     const savedScans = localStorage.getItem("qrScans");
     if (savedScans) {
-      setScannedData(JSON.parse(savedScans));
+      const parsedScans = JSON.parse(savedScans);
+      // Sort scans so newest appear first (top)
+      const sortedScans = parsedScans.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      setScannedData(sortedScans);
     }
     
     // Load daily attendance from localStorage
@@ -97,9 +100,15 @@ const QRScanner = () => {
     }
   }, []);
 
-  // Save scanned data to localStorage whenever it changes
+  // Save scanned data to localStorage whenever it changes (maintain sorted order)
   useEffect(() => {
-    localStorage.setItem("qrScans", JSON.stringify(scannedData));
+    // Sort the data before saving to ensure consistency
+    const sortedData = [...scannedData].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    if (JSON.stringify(sortedData) !== JSON.stringify(scannedData)) {
+      setScannedData(sortedData);
+    } else {
+      localStorage.setItem("qrScans", JSON.stringify(scannedData));
+    }
   }, [scannedData]);
 
   // Save daily attendance to localStorage whenever it changes
@@ -474,7 +483,7 @@ const QRScanner = () => {
       setCurrentScan(scanData);
       setSuccess(`${childName} (${childId}) scanned successfully!`);
       
-      // Add to scanned data list
+      // Add to scanned data list - new scans appear at the TOP (newest first)
       setScannedData(prev => [scanData, ...prev]);
       
       // Clear success message after 3 seconds
@@ -507,7 +516,10 @@ const QRScanner = () => {
   const getUniqueStudents = () => {
     const uniqueMap = new Map();
     
-    scannedData.forEach(scan => {
+    // Use sorted data to ensure consistency
+    const sortedData = [...scannedData].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    sortedData.forEach(scan => {
       if (!uniqueMap.has(scan.childId)) {
         uniqueMap.set(scan.childId, {
           childId: scan.childId,
@@ -570,7 +582,7 @@ const QRScanner = () => {
 
   // Function to export attendance for a specific date or all dates
   const exportAttendanceToCSV = (date = null) => {
-    const datesToExport = date ? [date] : Object.keys(dailyAttendance).sort().reverse();
+    const datesToExport = date ? [date] : Object.keys(dailyAttendance).sort((a, b) => new Date(a) - new Date(b));
     
     if (datesToExport.length === 0) {
       setError("No attendance data to export");
@@ -632,12 +644,19 @@ const QRScanner = () => {
       );
     }
     
+    // Explicitly sort by timestamp descending (newest scans first for the main table)
+    filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
     return filtered;
   };
 
   const filteredScans = getFilteredData();
-  const uniqueDates = [...new Set(scannedData.map(scan => scan.date))].sort().reverse();
-  const attendanceDates = Object.keys(dailyAttendance).sort().reverse();
+  
+  // Sorted unique dates for the dropdown filter chronologically (Jan -> Dec)
+  const uniqueDates = [...new Set(scannedData.map(scan => scan.date))].sort((a, b) => new Date(a) - new Date(b));
+  
+  // Sorted dates for the attendance section chronologically (Jan -> Dec)
+  const attendanceDates = Object.keys(dailyAttendance).sort((a, b) => new Date(a) - new Date(b));
 
   return (
     <>

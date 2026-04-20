@@ -366,9 +366,10 @@ const AdminDaycareDashboard = () => {
                           src={getProfilePhoto(student)} 
                           alt={getStudentName(student)} 
                           className="avatar-image"
+                          style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto' }}
                         />
                       ) : (
-                        <div className="avatar-placeholder">
+                        <div className="avatar-placeholder" style={{ width: '60px', height: '60px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f0f0f0', fontSize: '30px', margin: '0 auto' }}>
                           {getStudentGender(student) === 'Male' ? '👦' : '👧'}
                         </div>
                       )}
@@ -424,9 +425,10 @@ const AdminDaycareDashboard = () => {
                           src={getProfilePhoto(student)} 
                           alt={getStudentName(student)} 
                           className="avatar-image"
+                          style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto' }}
                         />
                       ) : (
-                        <div className="avatar-placeholder">
+                        <div className="avatar-placeholder" style={{ width: '60px', height: '60px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f0f0f0', fontSize: '30px', margin: '0 auto' }}>
                           {getStudentGender(student) === 'Male' ? '👦' : '👧'}
                         </div>
                       )}

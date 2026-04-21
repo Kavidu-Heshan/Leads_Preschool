@@ -44,9 +44,9 @@
 }
 
 .nav-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 24px;
+  max-width: 100%;
+  margin: 0;
+  padding: 0 24px 0 0; /* Updated: No left spacing */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -472,7 +472,7 @@
 /* Tablet Landscape (1024px - 1366px) */
 @media (max-width: 1024px) {
   .nav-container {
-    padding: 0 20px;
+    padding: 0 20px 0 0; /* Updated: No left spacing */
   }
   
   .nav-link {
@@ -532,7 +532,7 @@
 /* Mobile Landscape (480px - 768px) */
 @media (max-width: 768px) {
   .nav-container {
-    padding: 0 16px;
+    padding: 0 16px 0 0; /* Updated: No left spacing */
     height: 60px;
   }
   
@@ -631,7 +631,7 @@
 /* Mobile Portrait (320px - 480px) */
 @media (max-width: 480px) {
   .nav-container {
-    padding: 0 12px;
+    padding: 0 12px 0 0; /* Updated: No left spacing */
     height: 55px;
   }
   
@@ -712,7 +712,7 @@
 /* Extra Small Devices (up to 280px) */
 @media (max-width: 280px) {
   .nav-container {
-    padding: 0 10px;
+    padding: 0 10px 0 0; /* Updated: No left spacing */
     height: 50px;
   }
   

@@ -28,6 +28,7 @@ import PhotoDownload from "../pages/PhotoDownload";
 import QRScanner from "../admin_pages/QRScanner";
 import AdminStudentManagement from "../admin_pages/AdminStudentManagement";
 import QRCodeGenerator from "../admin_pages/QRCodeGenerator";
+import WorksheetUpload from "../admin_pages/WorksheetUpload";
 
 function App() {
   return (
@@ -121,6 +122,14 @@ function App() {
             } 
           />
           <Route 
+            path="/adminworksheetupload" 
+            element={
+              <ProtectedRoute allowedUserTypes={["teacher"]}>
+                <WorksheetUpload />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
             path="/adminaddchild" 
             element={
               <ProtectedRoute allowedUserTypes={["teacher"]}>
@@ -155,7 +164,7 @@ function App() {
           <Route 
             path="/addDaycare" 
             element={
-              <ProtectedRoute allowedUserTypes={["teacher"]}>
+              <ProtectedRoute allowedUserTypes={["child"]}>
                 <DaycarePage />
               </ProtectedRoute>
             } 

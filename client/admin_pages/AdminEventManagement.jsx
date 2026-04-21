@@ -1093,7 +1093,7 @@ const AdminEventManagement = () => {
           </div>
 
           {/* Summary Footer */}
-          <div className="table-footer">
+          {/* <div className="table-footer">
             <div className="footer-info">
               Showing {filteredEvents.length} of {events.length} events
             </div>
@@ -1123,7 +1123,7 @@ const AdminEventManagement = () => {
                 📥 Export to CSV
               </button>
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Delete Confirmation Modal */}

@@ -16,7 +16,6 @@ const NavigationBar = () => {
     if (storedAdmin) {
       try {
         const admin = JSON.parse(storedAdmin);
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setAdminInfo(admin);
       } catch (e) {
         console.error('Error parsing admin info:', e);
@@ -69,6 +68,7 @@ const NavigationBar = () => {
     { path: '/admineditevent', name: 'Events', icon: '📅' },
     { path: '/adminmessage', name: 'Messages', icon: '💬' },
     { path: '/uploadPhoto', name: 'Gallery', icon: '🖼️' },
+    { path: '/adminworksheetupload', name: 'Upload worksheet', icon: '📱' },
     { path: '/adminStudentManagement', name: 'Students', icon: '👥' },
     { path: '/qrscanner', name: 'Attendance', icon: '🌱' },
     { path: '/qrcodegenerator', name: 'QR Codes', icon: '📱' }
@@ -160,7 +160,6 @@ const NavigationBar = () => {
                 <span className="dropdown-arrow">▼</span>
               </button>
               <div className="dropdown-content">
-                
                 <div className="dropdown-divider"></div>
                 <button onClick={handleLogout} className="dropdown-item logout">
                   <span>🚪</span>

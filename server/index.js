@@ -17,14 +17,19 @@ const TeacherModel = require("./models/Teacher.js");
 const DaycareAttendanceModel = require("./models/DaycareAttendance.js");
 const EventPhotoModel = require("./models/EventPhoto.js");
 const Attendance = require("./models/Attendance");
+const Worksheet = require("./models/Worksheet");
 
 const app = express();
 
+// --- ADD WORKSHEET ROUTES ---
+const worksheetRoutes = require("./routes/worksheets");
 // --- UPDATED MIDDLEWARE ---
 // Increased limit to 50mb to allow for Base64 profile photo uploads
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cors());
+
+app.use("/worksheets", worksheetRoutes);
 
 // --- MONGODB CONNECTION ---
 mongoose

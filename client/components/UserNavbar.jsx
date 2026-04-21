@@ -52,6 +52,7 @@ const UserNavbar = () => {
     { path: '/teacher', name: 'Teachers', icon: '👩‍🏫' },
     { path: '/addDaycare', name: 'Daycare', icon: '🧸' },
     { path: '/userevent', name: 'Events', icon: '📅' },
+    { path: '/studentworksheets', name: 'Worksheets', icon: '📄' },
     { path: '/message', name: 'Messages', icon: '💬' },
     { path: '/photodownload', name: 'Gallery', icon: '🖼️' }
   ];

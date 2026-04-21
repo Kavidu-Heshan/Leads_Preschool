@@ -29,6 +29,7 @@ import QRScanner from "../admin_pages/QRScanner";
 import AdminStudentManagement from "../admin_pages/AdminStudentManagement";
 import QRCodeGenerator from "../admin_pages/QRCodeGenerator";
 import WorksheetUpload from "../admin_pages/WorksheetUpload";
+import StudentWorksheets from "../pages/StudentWorksheets";
 
 function App() {
   return (
@@ -52,6 +53,14 @@ function App() {
             element={
               <ProtectedRoute allowedUserTypes={["child"]}>
                 <ChangePassword />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/studentworksheets" 
+            element={
+              <ProtectedRoute allowedUserTypes={["child"]}>
+                <StudentWorksheets />
               </ProtectedRoute>
             } 
           />

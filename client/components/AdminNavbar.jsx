@@ -5,23 +5,22 @@ import '../css/AdminNavbar.css';
 const NavigationBar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [adminInfo, setAdminInfo] = useState(null);
+  
+  // FIX: Use lazy initialization to read from localStorage immediately
+  // This prevents the cascading render error and removes the need for the useEffect
+  // eslint-disable-next-line no-unused-vars
+  const [adminInfo, setAdminInfo] = useState(() => {
+    try {
+      const storedAdmin = localStorage.getItem('adminInfo');
+      return storedAdmin ? JSON.parse(storedAdmin) : null;
+    } catch (e) {
+      console.error('Error parsing admin info:', e);
+      return null;
+    }
+  });
   
   const location = useLocation();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    // Get admin info from localStorage
-    const storedAdmin = localStorage.getItem('adminInfo');
-    if (storedAdmin) {
-      try {
-        const admin = JSON.parse(storedAdmin);
-        setAdminInfo(admin);
-      } catch (e) {
-        console.error('Error parsing admin info:', e);
-      }
-    }
-  }, []);
 
   useEffect(() => {
     // Handle scroll effect

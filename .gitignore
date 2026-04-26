@@ -9,10 +9,12 @@ dist/
 build/
 .vite/
 
-# Environment variables
+# Environment variables - IMPORTANT!
 .env
 .env.local
 .env.production
+.env.*.local
+*.env
 
 # IDE files
 .vscode/
@@ -20,22 +22,31 @@ build/
 *.swp
 *.swo
 *~
+.DS_Store
 
 # OS files
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # Logs
 logs/
 *.log
+npm-debug.log*
 
 # Testing
 coverage/
+.nyc_output/
 
 # Cache
 .cache/
 .parcel-cache/
+*.cache
 
 # Temp files
 tmp/
 temp/
+*.tmp
+
+# PM2
+.pm2/

@@ -180,7 +180,7 @@ const ChatBot = () => {
             <div className="chat-header-info">
               <span className="chat-avatar">🎓</span>
               <div>
-                <h3>Leads Preschool Negombo</h3>
+                <h3>Leads Preschool Wariyapola</h3>
                 <p>Online • Ready to help</p>
               </div>
             </div>

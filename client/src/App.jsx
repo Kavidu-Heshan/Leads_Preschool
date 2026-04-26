@@ -51,7 +51,7 @@ function App() {
           <Route 
             path="/changepwd" 
             element={
-              <ProtectedRoute allowedUserTypes={["child"]}>
+              <ProtectedRoute allowedUserTypes={["child", "teacher"]}>
                 <ChangePassword />
               </ProtectedRoute>
             } 

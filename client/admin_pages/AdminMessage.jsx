@@ -154,7 +154,9 @@ const AdminMessage = () => {
               <span className="header-emoji">💬</span>
             </div>
             <h1>Preschool Message Center</h1>
-            <p className="header-subtitle">Manage and respond to messages from parents and visitors</p>
+            <p className="header-subtitle" style={{color:"black"}}>
+              Manage and respond to messages from parents and visitors
+            </p>
             <div className="info-banner">
               <span>📢 Admin Dashboard - View and manage all messages</span>
             </div>

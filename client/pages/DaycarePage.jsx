@@ -105,7 +105,7 @@ const DaycarePage = () => {
               <span className="profile-icon">🧸</span>
             </div>
             <h1>Daily Daycare Attendance</h1>
-            <p className="header-subtitle">Manage today's daycare students (Max 5)</p>
+            <p className="header-subtitle" style={{color:"black"}}>Manage today's daycare students (Max 5)</p>
           </div>
 
           {/* Status Messages */}

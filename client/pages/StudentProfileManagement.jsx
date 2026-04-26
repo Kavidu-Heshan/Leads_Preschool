@@ -376,6 +376,7 @@ const StudentProfileManagement = () => {
         <div className="floating-circle circle-3"></div>
 
         <div className="profile-card">
+          {/* All content is inside profile-card */}
           <div className="profile-header">
             <div className="header-icon">
               <span className="profile-icon">
@@ -387,7 +388,9 @@ const StudentProfileManagement = () => {
               </span>
             </div>
             <h2>My Profile Management</h2>
-            <p className="header-subtitle">View and update your personal information</p>
+            <p className="header-subtitle" style={{ color: '#000000', fontWeight: '500' }}>
+              View and update your personal information
+            </p>
           </div>
 
           {error && (

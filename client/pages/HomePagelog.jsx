@@ -7,7 +7,9 @@ import { Link } from "react-router-dom";
 import axios from 'axios';
 
 const HomePagelog = () => {
+  // eslint-disable-next-line no-unused-vars
   const [recentFeedbacks, setRecentFeedbacks] = useState([]);
+  // eslint-disable-next-line no-unused-vars
   const [loadingFeedbacks, setLoadingFeedbacks] = useState(true);
 
   // Fetch recent feedback messages
@@ -31,9 +33,9 @@ const HomePagelog = () => {
     }
   };
 
-  const renderStars = (rating) => {
-    return '★'.repeat(rating) + '☆'.repeat(5 - rating);
-  };
+  // const renderStars = (rating) => {
+  //   return '★'.repeat(rating) + '☆'.repeat(5 - rating);
+  // };
 
   return (
     <div className="home-page-wrapper">
@@ -148,7 +150,7 @@ const HomePagelog = () => {
       </section>
 
       {/* --- 5. RECENT FEEDBACKS SECTION (Updated) --- */}
-      <section className="testimonials-section" id="reviews">
+      {/* <section className="testimonials-section" id="reviews">
         <div className="container">
           <div className="section-title">
             <h2>Parents Say</h2>
@@ -206,8 +208,8 @@ const HomePagelog = () => {
           )}
           
           
-        </div>
-      </section>
+        </div> */}
+      {/* </section> */}
 
       {/* --- 6. FOOTER --- */}
       <footer className="footer-section">
@@ -230,8 +232,8 @@ const HomePagelog = () => {
           <div className="footer-col">
             <h4>Contact Us</h4>
             <p>123 Main Street, Wariyapola</p>
-            <p>+94 123 456 789</p>
-            <p>hello@leads.lk</p>
+            <p>+94 729 852 612</p>
+            <p>leadspreschool@gmail.com</p>
           </div>
         </div>
         <div className="footer-bottom">

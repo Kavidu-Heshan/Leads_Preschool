@@ -393,7 +393,7 @@ const ChildEnroll = () => {
               <span className="tree-icon">{loginType === "child" ? "🌳" : "👩‍🏫"}</span>
             </div>
             <h1>{loginType === "child" ? "Parent Login" : "Teacher Login"}</h1>
-            <p className="header-subtitle">
+            <p className="header-subtitle" style={{color:"black"}}>
               {loginType === "child" 
                 ? "Welcome back! Enter your Child ID and password to continue." 
                 : "Welcome back! Enter your username and password to access the admin panel."}

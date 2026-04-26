@@ -355,7 +355,9 @@ const AdminAddChild = () => {
         <div className="dashboard-header">
           <div className="header-content">
             <h1>Parent Management</h1>
-            <p className="header-subtitle">Register and manage parent's children in the system</p>
+            <p className="header-subtitle" style={{color:"black"}}>
+              Register and manage parent's children in the system
+            </p>
           </div>
           <div className="header-stats">
             <div className="stat-item">

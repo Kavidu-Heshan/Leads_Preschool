@@ -11,7 +11,6 @@ const Message = () => {
   const [success, setSuccess] = useState('');
   const [activeFilter, setActiveFilter] = useState('all'); // all, general, feedback, suggestion, complaint
 
-
   // Form state for new message
   const [formData, setFormData] = useState({
     name: '',
@@ -229,10 +228,10 @@ const Message = () => {
             <div className="header-icon">
               <span className="header-emoji">💬</span>
             </div>
-            <h1>Preschool Message Center</h1>
-            <p className="header-subtitle">Share your thoughts, feedback, and suggestions with us</p>
+            <h1 style={{color:'black'}}>Preschool Message Center</h1> {/* Explicit black color for unblurred crispness */}
+            <p className="header-subtitle" style={{color:'black'}}>Share your thoughts, feedback, and suggestions with us</p>
             <div className="info-banner">
-              <span>📢 Your voice matters! We value every message and will respond within 24 hours.</span>
+              <span style={{color:'black'}}>📢 Your voice matters! We value every message and will respond within 24 hours.</span>
             </div>
           </div>
 
@@ -468,7 +467,6 @@ const Message = () => {
                           <span className={`message-type ${getMessageTypeClass(message.messageType)}`}>
                             {getMessageTypeIcon(message.messageType)} {message.messageType}
                           </span>
-                          
                         </div>
                       </div>
 
@@ -503,6 +501,7 @@ const Message = () => {
                           <p>{message.reply}</p>
                           <small>Replied on: {new Date(message.repliedAt).toLocaleString()}</small>
                         </div>
+          
                       )}
                     </div>
                   ))}

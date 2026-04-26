@@ -4,6 +4,7 @@ import p1 from '../src/img/src_pre/p1.avif';
 import p2 from '../src/img/src_pre/p2.avif';
 import { Link } from "react-router-dom";
 import UserNavbar from '../components/UserNavbar';
+import ChatBot from '../components/ChatBot';
 
 const HomePage = () => {
   return (
@@ -26,7 +27,7 @@ const HomePage = () => {
               <Link to="/childenroll">
                 <button className="btn btn-primary">Enroll Now</button>
               </Link>
-              <button className="btn btn-secondary">Watch Video</button>
+              
             </div>
           </div>
           <div className="hero-image">
@@ -168,14 +169,15 @@ const HomePage = () => {
           <div className="footer-col">
             <h4>Contact Us</h4>
             <p>123 Main Street, Wariyapola</p>
-            <p>+94 123 456 789</p>
-            <p>hello@leads.lk</p>
+            <p>+94 729 852 612</p>
+            <p>leadspreschool@gmail.com</p>
           </div>
         </div>
         <div className="footer-bottom">
           <p>&copy; 2024 Leads Wariyapola. All Rights Reserved.</p>
         </div>
       </footer>
+      <ChatBot />
     </div>
   );
 };

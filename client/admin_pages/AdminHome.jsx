@@ -91,7 +91,7 @@ const AdminHome = () => {
       title: 'Create Event',
       description: 'Quickly create new school events and activities',
       icon: '✏️',
-      path: '/adminevent',
+      path: '/admineditevent',
       color: '#558b2f',
       bgColor: 'rgba(85, 139, 47, 0.1)'
     }

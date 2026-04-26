@@ -60,6 +60,7 @@ const QRScanner = () => {
           attendanceData[record.date].push({
             childId: record.childId,
             childName: record.childName,
+            className: record.className || 'N/A',
             firstScanTime: record.firstScanTime,
             scanCount: record.scanCount,
             attendanceStatus: record.attendanceStatus
@@ -153,6 +154,7 @@ const QRScanner = () => {
             uniqueStudentsMap.set(scan.childId, {
               childId: scan.childId,
               childName: scan.childName,
+              className: scan.className || 'N/A',
               firstScanTime: scan.time,
               attendanceStatus: "Present",
               scanCount: 1,
@@ -260,6 +262,7 @@ const QRScanner = () => {
           uniqueStudentsMap.set(scan.childId, {
             childId: scan.childId,
             childName: scan.childName,
+            className: scan.className || 'N/A',
             firstScanTime: scan.time,
             attendanceStatus: "Present",
             scanCount: 1,
@@ -397,6 +400,7 @@ const QRScanner = () => {
     try {
       let childId = "";
       let childName = "";
+      let className = "";
       
       // Step 1: Check if the scanned text is a URL
       if (decodedText.startsWith("http://") || decodedText.startsWith("https://")) {
@@ -404,9 +408,10 @@ const QRScanner = () => {
           const url = new URL(decodedText);
           const params = new URLSearchParams(url.search);
           
-          // Try to get data from URL parameters first (e.g., ?childId=123&childName=Kamal)
+          // Try to get data from URL parameters first (e.g., ?childId=123&childName=Kamal&className=UKG)
           childId = params.get("childId") || params.get("id") || "";
           childName = params.get("childName") || params.get("name") || "";
+          className = params.get("className") || params.get("class") || "";
 
           // If no parameters, assume it's a short link like https://q.me-qr.com/wt6bed86
           // We will extract the last part ('wt6bed86') as the childId
@@ -422,19 +427,27 @@ const QRScanner = () => {
       } 
       // Step 2: Handle normal text formats if it's not a URL
       else {
+        // Check for format: ChildID|ChildName|ClassName
         if (decodedText.includes("|")) {
           const parts = decodedText.split("|");
           childId = parts[0].trim();
-          childName = parts[1].trim();
-        } else if (decodedText.includes(",")) {
+          childName = parts[1] ? parts[1].trim() : "";
+          className = parts[2] ? parts[2].trim() : "";
+        } 
+        // Check for format: ChildID,ChildName,ClassName
+        else if (decodedText.includes(",")) {
           const parts = decodedText.split(",");
           childId = parts[0].trim();
-          childName = parts[1].trim();
-        } else {
+          childName = parts[1] ? parts[1].trim() : "";
+          className = parts[2] ? parts[2].trim() : "";
+        } 
+        // Check for JSON format
+        else {
           try {
             const data = JSON.parse(decodedText);
             childId = data.childId || data.id;
             childName = data.childName || data.name;
+            className = data.className || data.class;
           } catch (e) {
             childId = decodedText.trim();
           }
@@ -447,14 +460,21 @@ const QRScanner = () => {
         return;
       }
 
-      // Step 3: If child name is still empty, fetch it from your backend database
-      if (!childName) {
+      // Step 3: If child name or class is still empty, fetch it from your backend database
+      if (!childName || !className) {
         try {
-          const response = await axios.get(`http://localhost:3002/child-name/${childId}`);
-          childName = response.data.childName || "Unknown Name";
+          const response = await axios.get(`http://localhost:3002/student-details/${childId}`);
+          if (response.data.success) {
+            childName = childName || response.data.childName || "Unknown Name";
+            className = className || response.data.className || response.data.class || "N/A";
+          } else {
+            childName = childName || "Unknown Name";
+            className = className || "N/A";
+          }
         } catch (err) {
-          console.error("Error fetching child name from backend:", err);
-          childName = "Unknown"; // Fallback name if DB fetch fails
+          console.error("Error fetching student details from backend:", err);
+          childName = childName || "Unknown";
+          className = className || "N/A";
         }
       }
 
@@ -462,6 +482,7 @@ const QRScanner = () => {
         id: Date.now(),
         childId: childId,
         childName: childName,
+        className: className,
         timestamp: new Date().toISOString(),
         date: new Date().toLocaleDateString(),
         time: new Date().toLocaleTimeString(),
@@ -475,13 +496,13 @@ const QRScanner = () => {
       );
 
       if (recentScan) {
-        setError(`${childName} (${childId}) was scanned recently. Please wait.`);
+        setError(`${childName} (${childId}) was scanned recently. Please wait 5 minutes.`);
         isProcessingRef.current = false;
         return;
       }
 
       setCurrentScan(scanData);
-      setSuccess(`${childName} (${childId}) scanned successfully!`);
+      setSuccess(`${childName} (${childId}) - ${className} scanned successfully!`);
       
       // Add to scanned data list - new scans appear at the TOP (newest first)
       setScannedData(prev => [scanData, ...prev]);
@@ -524,6 +545,7 @@ const QRScanner = () => {
         uniqueMap.set(scan.childId, {
           childId: scan.childId,
           childName: scan.childName,
+          className: scan.className || 'N/A',
           firstScanDate: scan.date,
           firstScanTime: scan.time,
           totalScans: 1
@@ -551,13 +573,14 @@ const QRScanner = () => {
     // Get unique students instead of all scans
     const uniqueStudents = getUniqueStudents();
     
-    const headers = ["Child ID", "Child Name", "First Scan Date", "First Scan Time", "Total Scans"];
+    const headers = ["Child ID", "Child Name", "Class", "First Scan Date", "First Scan Time", "Total Scans"];
     const csvRows = [
       headers.join(","),
       ...uniqueStudents.map(student => {
         return [
           `"${student.childId}"`,
           `"${student.childName}"`,
+          `"${student.className}"`,
           `"${student.firstScanDate}"`,
           `"${student.firstScanTime}"`,
           `"${student.totalScans}"`
@@ -599,7 +622,7 @@ const QRScanner = () => {
       });
     });
 
-    const headers = ["Date", "Child ID", "Child Name", "First Scan Time", "Scan Count", "Status"];
+    const headers = ["Date", "Child ID", "Child Name", "Class", "First Scan Time", "Scan Count", "Status"];
     const csvRows = [
       headers.join(","),
       ...allRecords.map(record => {
@@ -607,6 +630,7 @@ const QRScanner = () => {
           `"${record.date}"`,
           `"${record.childId}"`,
           `"${record.childName}"`,
+          `"${record.className || 'N/A'}"`,
           `"${record.firstScanTime}"`,
           `"${record.scanCount}"`,
           `"${record.attendanceStatus}"`
@@ -640,7 +664,8 @@ const QRScanner = () => {
     if (searchTerm) {
       filtered = filtered.filter(scan =>
         scan.childId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        scan.childName.toLowerCase().includes(searchTerm.toLowerCase())
+        scan.childName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (scan.className && scan.className.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
     
@@ -757,7 +782,7 @@ const QRScanner = () => {
                     </select>
                     <input
                       type="text"
-                      placeholder="Search by ID or Name..."
+                      placeholder="Search by ID, Name or Class..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="search-input-qr"
@@ -826,6 +851,7 @@ const QRScanner = () => {
                         <th>#</th>
                         <th>Child ID</th>
                         <th>Child Name</th>
+                        <th>Class</th>
                         <th>Date</th>
                         <th>Time</th>
                         <th>Status</th>
@@ -841,6 +867,9 @@ const QRScanner = () => {
                           </td>
                           <td>
                             <span className="child-name">{scan.childName}</span>
+                          </td>
+                          <td>
+                            <span className="class-name">{scan.className || 'N/A'}</span>
                           </td>
                           <td>{scan.date}</td>
                           <td>{scan.time}</td>
@@ -927,6 +956,7 @@ const QRScanner = () => {
                                 <th>#</th>
                                 <th>Child ID</th>
                                 <th>Child Name</th>
+                                <th>Class</th>
                                 <th>First Scan Time</th>
                                 <th>Scan Count</th>
                                 <th>Status</th>
@@ -942,6 +972,9 @@ const QRScanner = () => {
                                   </td>
                                   <td>
                                     <span className="child-name">{record.childName}</span>
+                                  </td>
+                                  <td>
+                                    <span className="class-name">{record.className || 'N/A'}</span>
                                   </td>
                                   <td>{record.firstScanTime}</td>
                                   <td>

@@ -372,6 +372,56 @@ app.get("/child-name/:childId", async (req, res) => {
   }
 });
 
+// 7.5 GET STUDENT DETAILS BY ID (For QR Scanner - includes class)
+app.get("/student-details/:childId", async (req, res) => {
+  try {
+    const { childId } = req.params;
+    
+    // First try to find in StudentProfileModel
+    const studentProfile = await StudentProfileModel.findOne({ 
+      childId: { $regex: new RegExp(`^${childId}$`, 'i') }
+    });
+    
+    if (studentProfile) {
+      return res.json({ 
+        success: true, 
+        childName: studentProfile.fullName,
+        className: studentProfile.includeDaycare ? `${studentProfile.class} + Daycare` : studentProfile.class,
+        class: studentProfile.class,
+        includeDaycare: studentProfile.includeDaycare,
+        profilePhoto: studentProfile.profilePhoto
+      });
+    }
+    
+    // If not found in StudentProfileModel, try ChildModel
+    const child = await ChildModel.findOne({ 
+      childId: { $regex: new RegExp(`^${childId}$`, 'i') }
+    });
+    
+    if (child) {
+      return res.json({ 
+        success: true, 
+        childName: child.childName,
+        className: "Not Assigned",
+        class: null,
+        includeDaycare: false
+      });
+    }
+    
+    return res.status(404).json({ 
+      success: false, 
+      error: "Student not found" 
+    });
+    
+  } catch (err) {
+    console.error("Error fetching student details:", err);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to fetch student details" 
+    });
+  }
+});
+
 // 8. CHECK IF PROFILE EXISTS
 app.get("/check-profile/:childId", async (req, res) => {
   try {
@@ -1797,10 +1847,9 @@ app.get('/messages/stats/summary', async (req, res) => {
 /* ================================
    Attendance MANAGEMENT API
 ================================ */
-// Import Attendance model
 
-
-// 1. SAVE ATTENDANCE RECORDS
+// 1. SAVE ATTENDANCE RECORDS (UPDATED WITH CLASS NAME)
+// 1. SAVE ATTENDANCE RECORDS (UPDATED WITH CLASS NAME)
 app.post("/attendance/save", async (req, res) => {
   try {
     const { date, attendanceRecords } = req.body;
@@ -1828,17 +1877,20 @@ app.post("/attendance/save", async (req, res) => {
           existingAttendance.scanCount += record.scanCount;
           existingAttendance.allScanTimes.push(...record.allScanTimes);
           existingAttendance.firstScanTime = record.firstScanTime;
+          // ✅ CRITICAL FIX: Update className if provided
+          if (record.className) {
+            existingAttendance.className = record.className;
+          }
           
-          // REMOVED manual updatedAt line here! Mongoose handles it now.
           await existingAttendance.save();
-          
           savedRecords.push(existingAttendance);
         } else {
-          // Create new record
+          // ✅ CRITICAL FIX: Create new record with className
           const newAttendance = new Attendance({
             date: date,
             childId: record.childId,
             childName: record.childName,
+            className: record.className || 'N/A', // ← THIS MUST BE HERE
             firstScanTime: record.firstScanTime,
             scanCount: record.scanCount,
             attendanceStatus: record.attendanceStatus || "Present",
@@ -1872,10 +1924,10 @@ app.post("/attendance/save", async (req, res) => {
   }
 });
 
-// 2. GET ATTENDANCE HISTORY
+// 2. GET ATTENDANCE HISTORY (UPDATED WITH CLASS FILTER)
 app.get("/attendance/history", async (req, res) => {
   try {
-    const { startDate, endDate, childId, limit = 100 } = req.query;
+    const { startDate, endDate, childId, className, limit = 100 } = req.query;
     let query = {};
     
     if (startDate || endDate) {
@@ -1885,6 +1937,7 @@ app.get("/attendance/history", async (req, res) => {
     }
     
     if (childId) query.childId = childId;
+    if (className) query.className = className;
     
     const attendance = await Attendance.find(query)
       .sort({ date: -1, childName: 1 })
@@ -1905,12 +1958,16 @@ app.get("/attendance/history", async (req, res) => {
   }
 });
 
-// 3. GET ATTENDANCE BY DATE
+// 3. GET ATTENDANCE BY DATE (UPDATED WITH CLASS NAME)
 app.get("/attendance/date/:date", async (req, res) => {
   try {
     const { date } = req.params;
+    const { className } = req.query;
     
-    const attendance = await Attendance.find({ date: date })
+    let query = { date: date };
+    if (className) query.className = className;
+    
+    const attendance = await Attendance.find(query)
       .sort({ childName: 1 });
     
     res.json({
@@ -1951,6 +2008,7 @@ app.get("/attendance/student/:childId", async (req, res) => {
       success: true,
       childId: childId,
       childName: attendance[0]?.childName || "Unknown",
+      className: attendance[0]?.className || "N/A",
       statistics: {
         totalDays: totalDays,
         presentDays: presentDays,
@@ -1970,7 +2028,7 @@ app.get("/attendance/student/:childId", async (req, res) => {
   }
 });
 
-// 5. GET MONTHLY ATTENDANCE SUMMARY
+// 5. GET MONTHLY ATTENDANCE SUMMARY (UPDATED WITH CLASS BREAKDOWN)
 app.get("/attendance/monthly/:year/:month", async (req, res) => {
   try {
     const { year, month } = req.params;
@@ -1989,6 +2047,7 @@ app.get("/attendance/monthly/:year/:month", async (req, res) => {
       totalAttendanceRecords: attendance.length,
       uniqueStudents: new Set(attendance.map(a => a.childId)).size,
       attendanceByDay: {},
+      attendanceByClass: {}, // New: Group by class
       studentAttendance: {}
     };
     
@@ -2005,11 +2064,26 @@ app.get("/attendance/monthly/:year/:month", async (req, res) => {
       summary.attendanceByDay[record.date][record.attendanceStatus.toLowerCase()]++;
       summary.attendanceByDay[record.date].total++;
       
+      // Group by class
+      if (!summary.attendanceByClass[record.className]) {
+        summary.attendanceByClass[record.className] = {
+          present: 0,
+          late: 0,
+          halfDay: 0,
+          total: 0,
+          uniqueStudents: new Set()
+        };
+      }
+      summary.attendanceByClass[record.className][record.attendanceStatus.toLowerCase()]++;
+      summary.attendanceByClass[record.className].total++;
+      summary.attendanceByClass[record.className].uniqueStudents.add(record.childId);
+      
       // Group by student
       if (!summary.studentAttendance[record.childId]) {
         summary.studentAttendance[record.childId] = {
           childId: record.childId,
           childName: record.childName,
+          className: record.className,
           daysPresent: 0,
           daysLate: 0,
           daysHalfDay: 0
@@ -2017,6 +2091,11 @@ app.get("/attendance/monthly/:year/:month", async (req, res) => {
       }
       summary.studentAttendance[record.childId][`days${record.attendanceStatus}`]++;
     });
+    
+    // Convert Sets to counts in attendanceByClass
+    for (const className in summary.attendanceByClass) {
+      summary.attendanceByClass[className].uniqueStudents = summary.attendanceByClass[className].uniqueStudents.size;
+    }
     
     res.json({
       success: true,
@@ -2050,8 +2129,7 @@ app.patch("/attendance/:attendanceId", async (req, res) => {
       { 
         $set: { 
           attendanceStatus: attendanceStatus,
-          remarks: remarks,
-          updatedAt: new Date()
+          remarks: remarks
         } 
       },
       { new: true }
@@ -2108,7 +2186,7 @@ app.delete("/attendance/:attendanceId", async (req, res) => {
   }
 });
 
-// 8. GET ATTENDANCE STATISTICS
+// 8. GET ATTENDANCE STATISTICS (UPDATED WITH CLASS BREAKDOWN)
 app.get("/attendance/stats/overview", async (req, res) => {
   try {
     const today = new Date().toLocaleDateString();
@@ -2120,13 +2198,17 @@ app.get("/attendance/stats/overview", async (req, res) => {
       todayAttendance,
       weekAttendance,
       monthAttendance,
-      uniqueStudents
+      uniqueStudents,
+      classAttendance
     ] = await Promise.all([
       Attendance.countDocuments(),
       Attendance.countDocuments({ date: today }),
       Attendance.countDocuments({ date: { $gte: weekAgo, $lte: today } }),
       Attendance.countDocuments({ date: { $gte: monthAgo, $lte: today } }),
-      Attendance.distinct("childId")
+      Attendance.distinct("childId"),
+      Attendance.aggregate([
+        { $group: { _id: "$className", count: { $sum: 1 } } }
+      ])
     ]);
     
     res.json({
@@ -2137,7 +2219,11 @@ app.get("/attendance/stats/overview", async (req, res) => {
         weeklyAttendance: weekAttendance,
         monthlyAttendance: monthAttendance,
         uniqueStudents: uniqueStudents.length,
-        averageDailyAttendance: totalAttendance > 0 ? (totalAttendance / 30).toFixed(2) : 0
+        averageDailyAttendance: totalAttendance > 0 ? (totalAttendance / 30).toFixed(2) : 0,
+        classBreakdown: classAttendance.reduce((acc, curr) => {
+          acc[curr._id || 'N/A'] = curr.count;
+          return acc;
+        }, {})
       }
     });
     
@@ -2150,10 +2236,10 @@ app.get("/attendance/stats/overview", async (req, res) => {
   }
 });
 
-// 9. EXPORT ATTENDANCE TO CSV
+// 9. EXPORT ATTENDANCE TO CSV (UPDATED WITH CLASS NAME)
 app.get("/attendance/export/csv", async (req, res) => {
   try {
-    const { startDate, endDate } = req.query;
+    const { startDate, endDate, className } = req.query;
     let query = {};
     
     if (startDate || endDate) {
@@ -2161,6 +2247,8 @@ app.get("/attendance/export/csv", async (req, res) => {
       if (startDate) query.date.$gte = startDate;
       if (endDate) query.date.$lte = endDate;
     }
+    
+    if (className) query.className = className;
     
     const attendance = await Attendance.find(query).sort({ date: -1, childName: 1 });
     
@@ -2171,8 +2259,8 @@ app.get("/attendance/export/csv", async (req, res) => {
       });
     }
     
-    // Create CSV
-    const headers = ["Date", "Child ID", "Child Name", "First Scan Time", "Scan Count", "Status", "School Year"];
+    // Create CSV with class column
+    const headers = ["Date", "Child ID", "Child Name", "Class", "First Scan Time", "Scan Count", "Status", "School Year"];
     const csvRows = [
       headers.join(","),
       ...attendance.map(record => {
@@ -2180,6 +2268,7 @@ app.get("/attendance/export/csv", async (req, res) => {
           `"${record.date}"`,
           `"${record.childId}"`,
           `"${record.childName}"`,
+          `"${record.className || 'N/A'}"`,
           `"${record.firstScanTime}"`,
           `"${record.scanCount}"`,
           `"${record.attendanceStatus}"`,
@@ -2200,6 +2289,63 @@ app.get("/attendance/export/csv", async (req, res) => {
     res.status(500).json({ 
       success: false, 
       error: "Failed to export attendance data" 
+    });
+  }
+});
+
+// 10. GET CLASS WISE ATTENDANCE REPORT (NEW ENDPOINT)
+app.get("/attendance/class-report/:className", async (req, res) => {
+  try {
+    const { className } = req.params;
+    const { startDate, endDate } = req.query;
+    
+    let query = { className: className };
+    if (startDate || endDate) {
+      query.date = {};
+      if (startDate) query.date.$gte = startDate;
+      if (endDate) query.date.$lte = endDate;
+    }
+    
+    const attendance = await Attendance.find(query).sort({ date: -1, childName: 1 });
+    
+    const summary = {
+      className: className,
+      totalRecords: attendance.length,
+      uniqueStudents: new Set(attendance.map(a => a.childId)).size,
+      presentCount: attendance.filter(a => a.attendanceStatus === "Present").length,
+      lateCount: attendance.filter(a => a.attendanceStatus === "Late").length,
+      halfDayCount: attendance.filter(a => a.attendanceStatus === "Half Day").length,
+      students: {}
+    };
+    
+    attendance.forEach(record => {
+      if (!summary.students[record.childId]) {
+        summary.students[record.childId] = {
+          childId: record.childId,
+          childName: record.childName,
+          totalDays: 0,
+          presentDays: 0,
+          lateDays: 0,
+          halfDays: 0,
+          attendanceDates: []
+        };
+      }
+      summary.students[record.childId].totalDays++;
+      summary.students[record.childId][`${record.attendanceStatus.toLowerCase()}Days`]++;
+      summary.students[record.childId].attendanceDates.push(record.date);
+    });
+    
+    res.json({
+      success: true,
+      summary: summary,
+      records: attendance
+    });
+    
+  } catch (err) {
+    console.error("Error fetching class report:", err);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to fetch class report" 
     });
   }
 });
@@ -3064,6 +3210,56 @@ app.get("/students/:childId", async (req, res) => {
     res.status(500).json({ 
       success: false, 
       error: "Failed to fetch student data" 
+    });
+  }
+});
+
+// NEW: GET STUDENT DETAILS WITH CLASS INFO (For QR Scanner)
+app.get("/student-details/:childId", async (req, res) => {
+  try {
+    const { childId } = req.params;
+    
+    // First try to find in StudentProfileModel
+    const studentProfile = await StudentProfileModel.findOne({ 
+      childId: { $regex: new RegExp(`^${childId}$`, 'i') }
+    });
+    
+    if (studentProfile) {
+      return res.json({ 
+        success: true, 
+        childName: studentProfile.fullName,
+        className: studentProfile.includeDaycare ? `${studentProfile.class} + Daycare` : studentProfile.class,
+        class: studentProfile.class,
+        includeDaycare: studentProfile.includeDaycare,
+        profilePhoto: studentProfile.profilePhoto
+      });
+    }
+    
+    // If not found in StudentProfileModel, try ChildModel
+    const child = await ChildModel.findOne({ 
+      childId: { $regex: new RegExp(`^${childId}$`, 'i') }
+    });
+    
+    if (child) {
+      return res.json({ 
+        success: true, 
+        childName: child.childName,
+        className: "Not Assigned",
+        class: null,
+        includeDaycare: false
+      });
+    }
+    
+    return res.status(404).json({ 
+      success: false, 
+      error: "Student not found" 
+    });
+    
+  } catch (err) {
+    console.error("Error fetching student details:", err);
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to fetch student details" 
     });
   }
 });

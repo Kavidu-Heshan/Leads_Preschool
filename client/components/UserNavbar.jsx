@@ -59,7 +59,7 @@ const UserNavbar = () => {
       ]
     },
     {
-      name: 'Campus', icon: '🏫',
+      name: 'Preschool', icon: '🏫',
       dropdown: [
         { path: '/teacher', name: 'Teachers', icon: '👩‍🏫' },
         { path: '/addDaycare', name: 'Daycare', icon: '🧸' },

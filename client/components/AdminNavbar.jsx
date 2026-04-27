@@ -145,9 +145,6 @@ const NavigationBar = () => {
                   <span className="mobile-user-role">{adminInfo?.role || 'Administrator'}</span>
                 </div>
               </div>
-              <button className="mobile-close-btn" onClick={closeMobileMenu} aria-label="Close menu">
-                ✕
-              </button>
             </div>
 
             {/* Navigation Items */}

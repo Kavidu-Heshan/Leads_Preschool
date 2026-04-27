@@ -102,15 +102,8 @@ const UserNavbar = () => {
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
+            {/* Desktop Navigation */}
           <div className={`nav-menu ${isMobileMenuOpen ? 'active' : ''}`}>
-            
-            {/* Mobile Menu Close Button (Header removed) */}
-            <div className="mobile-menu-header" style={{ justifyContent: 'flex-end', padding: '15px' }}>
-              <button className="mobile-close-btn" onClick={closeMobileMenu}>
-                ✕
-              </button>
-            </div>
 
             <ul className="nav-items">
               {navItems.map((item, index) => (

@@ -68,7 +68,7 @@ const WorksheetUpload = () => {
   const fetchWorksheets = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("https://leadspreschool-production.up.railway.app//worksheets");
+      const response = await axios.get("https://leadspreschool-production.up.railway.app/worksheets");
       setWorksheets(response.data);
       setError("");
     } catch (err) {
@@ -137,7 +137,7 @@ const WorksheetUpload = () => {
     });
 
     try {
-      const response = await axios.post("https://leadspreschool-production.up.railway.app//worksheets/upload", formDataToSend, {
+      const response = await axios.post("https://leadspreschool-production.up.railway.app/worksheets/upload", formDataToSend, {
         headers: {
           "Content-Type": "multipart/form-data"
         }
@@ -170,7 +170,7 @@ const WorksheetUpload = () => {
   const handleDeleteWorksheet = async (worksheetId) => {
     if (window.confirm("Are you sure you want to delete this worksheet?")) {
       try {
-        await axios.delete(`https://leadspreschool-production.up.railway.app//worksheets/${worksheetId}`);
+        await axios.delete(`https://leadspreschool-production.up.railway.app/worksheets/${worksheetId}`);
         setSuccess("Worksheet deleted successfully!");
         fetchWorksheets();
         setTimeout(() => setSuccess(""), 3000);
@@ -183,7 +183,7 @@ const WorksheetUpload = () => {
 
   const handleDownload = async (worksheet) => {
     try {
-      const response = await axios.get(`https://leadspreschool-production.up.railway.app//worksheets/${worksheet.worksheetId}/download`, {
+      const response = await axios.get(`https://leadspreschool-production.up.railway.app/worksheets/${worksheet.worksheetId}/download`, {
         responseType: 'blob'
       });
       

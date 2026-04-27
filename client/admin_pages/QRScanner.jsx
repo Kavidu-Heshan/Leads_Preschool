@@ -28,7 +28,7 @@ const QRScanner = () => {
   // Function to save attendance to MongoDB
   const saveAttendanceToMongoDB = async (date, attendanceRecords) => {
     try {
-      const response = await axios.post('https://leadspreschool-production.up.railway.app//attendance/save', {
+      const response = await axios.post('https://leadspreschool-production.up.railway.app/attendance/save', {
         date: date,
         attendanceRecords: attendanceRecords
       });
@@ -49,7 +49,7 @@ const QRScanner = () => {
   // Function to load attendance history from MongoDB
   const loadAttendanceHistory = async () => {
     try {
-      const response = await axios.get('https://leadspreschool-production.up.railway.app//attendance/history');
+      const response = await axios.get('https://leadspreschool-production.up.railway.app/attendance/history');
       if (response.data.success) {
         // Convert MongoDB data to the format expected by the component
         const attendanceData = {};
@@ -463,7 +463,7 @@ const QRScanner = () => {
       // Step 3: If child name or class is still empty, fetch it from your backend database
       if (!childName || !className) {
         try {
-          const response = await axios.get(`https://leadspreschool-production.up.railway.app//student-details/${childId}`);
+          const response = await axios.get(`https://leadspreschool-production.up.railway.app/student-details/${childId}`);
           if (response.data.success) {
             childName = childName || response.data.childName || "Unknown Name";
             className = className || response.data.className || response.data.class || "N/A";

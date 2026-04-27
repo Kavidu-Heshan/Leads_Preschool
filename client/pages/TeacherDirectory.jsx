@@ -24,7 +24,7 @@ const TeacherDirectory = () => {
       if (filterClass) queryParams.push(`class=${filterClass}`);
       const queryString = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
 
-      const response = await fetch(`https://leadspreschool-production.up.railway.app//teachers${queryString}`);
+      const response = await fetch(`https://leadspreschool-production.up.railway.app/teachers${queryString}`);
       const data = await response.json();
       
       if (response.ok) {

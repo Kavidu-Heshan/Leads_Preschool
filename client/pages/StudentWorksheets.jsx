@@ -28,7 +28,7 @@ const StudentWorksheets = () => {
   const fetchWorksheets = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("https://leadspreschool-production.up.railway.app//worksheets");
+      const response = await axios.get("https://leadspreschool-production.up.railway.app/worksheets");
       setWorksheets(response.data);
       setError("");
     } catch (err) {
@@ -42,7 +42,7 @@ const StudentWorksheets = () => {
   const handleDownload = async (worksheet) => {
     try {
       setSuccess(`Downloading ${worksheet.title}...`);
-      const response = await axios.get(`https://leadspreschool-production.up.railway.app//worksheets/${worksheet.worksheetId}/download`, {
+      const response = await axios.get(`https://leadspreschool-production.up.railway.app/worksheets/${worksheet.worksheetId}/download`, {
         responseType: 'blob'
       });
       

@@ -20,8 +20,8 @@ const DaycarePage = () => {
     setLoading(true);
     try {
       const [eligibleRes, todayRes] = await Promise.all([
-        axios.get('https://leadspreschool-production.up.railway.app//daycare/eligible'),
-        axios.get('https://leadspreschool-production.up.railway.app//daycare/today')
+        axios.get('https://leadspreschool-production.up.railway.app/daycare/eligible'),
+        axios.get('https://leadspreschool-production.up.railway.app/daycare/today')
       ]);
       setEligibleStudents(eligibleRes.data);
       setTodaysList(todayRes.data);
@@ -61,7 +61,7 @@ const DaycarePage = () => {
     const studentData = eligibleStudents.find(s => s.childId === selectedStudent);
 
     try {
-      const response = await axios.post('https://leadspreschool-production.up.railway.app//daycare/add', {
+      const response = await axios.post('https://leadspreschool-production.up.railway.app/daycare/add', {
         childId: studentData.childId,
         childName: studentData.fullName
       });

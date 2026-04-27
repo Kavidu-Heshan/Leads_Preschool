@@ -51,7 +51,7 @@ const ChangePassword = () => {
 
   const checkPasswordStatus = async (childId) => {
     try {
-      const response = await axios.post("https://leadspreschool-production.up.railway.app//check-password-status", {
+      const response = await axios.post("https://leadspreschool-production.up.railway.app/check-password-status", {
         childId: childId
       });
       
@@ -70,7 +70,7 @@ const ChangePassword = () => {
 
   const checkProfileStatus = async (childId) => {
     try {
-      const response = await axios.get(`https://leadspreschool-production.up.railway.app//check-profile/${childId}`);
+      const response = await axios.get(`https://leadspreschool-production.up.railway.app/check-profile/${childId}`);
       
       if (response.data.exists) {
         // Profile exists, go to dashboard
@@ -223,7 +223,7 @@ const ChangePassword = () => {
     setSuccess("");
 
     try {
-      const response = await axios.post("https://leadspreschool-production.up.railway.app//change-password", {
+      const response = await axios.post("https://leadspreschool-production.up.railway.app/change-password", {
         childId: childData.childId,
         currentPassword: currentPassword.trim(),
         newPassword: newPassword.trim(),

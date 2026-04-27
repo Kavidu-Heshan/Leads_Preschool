@@ -22,7 +22,7 @@ const PhotoDownload = () => {
   const fetchPastEvents = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("https://leadspreschool-production.up.railway.app//events/past/list");
+      const response = await axios.get("https://leadspreschool-production.up.railway.app/events/past/list");
       setEvents(response.data);
       setLoading(false);
     } catch (err) {
@@ -35,7 +35,7 @@ const PhotoDownload = () => {
   const fetchEventPhotos = async (event) => {
     try {
       setLoading(true);
-      const response = await axios.get(`https://leadspreschool-production.up.railway.app//event-photos/event/${event.eventId}`);
+      const response = await axios.get(`https://leadspreschool-production.up.railway.app/event-photos/event/${event.eventId}`);
       setPhotos(response.data);
       setSelectedEvent(event);
       setLoading(false);

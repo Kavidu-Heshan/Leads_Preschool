@@ -44,22 +44,22 @@ const UserEventsPage = () => {
     setLoading(true);
     try {
       // Fetch statistics first
-      const statsRes = await fetch('https://leadspreschool-production.up.railway.app//events/stats/summary');
+      const statsRes = await fetch('https://leadspreschool-production.up.railway.app/events/stats/summary');
       if (statsRes.ok) {
         const statsData = await statsRes.json();
         setStats(statsData);
       }
 
       // Fetch upcoming events (excluding today)
-      const upcomingRes = await fetch('https://leadspreschool-production.up.railway.app//events/upcoming/list');
+      const upcomingRes = await fetch('https://leadspreschool-production.up.railway.app/events/upcoming/list');
       const upcomingData = await upcomingRes.json();
 
       // Fetch today's events
-      const todayRes = await fetch('https://leadspreschool-production.up.railway.app//events/today/list');
+      const todayRes = await fetch('https://leadspreschool-production.up.railway.app/events/today/list');
       const todayData = await todayRes.json();
 
       // Fetch past events
-      const pastRes = await fetch('https://leadspreschool-production.up.railway.app//events/past/list');
+      const pastRes = await fetch('https://leadspreschool-production.up.railway.app/events/past/list');
       const pastData = await pastRes.json();
 
       setEvents({

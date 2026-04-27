@@ -51,7 +51,7 @@ const StudentProfileForm = () => {
 
   const checkExistingProfile = async (id) => {
     try {
-      const response = await axios.get(`https://leadspreschool-production.up.railway.app//check-profile/${id}`);
+      const response = await axios.get(`https://leadspreschool-production.up.railway.app/heck-profile/${id}`);
       if (response.data.exists) {
         navigate("/childdashboard");
       }
@@ -64,7 +64,7 @@ const StudentProfileForm = () => {
 
   const fetchChildName = async (id) => {
     try {
-      const response = await axios.get(`https://leadspreschool-production.up.railway.app//child-name/${id}`);
+      const response = await axios.get(`https://leadspreschool-production.up.railway.app/hild-name/${id}`);
       setChildName(response.data.childName);
       setFormData(prev => ({
         ...prev,
@@ -241,7 +241,7 @@ const StudentProfileForm = () => {
         profilePhoto: profilePhoto
       };
 
-      const response = await axios.post("https://leadspreschool-production.up.railway.app//student-profile", submissionData);
+      const response = await axios.post("https://leadspreschool-production.up.railway.app/tudent-profile", submissionData);
 
       if (response.data.success) {
         setSuccess("✓ Profile Saved! Redirecting to dashboard...");

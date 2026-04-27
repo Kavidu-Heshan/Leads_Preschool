@@ -1,6 +1,7 @@
 .noticeboard-wrapper {
   background-color: #f0f7f2;
   min-height: 100vh;
+  padding-top: 80px;
   padding-bottom: 3rem;
   font-family: 'Inter', sans-serif;
 }

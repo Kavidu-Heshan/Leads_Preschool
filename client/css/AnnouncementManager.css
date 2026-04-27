@@ -1,6 +1,7 @@
 .announcement-manager-wrapper {
   background-color: #f4f9f4;
   min-height: 100vh;
+  padding-top: 80px;
   padding-bottom: 2rem;
   font-family: 'Inter', sans-serif;
 }

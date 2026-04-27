@@ -1,13 +1,7 @@
 /* QRScanner.css */
 
-.qr-scanner-wrapper {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  position: relative;
-  overflow-x: hidden;
-}
 
-.qr-scanner-container {
+.qr-scanner-container { 
   max-width: 1400px;
   margin: 0 auto;
   padding: 2rem;
@@ -573,7 +567,7 @@
 
 .qr-scanner-wrapper {
   min-height: 100vh;
-  background: linear-gradient(135deg, #e8f0fe 0%, #d4e4f5 100%);
+  background: linear-gradient(135deg, #c2f49e 0%, #7ee778 100%);
   position: relative;
   overflow-x: hidden;
 }
@@ -2657,7 +2651,7 @@
 
 .qr-scanner-wrapper {
   min-height: 100vh;
-  background: linear-gradient(135deg, #72ea43 0%, #68f132 100%);
+  background: linear-gradient(135deg, #9aee99 0%, #a8ee91 100%);
   position: relative;
   overflow-x: hidden;
   padding-top: 70px;

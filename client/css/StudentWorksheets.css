@@ -1,4 +1,4 @@
-/* StudentWorksheets.css - Green Theme for Students */
+/* StudentWorksheets.css - Complete Responsive Green Theme */
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
@@ -185,6 +185,7 @@
   justify-content: center;
   gap: 20px;
   margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
 .student-header-emoji {
@@ -263,7 +264,7 @@
   font-size: 0.9rem;
 }
 
-/* Filters Section */
+/* Filters Section - Responsive */
 .student-filters-section {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
@@ -277,7 +278,6 @@
   justify-content: space-between;
   box-shadow: 0 10px 25px rgba(0, 80, 0, 0.1);
   border: 2px solid rgba(76, 175, 80, 0.3);
-  width: 900px;
 }
 
 .student-search-box {
@@ -304,8 +304,8 @@
 .student-filter-group {
   display: flex;
   gap: 15px;
-  flex: 1;
-  min-width: 300px;
+  flex: 1.5;
+  min-width: 350px;
 }
 
 .student-filter-group select {
@@ -318,6 +318,24 @@
   cursor: pointer;
   transition: all 0.3s ease;
   font-family: 'Poppins', sans-serif;
+  min-width: 180px;
+  width: auto;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.student-filter-group select option {
+  padding: 10px;
+  font-size: 0.95rem;
+  white-space: normal;
+  word-break: keep-all;
+}
+
+.student-filter-group select option[value="all"] {
+  font-weight: 500;
+  color: #1B5E20;
 }
 
 .student-filter-group select:hover {
@@ -346,7 +364,7 @@
   font-weight: 500;
 }
 
-/* Worksheets Grid */
+/* Worksheets Grid - Responsive */
 .student-worksheets-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -369,6 +387,8 @@
   border: 1px solid #E8F5E9;
   animation: cardReveal 0.5s ease-out;
   animation-fill-mode: both;
+  display: flex;
+  flex-direction: column;
 }
 
 .student-worksheet-card:nth-child(1) { animation-delay: 0.05s; }
@@ -401,6 +421,8 @@
   justify-content: space-between;
   align-items: center;
   border-bottom: 3px solid;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .student-worksheet-icon {
@@ -448,6 +470,7 @@
 
 .student-worksheet-body {
   padding: 20px;
+  flex: 1;
 }
 
 .student-worksheet-title {
@@ -455,6 +478,7 @@
   color: #1B5E20;
   margin-bottom: 8px;
   font-weight: 600;
+  word-break: break-word;
 }
 
 .student-worksheet-subject {
@@ -469,6 +493,7 @@
   font-size: 0.85rem;
   margin-bottom: 12px;
   line-height: 1.4;
+  word-break: break-word;
 }
 
 .student-worksheet-tags {
@@ -501,6 +526,8 @@
   color: #999;
   padding-top: 10px;
   border-top: 1px solid #E8F5E9;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .student-worksheet-actions {
@@ -561,6 +588,7 @@
   margin-top: 20px;
   border: 2px solid rgba(76, 175, 80, 0.3);
   animation: fadeIn 0.6s ease-out;
+  flex-wrap: wrap;
 }
 
 @keyframes fadeIn {
@@ -621,10 +649,17 @@
   cursor: pointer;
   color: inherit;
   transition: transform 0.2s;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
 }
 
 .student-error-message button:hover, .student-success-message button:hover {
   transform: scale(1.2);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 /* Loading Spinner */
@@ -692,6 +727,7 @@
   align-items: center;
   justify-content: center;
   animation: fadeIn 0.3s ease-out;
+  padding: 20px;
 }
 
 .student-modal-content {
@@ -721,11 +757,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .student-modal-header h3 {
   color: #1B5E20;
   font-size: 1.3rem;
+  word-break: break-word;
 }
 
 .student-modal-close {
@@ -761,6 +800,7 @@
   margin: 12px 0;
   color: #666;
   font-size: 0.9rem;
+  word-break: break-word;
 }
 
 .student-modal-info strong {
@@ -807,7 +847,75 @@
   box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
 }
 
-/* Responsive Design */
+/* ==================== */
+/* FULL RESPONSIVE DESIGN */
+/* ==================== */
+
+/* Large Tablets and Desktop (max-width: 1200px) */
+@media (max-width: 1200px) {
+  .student-worksheets-content {
+    max-width: 95%;
+  }
+  
+  .student-worksheets-grid {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+  }
+}
+
+/* Tablets (max-width: 992px) */
+@media (max-width: 992px) {
+  .student-worksheets-wrapper .student-worksheets-container {
+    padding: 30px 15px;
+  }
+
+  .student-header-section {
+    padding: 30px;
+    margin-bottom: 30px;
+  }
+
+  .student-header-section h1 {
+    font-size: 2.2rem;
+  }
+
+  .student-header-emoji {
+    font-size: 2.5rem;
+  }
+
+  .student-welcome-banner {
+    padding: 15px 25px;
+  }
+
+  .student-welcome-icon {
+    font-size: 2.5rem;
+  }
+
+  .student-welcome-text h3 {
+    font-size: 1.2rem;
+  }
+
+  .student-filters-section {
+    padding: 18px;
+  }
+
+  .student-search-box input {
+    padding: 12px 16px;
+    font-size: 0.95rem;
+  }
+
+  .student-filter-group select {
+    padding: 12px 16px;
+    font-size: 0.95rem;
+    min-width: 160px;
+  }
+
+  .student-worksheets-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+}
+
+/* Small Tablets and Large Phones (max-width: 768px) */
 @media (max-width: 768px) {
   .student-worksheets-wrapper .student-worksheets-container {
     margin-top: 70px;
@@ -816,36 +924,141 @@
 
   .student-header-section {
     padding: 25px;
+    border-radius: 30px;
   }
 
   .student-header-section h1 {
     font-size: 1.8rem;
   }
 
+  .student-header-subtitle {
+    font-size: 0.95rem;
+  }
+
   .student-header-emoji {
     font-size: 2rem;
+    gap: 12px;
+  }
+
+  .student-header-icon {
+    gap: 12px;
+  }
+
+  .student-decorative-line {
+    width: 80px;
   }
 
   .student-welcome-banner {
     flex-direction: column;
     text-align: center;
+    padding: 20px;
+    gap: 15px;
   }
 
+  .student-welcome-icon {
+    font-size: 2.2rem;
+  }
+
+  .student-welcome-text h3 {
+    font-size: 1.1rem;
+  }
+
+  .student-welcome-text p {
+    font-size: 0.85rem;
+  }
+
+  /* Filters Section - Stack on mobile */
   .student-filters-section {
     flex-direction: column;
+    padding: 15px;
+    gap: 15px;
+  }
+
+  .student-search-box {
+    min-width: auto;
+    width: 100%;
+  }
+
+  .student-search-box input {
+    padding: 12px 16px;
+    font-size: 0.9rem;
   }
 
   .student-filter-group {
     flex-direction: column;
     min-width: auto;
+    width: 100%;
+    gap: 12px;
+  }
+
+  .student-filter-group select {
+    width: 100%;
+    min-width: auto;
+    padding: 12px 16px;
+    font-size: 0.9rem;
+  }
+
+  .student-worksheets-count {
+    text-align: center;
+    margin-bottom: 15px;
+  }
+
+  .student-worksheets-count span {
+    font-size: 0.85rem;
+    padding: 6px 15px;
   }
 
   .student-worksheets-grid {
     grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .student-worksheet-card {
+    max-width: 100%;
+  }
+
+  .student-worksheet-header {
+    padding: 15px;
+  }
+
+  .student-worksheet-icon {
+    font-size: 2rem;
+  }
+
+  .student-worksheet-badges {
+    gap: 6px;
+  }
+
+  .student-class-badge, .student-category-badge {
+    padding: 4px 12px;
+    font-size: 0.65rem;
+  }
+
+  .student-worksheet-body {
+    padding: 15px;
+  }
+
+  .student-worksheet-title {
+    font-size: 1rem;
+  }
+
+  .student-worksheet-subject {
+    font-size: 0.8rem;
+  }
+
+  .student-worksheet-description {
+    font-size: 0.8rem;
   }
 
   .student-worksheet-actions {
     flex-direction: column;
+    padding: 12px 15px;
+    gap: 8px;
+  }
+
+  .student-btn-download, .student-btn-preview {
+    padding: 10px;
+    font-size: 0.8rem;
   }
 
   .student-worksheet-meta {
@@ -853,11 +1066,69 @@
     align-items: flex-start;
     gap: 5px;
   }
+
+  .student-fun-fact {
+    padding: 15px 20px;
+    gap: 12px;
+  }
+
+  .student-fun-fact-icon {
+    font-size: 1.5rem;
+  }
+
+  .student-fun-fact-text {
+    font-size: 0.85rem;
+  }
+
+  .student-error-message, .student-success-message {
+    padding: 12px 16px;
+    font-size: 0.85rem;
+  }
+
+  /* Modal responsive */
+  .student-modal-content {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .student-modal-header {
+    padding: 15px;
+  }
+
+  .student-modal-header h3 {
+    font-size: 1.1rem;
+  }
+
+  .student-modal-body {
+    padding: 15px;
+  }
+
+  .student-modal-info p {
+    font-size: 0.85rem;
+    margin: 10px 0;
+  }
+
+  .student-preview-icon {
+    font-size: 3rem;
+  }
+
+  .student-btn-download-large {
+    padding: 10px 25px;
+    font-size: 0.9rem;
+  }
 }
 
-@media (max-width: 480px) {
-  .student-header-emoji {
-    font-size: 1.5rem;
+/* Mobile Landscape and Small Phones (max-width: 576px) */
+@media (max-width: 576px) {
+  .student-worksheets-wrapper .student-worksheets-container {
+    margin-top: 60px;
+    padding: 15px 12px;
+  }
+
+  .student-header-section {
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 25px;
   }
 
   .student-header-section h1 {
@@ -868,26 +1139,252 @@
     font-size: 0.85rem;
   }
 
+  .student-header-emoji {
+    font-size: 1.5rem;
+  }
+
+  .student-header-icon {
+    gap: 8px;
+  }
+
+  .student-decorative-line {
+    width: 60px;
+    margin-top: 15px;
+  }
+
+  .student-welcome-banner {
+    padding: 15px;
+    border-radius: 20px;
+  }
+
   .student-welcome-icon {
     font-size: 2rem;
   }
 
   .student-welcome-text h3 {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 
+  .student-welcome-text p {
+    font-size: 0.8rem;
+  }
+
+  .student-filters-section {
+    padding: 12px;
+    gap: 12px;
+    border-radius: 20px;
+  }
+
+  .student-search-box input {
+    padding: 10px 14px;
+    font-size: 0.85rem;
+  }
+
+  .student-filter-group select {
+    padding: 10px 14px;
+    font-size: 0.85rem;
+  }
+
+  .student-worksheets-count span {
+    font-size: 0.8rem;
+    padding: 5px 12px;
+  }
+
+  .student-worksheet-card {
+    border-radius: 20px;
+  }
+
+  .student-worksheet-header {
+    padding: 12px;
+  }
+
+  .student-worksheet-icon {
+    font-size: 1.8rem;
+  }
+
+  .student-class-badge, .student-category-badge {
+    padding: 3px 10px;
+    font-size: 0.6rem;
+  }
+
+  .student-worksheet-body {
+    padding: 12px;
+  }
+
+  .student-worksheet-title {
+    font-size: 0.95rem;
+  }
+
+  .student-worksheet-subject {
+    font-size: 0.75rem;
+  }
+
+  .student-worksheet-description {
+    font-size: 0.75rem;
+  }
+
+  .student-tag {
+    padding: 2px 8px;
+    font-size: 0.65rem;
+  }
+
+  .student-worksheet-actions {
+    padding: 10px 12px;
+  }
+
+  .student-btn-download, .student-btn-preview {
+    padding: 8px;
+    font-size: 0.75rem;
+    border-radius: 12px;
+  }
+
+  .student-fun-fact {
+    padding: 12px 15px;
+    gap: 10px;
+  }
+
+  .student-fun-fact-icon {
+    font-size: 1.3rem;
+  }
+
+  .student-fun-fact-text {
+    font-size: 0.8rem;
+  }
+
+  .student-loading-spinner {
+    padding: 40px 20px;
+  }
+
+  .student-spinner {
+    width: 50px;
+    height: 50px;
+  }
+
+  .student-empty-state {
+    padding: 40px 20px;
+  }
+
+  .student-empty-icon {
+    font-size: 3rem;
+  }
+
+  .student-empty-state h3 {
+    font-size: 1rem;
+  }
+
+  .student-empty-state p {
+    font-size: 0.8rem;
+  }
+}
+
+/* Extra Small Phones (max-width: 375px) */
+@media (max-width: 375px) {
+  .student-worksheets-wrapper .student-worksheets-container {
+    padding: 10px 10px;
+  }
+
+  .student-header-section {
+    padding: 15px;
+  }
+
+  .student-header-section h1 {
+    font-size: 1.3rem;
+  }
+
+  .student-header-subtitle {
+    font-size: 0.75rem;
+  }
+
+  .student-header-emoji {
+    font-size: 1.2rem;
+  }
+
+  .student-welcome-icon {
+    font-size: 1.8rem;
+  }
+
+  .student-welcome-text h3 {
+    font-size: 0.9rem;
+  }
+
+  .student-welcome-text p {
+    font-size: 0.7rem;
+  }
+
+  .student-search-box input {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+  }
+
+  .student-filter-group select {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+  }
+
+  .student-worksheets-count span {
+    font-size: 0.75rem;
+    padding: 4px 10px;
+  }
+
+  .student-worksheet-title {
+    font-size: 0.9rem;
+  }
+
+  .student-btn-download, .student-btn-preview {
+    gap: 5px;
+  }
+
+  .student-modal-header h3 {
+    font-size: 1rem;
+  }
+
+  .student-preview-icon {
+    font-size: 2.5rem;
+  }
+
+  .student-btn-download-large {
+    padding: 8px 20px;
+    font-size: 0.85rem;
+  }
+}
+
+/* Hide background elements on very small screens for better performance */
+@media (max-width: 480px) {
   .student-cloud, .student-tree, .student-flower, .student-butterfly {
     display: none;
   }
+  
+  .student-sun {
+    font-size: 2.5rem;
+    opacity: 0.15;
+  }
+}
 
-  .student-modal-content {
-    width: 95%;
+/* Touch Device Optimizations */
+@media (hover: hover) {
+  .student-btn-download:hover:not(:disabled),
+  .student-btn-preview:hover:not(:disabled),
+  .student-btn-download-large:hover:not(:disabled) {
+    transform: translateY(-2px);
+  }
+}
+
+@media (hover: none) {
+  .student-btn-download:active,
+  .student-btn-preview:active,
+  .student-btn-download-large:active {
+    transform: scale(0.98);
+  }
+  
+  .student-worksheet-card:active {
+    transform: scale(0.99);
   }
 }
 
 /* Scrollbar Styling */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -914,136 +1411,35 @@
   background: #4CAF50;
   color: white;
 }
-/* Filters Section - Fixed for better display */
-.student-filters-section {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 25px;
-  padding: 20px;
-  margin-bottom: 30px;
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 10px 25px rgba(0, 80, 0, 0.1);
-  border: 2px solid rgba(76, 175, 80, 0.3);
-}
 
-.student-search-box {
-  flex: 2;
-  min-width: 250px;
-}
+/* Print Styles */
+@media print {
+  .student-animated-bg,
+  .student-navbar,
+  .student-btn-preview,
+  .student-fun-fact,
+  .student-worksheet-actions,
+  .student-modal-overlay {
+    display: none;
+  }
 
-.student-search-box input {
-  width: 100%;
-  padding: 14px 18px;
-  border: 2px solid #C8E6C9;
-  border-radius: 30px;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  font-family: 'Poppins', sans-serif;
-}
+  .student-worksheets-wrapper .student-worksheets-container {
+    margin: 0;
+    padding: 0;
+    background: white;
+  }
 
-.student-search-box input:focus {
-  outline: none;
-  border-color: #4CAF50;
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
-}
+  .student-worksheet-card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
 
-/* FIX: Filter group with proper spacing for All Categories */
-.student-filter-group {
-  display: flex;
-  gap: 15px;
-  flex: 1.5;
-  min-width: 350px;
-}
-
-.student-filter-group select {
-  flex: 1;
-  padding: 14px 18px;
-  border: 2px solid #C8E6C9;
-  border-radius: 30px;
-  font-size: 1rem;
-  background: white;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-family: 'Poppins', sans-serif;
-  min-width: 160px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Fix for option text to show full content */
-.student-filter-group select option {
-  padding: 10px;
-  font-size: 0.95rem;
-  white-space: normal;
-  word-break: keep-all;
-}
-
-.student-filter-group select:hover {
-  border-color: #4CAF50;
-}
-
-.student-filter-group select:focus {
-  outline: none;
-  border-color: #4CAF50;
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
-}
-
-/* Responsive fixes for mobile */
-@media (max-width: 768px) {
+  .student-header-section,
+  .student-welcome-banner,
   .student-filters-section {
-    flex-direction: column;
-    padding: 15px;
+    background: white;
+    box-shadow: none;
+    border: 1px solid #ddd;
   }
-
-  .student-search-box {
-    min-width: auto;
-    width: 100%;
-  }
-
-  .student-filter-group {
-    flex-direction: column;
-    min-width: auto;
-    width: 100%;
-    gap: 10px;
-  }
-
-  .student-filter-group select {
-    width: 100%;
-    min-width: auto;
-    padding: 12px 16px;
-    font-size: 0.95rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .student-filter-group select {
-    padding: 10px 14px;
-    font-size: 0.9rem;
-  }
-}
-/* Additional fix for select dropdown width */
-.student-filter-group select {
-  flex: 1;
-  padding: 14px 18px;
-  border: 2px solid #C8E6C9;
-  border-radius: 30px;
-  font-size: 1rem;
-  background: white;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-family: 'Poppins', sans-serif;
-  min-width: 180px; /* Increased from 160px */
-  width: auto;
-  max-width: 100%;
-}
-
-/* For the All Categories option specifically */
-.student-filter-group select option[value="all"] {
-  font-weight: 500;
-  color: #1B5E20;
 }

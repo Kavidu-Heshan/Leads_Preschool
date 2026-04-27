@@ -71,17 +71,17 @@ const AdminEventManagement = () => {
   const fetchAllEvents = async () => {
     setLoading(true);
     try {
-      const statsRes = await fetch('https://leadspreschool-production.up.railway.app//events/stats/summary');
+      const statsRes = await fetch('https://leadspreschool-production.up.railway.app/events/stats/summary');
       if (statsRes.ok) {
         const statsData = await statsRes.json();
         setStats(statsData);
       }
 
-      let url = 'https://leadspreschool-production.up.railway.app//events';
-      if (activeTab === 'upcoming') url = 'https://leadspreschool-production.up.railway.app//events/upcoming/list';
-      else if (activeTab === 'today') url = 'https://leadspreschool-production.up.railway.app//events/today/list';
-      else if (activeTab === 'past') url = 'https://leadspreschool-production.up.railway.app//events/past/list';
-      else if (activeTab === 'all' && filterType) url = `https://leadspreschool-production.up.railway.app//events?type=${filterType}`;
+      let url = 'https://leadspreschool-production.up.railway.app/events';
+      if (activeTab === 'upcoming') url = 'https://leadspreschool-production.up.railway.app/events/upcoming/list';
+      else if (activeTab === 'today') url = 'https://leadspreschool-production.up.railway.app/events/today/list';
+      else if (activeTab === 'past') url = 'https://leadspreschool-production.up.railway.app/events/past/list';
+      else if (activeTab === 'all' && filterType) url = `https://leadspreschool-production.up.railway.app/events?type=${filterType}`;
 
       const eventsRes = await fetch(url);
       const eventsData = await eventsRes.json();
@@ -149,7 +149,7 @@ const AdminEventManagement = () => {
       setLoading(true);
       
       // Fetch all events
-      const response = await fetch('https://leadspreschool-production.up.railway.app//events');
+      const response = await fetch('https://leadspreschool-production.up.railway.app/events');
       const allEvents = await response.json();
       
       if (!allEvents || allEvents.length === 0) {
@@ -454,7 +454,7 @@ const AdminEventManagement = () => {
   const confirmDelete = async () => {
     if (!eventToDelete) return;
     try {
-      const response = await fetch(`https://leadspreschool-production.up.railway.app//events/${eventToDelete.eventId}`, { method: 'DELETE' });
+      const response = await fetch(`https://leadspreschool-production.up.railway.app/events/${eventToDelete.eventId}`, { method: 'DELETE' });
       const data = await response.json();
 
       if (response.ok && data.success) {
@@ -487,7 +487,7 @@ const AdminEventManagement = () => {
       setError('');
       setSuccess('');
 
-      const url = editingEvent ? `https://leadspreschool-production.up.railway.app//events/${editingEvent.eventId}` : 'https://leadspreschool-production.up.railway.app//events';
+      const url = editingEvent ? `https://leadspreschool-production.up.railway.app/events/${editingEvent.eventId}` : 'https://leadspreschool-production.up.railway.app/events';
       const method = editingEvent ? 'PUT' : 'POST';
 
       const payload = {

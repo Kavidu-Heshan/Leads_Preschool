@@ -110,23 +110,23 @@ const AdminHome = () => {
     setLoading(true);
     try {
       // Fetch children count
-      const childrenRes = await axios.get('https://leadspreschool-production.up.railway.app//children');
+      const childrenRes = await axios.get('https://leadspreschool-production.up.railway.app/children');
       const totalChildren = childrenRes.data.length;
 
       // Fetch teachers count
-      const teachersRes = await axios.get('https://leadspreschool-production.up.railway.app//teachers');
+      const teachersRes = await axios.get('https://leadspreschool-production.up.railway.app/teachers');
       const totalTeachers = teachersRes.data.length;
 
       // Fetch events stats
-      const eventsStatsRes = await axios.get('https://leadspreschool-production.up.railway.app//events/stats/summary');
+      const eventsStatsRes = await axios.get('https://leadspreschool-production.up.railway.app/events/stats/summary');
       const { today, upcoming } = eventsStatsRes.data;
 
       // Fetch messages count
-      const messagesRes = await axios.get('https://leadspreschool-production.up.railway.app//messages');
+      const messagesRes = await axios.get('https://leadspreschool-production.up.railway.app/messages');
       const pendingMessages = messagesRes.data.filter(m => m.status === 'pending').length;
 
       // Fetch daycare present today
-      const daycareRes = await axios.get('https://leadspreschool-production.up.railway.app//daycare/today');
+      const daycareRes = await axios.get('https://leadspreschool-production.up.railway.app/daycare/today');
       const daycarePresent = daycareRes.data.length;
 
       setStats({
@@ -139,7 +139,7 @@ const AdminHome = () => {
       });
 
       // Fetch upcoming events for display
-      const upcomingEventsRes = await axios.get('https://leadspreschool-production.up.railway.app//events/upcoming/list');
+      const upcomingEventsRes = await axios.get('https://leadspreschool-production.up.railway.app/events/upcoming/list');
       setUpcomingEvents(upcomingEventsRes.data.slice(0, 5));
 
       // Generate recent activities (mix of real and simulated data)

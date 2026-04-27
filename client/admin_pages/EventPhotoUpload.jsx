@@ -33,7 +33,7 @@ const EventPhotoUpload = () => {
 
   const fetchEvents = async () => {
     try {
-      const response = await axios.get("https://leadspreschool-production.up.railway.app//events");
+      const response = await axios.get("https://leadspreschool-production.up.railway.app/events");
       // Filter ONLY past (Completed) events
       const filteredEvents = response.data.filter(
         event => event.status === "Completed"
@@ -47,7 +47,7 @@ const EventPhotoUpload = () => {
 
   const fetchAllPhotos = async () => {
     try {
-      const response = await axios.get("https://leadspreschool-production.up.railway.app//event-photos");
+      const response = await axios.get("https://leadspreschool-production.up.railway.app/event-photos");
       setEventPhotos(response.data);
     } catch (err) {
       console.error("Error fetching photos:", err);
@@ -58,7 +58,7 @@ const EventPhotoUpload = () => {
 
   const fetchEventPhotos = async (eventId) => {
     try {
-      const response = await axios.get(`https://leadspreschool-production.up.railway.app//event-photos/event/${eventId}`);
+      const response = await axios.get(`https://leadspreschool-production.up.railway.app/event-photos/event/${eventId}`);
       setEventPhotos(response.data);
     } catch (err) {
       console.error("Error fetching event photos:", err);
@@ -125,7 +125,7 @@ const EventPhotoUpload = () => {
     });
 
     try {
-      const response = await axios.post("https://leadspreschool-production.up.railway.app//event-photos/upload", formDataToSend, {
+      const response = await axios.post("https://leadspreschool-production.up.railway.app/event-photos/upload", formDataToSend, {
         headers: {
           "Content-Type": "multipart/form-data"
         }
@@ -158,7 +158,7 @@ const EventPhotoUpload = () => {
   const handleDeletePhoto = async (photoId) => {
     if (window.confirm("Are you sure you want to delete this photo?")) {
       try {
-        const response = await axios.delete(`https://leadspreschool-production.up.railway.app//event-photos/${photoId}`);
+        const response = await axios.delete(`https://leadspreschool-production.up.railway.app/event-photos/${photoId}`);
         if (response.data.success) {
           setSuccess("Photo deleted successfully!");
           // Refresh photos
@@ -178,7 +178,7 @@ const EventPhotoUpload = () => {
 
   const handleSetFeatured = async (photoId) => {
     try {
-      const response = await axios.patch(`https://leadspreschool-production.up.railway.app//event-photos/${photoId}/featured`);
+      const response = await axios.patch(`https://leadspreschool-production.up.railway.app/event-photos/${photoId}/featured`);
       if (response.data.success) {
         setSuccess("Photo set as featured!");
         if (selectedEventId) {

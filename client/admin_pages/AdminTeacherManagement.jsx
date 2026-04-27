@@ -231,7 +231,7 @@
         const queryString = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
 
         // Fetch teachers
-        const teachersRes = await fetch(`https://leadspreschool-production.up.railway.app//teachers${queryString}`);
+        const teachersRes = await fetch(`https://leadspreschool-production.up.railway.app/teachers${queryString}`);
         const teachersData = await teachersRes.json();
         
         // Add selected property to each teacher
@@ -242,7 +242,7 @@
         setTeachers(teachersWithSelection);
 
         // Fetch statistics
-        const statsRes = await fetch('https://leadspreschool-production.up.railway.app//teachers/stats/summary');
+        const statsRes = await fetch('https://leadspreschool-production.up.railway.app/teachers/stats/summary');
         if (statsRes.ok) {
           const statsData = await statsRes.json();
           setStats(statsData);
@@ -259,7 +259,7 @@
 
     const fetchClassSummary = async () => {
       try {
-        const res = await fetch('https://leadspreschool-production.up.railway.app//teachers/class-summary');
+        const res = await fetch('https://leadspreschool-production.up.railway.app/teachers/class-summary');
         if (res.ok) {
           const data = await res.json();
           setClassSummary(data.summary || []);
@@ -606,7 +606,7 @@
       if (!teacherToDelete) return;
 
       try {
-        const response = await fetch(`https://leadspreschool-production.up.railway.app//teachers/${teacherToDelete.teacherId}`, {
+        const response = await fetch(`https://leadspreschool-production.up.railway.app/teachers/${teacherToDelete.teacherId}`, {
           method: 'DELETE',
         });
 
@@ -644,7 +644,7 @@
 
       setFormLoading(true);
       try {
-        const response = await fetch(`https://leadspreschool-production.up.railway.app//teachers/${selectedTeacher.teacherId}/assign-classes`, {
+        const response = await fetch(`https://leadspreschool-production.up.railway.app/teachers/${selectedTeacher.teacherId}/assign-classes`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -687,7 +687,7 @@
 
       setFormLoading(true);
       try {
-        const response = await fetch(`https://leadspreschool-production.up.railway.app//teachers/${selectedTeacher.teacherId}/remove-class`, {
+        const response = await fetch(`https://leadspreschool-production.up.railway.app/teachers/${selectedTeacher.teacherId}/remove-class`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -736,7 +736,7 @@
 
       setFormLoading(true);
       try {
-        const response = await fetch('https://leadspreschool-production.up.railway.app//teachers/bulk-assign', {
+        const response = await fetch('https://leadspreschool-production.up.railway.app/teachers/bulk-assign', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -848,8 +848,8 @@
 
       try {
         const url = editingTeacher 
-          ? `https://leadspreschool-production.up.railway.app//teachers/${editingTeacher.teacherId}`
-          : 'https://leadspreschool-production.up.railway.app//teachers';
+          ? `https://leadspreschool-production.up.railway.app/teachers/${editingTeacher.teacherId}`
+          : 'https://leadspreschool-production.up.railway.app/teachers';
         
         const method = editingTeacher ? 'PUT' : 'POST';
 

@@ -28,7 +28,7 @@ const AdminMessage = () => {
 
   const fetchMessages = async () => {
     try {
-      const response = await axios.get('https://leadspreschool-production.up.railway.app//messages');
+      const response = await axios.get('https://leadspreschool-production.up.railway.app/messages');
       setMessages(response.data);
       setError('');
     } catch (err) {
@@ -46,7 +46,7 @@ const AdminMessage = () => {
     }
 
     try {
-      const response = await axios.post(`https://leadspreschool-production.up.railway.app//messages/${messageId}/reply`, {
+      const response = await axios.post(`https://leadspreschool-production.up.railway.app/messages/${messageId}/reply`, {
         reply: replyText,
         repliedBy: adminId
       });
@@ -67,7 +67,7 @@ const AdminMessage = () => {
 
   const handleUpdateStatus = async (messageId, status) => {
     try {
-      const response = await axios.patch(`https://leadspreschool-production.up.railway.app//messages/${messageId}/status`, {
+      const response = await axios.patch(`https://leadspreschool-production.up.railway.app/messages/${messageId}/status`, {
         status
       });
 
@@ -85,7 +85,7 @@ const AdminMessage = () => {
   const handleDeleteMessage = async (messageId) => {
     if (window.confirm('Are you sure you want to delete this message?')) {
       try {
-        const response = await axios.delete(`https://leadspreschool-production.up.railway.app//messages/${messageId}`);
+        const response = await axios.delete(`https://leadspreschool-production.up.railway.app/messages/${messageId}`);
         if (response.data.success) {
           setSuccess('Message deleted successfully');
           await fetchMessages();

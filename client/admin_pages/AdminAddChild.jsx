@@ -65,7 +65,7 @@ const AdminAddChild = () => {
   }, []);
 
   const fetchChildren = () => {
-    axios.get("https://leadspreschool-production.up.railway.app//children")
+    axios.get("https://leadspreschool-production.up.railway.app/children")
       .then(res => {
         setChildren(res.data);
         // Auto-generate ID on initial load
@@ -238,7 +238,7 @@ const AdminAddChild = () => {
       childName: trimmedName
     };
 
-    axios.post("https://leadspreschool-production.up.railway.app//add-child", newChild)
+    axios.post("https://leadspreschool-production.up.railway.app/add-child", newChild)
       .then(res => {
         const updatedChildren = [res.data, ...children];
         setChildren(updatedChildren); 
@@ -278,7 +278,7 @@ const AdminAddChild = () => {
     setSuccess("");
 
     try {
-      const response = await axios.delete(`https://leadspreschool-production.up.railway.app//children/${deletedChildId}`);
+      const response = await axios.delete(`https://leadspreschool-production.up.railway.app/children/${deletedChildId}`);
       
       if (response.data.success) {
         const updatedChildren = children.filter(child => child.childId !== deletedChildId);
@@ -322,7 +322,7 @@ const AdminAddChild = () => {
     setSuccess("");
     
     try {
-      const response = await axios.post("https://leadspreschool-production.up.railway.app//children/bulk-delete", {
+      const response = await axios.post("https://leadspreschool-production.up.railway.app/children/bulk-delete", {
         childIds: childIdsToDelete
       });
       

@@ -63,18 +63,38 @@ const NavigationBar = () => {
 
   const navItems = [
     { path: '/adminhome', name: 'Dashboard', icon: '📊' },
-    { path: '/announcements', name: 'Notice Board', icon: '📢' },
-    { path: '/adminassignments', name: 'Assignments', icon: '📝' },
-    { path: '/adminaddchild', name: 'Add Child', icon: '👶' },
-    { path: '/adminteachermanagement', name: 'Teachers', icon: '👩‍🏫' },
-    { path: '/admindaycaredashboard', name: 'Daycare', icon: '🧸' },
-    { path: '/admineditevent', name: 'Events', icon: '📅' },
-    { path: '/adminmessage', name: 'Messages', icon: '💬' },
-    { path: '/uploadPhoto', name: 'Gallery', icon: '🖼️' },
-    { path: '/adminworksheetupload', name: 'Upload worksheet', icon: '📄' },
-    { path: '/adminStudentManagement', name: 'Students', icon: '👥' },
-    { path: '/qrscanner', name: 'Attendance', icon: '🌱' },
-    { path: '/qrcodegenerator', name: 'QR Codes', icon: '📱' }
+    { 
+      name: 'Academics', icon: '📚', 
+      dropdown: [
+        { path: '/announcements', name: 'Notice Board', icon: '📢' },
+        { path: '/adminassignments', name: 'Assignments', icon: '📝' },
+        { path: '/adminworksheetupload', name: 'Worksheets', icon: '📄' }
+      ]
+    },
+    {
+      name: 'Users', icon: '👥',
+      dropdown: [
+        { path: '/adminaddchild', name: 'Add Child', icon: '👶' },
+        { path: '/adminStudentManagement', name: 'Students', icon: '🧑‍🎓' },
+        { path: '/adminteachermanagement', name: 'Teachers', icon: '👩‍🏫' }
+      ]
+    },
+    {
+      name: 'Operations', icon: '⚙️',
+      dropdown: [
+        { path: '/qrscanner', name: 'Attendance', icon: '🌱' },
+        { path: '/qrcodegenerator', name: 'QR Codes', icon: '📱' },
+        { path: '/admindaycaredashboard', name: 'Daycare', icon: '🧸' }
+      ]
+    },
+    {
+      name: 'Media', icon: '🖼️',
+      dropdown: [
+        { path: '/admineditevent', name: 'Events', icon: '📅' },
+        { path: '/uploadPhoto', name: 'Gallery', icon: '📸' },
+        { path: '/adminmessage', name: 'Messages', icon: '💬' }
+      ]
+    }
   ];
 
   const isActive = (path) => {
@@ -125,17 +145,39 @@ const NavigationBar = () => {
             {/* Navigation Items */}
             <ul className="nav-items">
               {navItems.map((item, index) => (
-                <li key={item.path} className="nav-item">
-                  <Link
-                    to={item.path}
-                    className={`nav-link ${isActive(item.path) ? 'active' : ''}`}
-                    onClick={closeMobileMenu}
-                    style={{ animationDelay: `${index * 0.05}s` }}
-                  >
-                    <span className="nav-icon">{item.icon}</span>
-                    <span className="nav-name">{item.name}</span>
-                    {isActive(item.path) && <span className="active-dot"></span>}
-                  </Link>
+                <li key={item.name} className={`nav-item ${item.dropdown ? 'has-dropdown' : ''}`}>
+                  {item.dropdown ? (
+                    <div className="nav-link dropdown-trigger" style={{ animationDelay: `${index * 0.05}s` }}>
+                      <span className="nav-icon">{item.icon}</span>
+                      <span className="nav-name">{item.name}</span>
+                      <span className="dropdown-arrow-icon" style={{marginLeft: '4px', fontSize: '10px'}}>▼</span>
+                      
+                      <div className="nav-dropdown-content">
+                        {item.dropdown.map(subItem => (
+                          <Link
+                            key={subItem.path}
+                            to={subItem.path}
+                            className={`dropdown-item ${isActive(subItem.path) ? 'active' : ''}`}
+                            onClick={closeMobileMenu}
+                          >
+                            <span className="nav-icon">{subItem.icon}</span>
+                            <span className="nav-name">{subItem.name}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <Link
+                      to={item.path}
+                      className={`nav-link ${isActive(item.path) ? 'active' : ''}`}
+                      onClick={closeMobileMenu}
+                      style={{ animationDelay: `${index * 0.05}s` }}
+                    >
+                      <span className="nav-icon">{item.icon}</span>
+                      <span className="nav-name">{item.name}</span>
+                      {isActive(item.path) && <span className="active-dot"></span>}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

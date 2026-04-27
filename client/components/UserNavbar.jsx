@@ -50,15 +50,29 @@ const UserNavbar = () => {
 
   const navItems = [
     { path: '/userhome', name: 'Home Page', icon: '📊' },
-    { path: '/noticeboard', name: 'Notice Board', icon: '🌿' },
-    { path: '/studentassignments', name: 'Assignments', icon: '📝' },
-    // { path: '/adminaddchild', name: 'Add Child', icon: '👶' },
-    { path: '/teacher', name: 'Teachers', icon: '👩‍🏫' },
-    { path: '/addDaycare', name: 'Daycare', icon: '🧸' },
-    { path: '/userevent', name: 'Events', icon: '📅' },
-    { path: '/studentworksheets', name: 'Worksheets', icon: '📄' },
-    { path: '/message', name: 'Messages', icon: '💬' },
-    { path: '/photodownload', name: 'Gallery', icon: '🖼️' }
+    { 
+      name: 'Academics', icon: '📚', 
+      dropdown: [
+        { path: '/noticeboard', name: 'Notice Board', icon: '🌿' },
+        { path: '/studentassignments', name: 'Assignments', icon: '📝' },
+        { path: '/studentworksheets', name: 'Worksheets', icon: '📄' }
+      ]
+    },
+    {
+      name: 'Campus', icon: '🏫',
+      dropdown: [
+        { path: '/teacher', name: 'Teachers', icon: '👩‍🏫' },
+        { path: '/addDaycare', name: 'Daycare', icon: '🧸' },
+        { path: '/userevent', name: 'Events', icon: '📅' }
+      ]
+    },
+    {
+      name: 'Communicate', icon: '💬',
+      dropdown: [
+        { path: '/message', name: 'Messages', icon: '✉️' },
+        { path: '/photodownload', name: 'Gallery', icon: '🖼️' }
+      ]
+    }
   ];
 
   const isActive = (path) => {
@@ -90,20 +104,41 @@ const UserNavbar = () => {
               </button>
             </div>
 
-            {/* Navigation Items */}
             <ul className="nav-items">
               {navItems.map((item, index) => (
-                <li key={item.path} className="nav-item">
-                  <Link
-                    to={item.path}
-                    className={`nav-link ${isActive(item.path) ? 'active' : ''}`}
-                    onClick={closeMobileMenu}
-                    style={{ animationDelay: `${index * 0.05}s` }}
-                  >
-                    <span className="nav-icon">{item.icon}</span>
-                    <span className="nav-name">{item.name}</span>
-                    {isActive(item.path) && <span className="active-dot"></span>}
-                  </Link>
+                <li key={item.name} className={`nav-item ${item.dropdown ? 'has-dropdown' : ''}`}>
+                  {item.dropdown ? (
+                    <div className="nav-link dropdown-trigger" style={{ animationDelay: `${index * 0.05}s` }}>
+                      <span className="nav-icon">{item.icon}</span>
+                      <span className="nav-name">{item.name}</span>
+                      <span className="dropdown-arrow-icon" style={{marginLeft: '4px', fontSize: '10px'}}>▼</span>
+                      
+                      <div className="nav-dropdown-content">
+                        {item.dropdown.map(subItem => (
+                          <Link
+                            key={subItem.path}
+                            to={subItem.path}
+                            className={`dropdown-item ${isActive(subItem.path) ? 'active' : ''}`}
+                            onClick={closeMobileMenu}
+                          >
+                            <span className="nav-icon">{subItem.icon}</span>
+                            <span className="nav-name">{subItem.name}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <Link
+                      to={item.path}
+                      className={`nav-link ${isActive(item.path) ? 'active' : ''}`}
+                      onClick={closeMobileMenu}
+                      style={{ animationDelay: `${index * 0.05}s` }}
+                    >
+                      <span className="nav-icon">{item.icon}</span>
+                      <span className="nav-name">{item.name}</span>
+                      {isActive(item.path) && <span className="active-dot"></span>}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

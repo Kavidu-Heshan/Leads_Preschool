@@ -3284,7 +3284,30 @@ app.post("/announcements", async (req, res) => {
 // 2. GET ALL ANNOUNCEMENTS
 app.get("/announcements", async (req, res) => {
   try {
-    const announcements = await AnnouncementModel.find().sort({ createdAt: -1 });
+    const now = new Date();
+    // Filter announcements where endDate is not set, or endDate is in the future
+    const announcements = await AnnouncementModel.find({
+      $or: [
+        { endDate: null },
+        { endDate: { $exists: false } },
+        { endDate: { $gt: now } }
+      ]
+    });
+    
+    // Custom sort: Priority High (1) > Medium (2) > Low (3), then by createdAt desc
+    const priorityMap = { 'High': 1, 'Medium': 2, 'Low': 3 };
+    
+    announcements.sort((a, b) => {
+      const pA = priorityMap[a.priority] || 4;
+      const pB = priorityMap[b.priority] || 4;
+      
+      if (pA !== pB) {
+        return pA - pB;
+      }
+      
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+    
     res.json(announcements);
   } catch (err) {
     console.error("Error fetching announcements:", err);

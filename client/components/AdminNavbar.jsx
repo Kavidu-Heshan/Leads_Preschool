@@ -39,6 +39,8 @@ const NavigationBar = () => {
     localStorage.removeItem('adminRole');
     localStorage.removeItem('adminId');
     localStorage.removeItem('adminInfo');
+    localStorage.removeItem('currentTeacher');
+    sessionStorage.removeItem('currentTeacher');
     
     // Redirect to login page
     navigate('/childenroll');

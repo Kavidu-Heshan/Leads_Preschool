@@ -26,6 +26,8 @@ const UserNavbar = () => {
     localStorage.removeItem('adminName');
     localStorage.removeItem('adminRole');
     localStorage.removeItem('adminId');
+    localStorage.removeItem('currentChild');
+    sessionStorage.removeItem('currentChild');
     
     // Redirect to login page
     navigate('/childenroll');

@@ -4,8 +4,8 @@ import { Navigate } from "react-router-dom";
 
 const ProtectedRoute = ({ children, allowedUserTypes = ["child", "teacher"] }) => {
   // Check for child login
-  const childData = localStorage.getItem("currentChild");
-  const teacherData = localStorage.getItem("currentTeacher");
+  const childData = localStorage.getItem("currentChild") || sessionStorage.getItem("currentChild");
+  const teacherData = localStorage.getItem("currentTeacher") || sessionStorage.getItem("currentTeacher");
   
   let isAuthenticated = false;
   let userType = null;

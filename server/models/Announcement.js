@@ -20,6 +20,10 @@ const AnnouncementSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  endDate: {
+    type: Date,
+    required: false
+  },
   createdAt: {
     type: Date,
     default: Date.now,

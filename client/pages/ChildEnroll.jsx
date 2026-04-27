@@ -16,6 +16,7 @@ const ChildEnroll = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   
   const [idError, setIdError] = useState("");
   const [nameError, setNameError] = useState("");
@@ -28,13 +29,6 @@ const ChildEnroll = () => {
     password: false
   });
 
-  // Clear any existing sessions when reaching login page
-  useEffect(() => {
-    // Clear all existing sessions
-    localStorage.removeItem("currentChild");
-    localStorage.removeItem("currentTeacher");
-    sessionStorage.clear();
-  }, []);
 
   useEffect(() => {
     if (error || success) {
@@ -223,7 +217,11 @@ const ChildEnroll = () => {
           lastActivity: new Date().toISOString()
         };
         
-        localStorage.setItem("currentChild", JSON.stringify(sessionData));
+        if (rememberMe) {
+          localStorage.setItem("currentChild", JSON.stringify(sessionData));
+        } else {
+          sessionStorage.setItem("currentChild", JSON.stringify(sessionData));
+        }
         
         // Also store in sessionStorage for additional security
         sessionStorage.setItem("childSession", JSON.stringify({
@@ -313,7 +311,11 @@ const ChildEnroll = () => {
           permissions: response.data.teacher.permissions || ["view", "edit"]
         };
         
-        localStorage.setItem("currentTeacher", JSON.stringify(sessionData));
+        if (rememberMe) {
+          localStorage.setItem("currentTeacher", JSON.stringify(sessionData));
+        } else {
+          sessionStorage.setItem("currentTeacher", JSON.stringify(sessionData));
+        }
         
         // Also store in sessionStorage for additional security
         sessionStorage.setItem("teacherSession", JSON.stringify({
@@ -379,13 +381,7 @@ const ChildEnroll = () => {
     <div className="child-enroll-wrapper">
       <UserNavbar />
       <div className="enroll-container">
-        <div className="nature-bg">
-          <div className="leaf leaf-1">🌿</div>
-          <div className="leaf leaf-2">🍃</div>
-          <div className="leaf leaf-3">🌱</div>
-          <div className="leaf leaf-4">🌿</div>
-          <div className="leaf leaf-5">🍂</div>
-        </div>
+
 
         <div className="enroll-card">
           <div className="enroll-header">
@@ -573,6 +569,17 @@ const ChildEnroll = () => {
               </>
             )}
 
+            <div className="form-group remember-me-container" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
+              <input 
+                type="checkbox" 
+                id="rememberMe"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                style={{ width: '18px', height: '18px', cursor: 'pointer', margin: 0, padding: 0 }}
+              />
+              <label htmlFor="rememberMe" style={{ margin: 0, cursor: 'pointer', fontWeight: 500, fontSize: '0.95rem' }}>Remember me</label>
+            </div>
+
             <button 
               type="submit" 
               className={`enroll-button ${isSubmitting ? 'submitting' : ''}`}
@@ -621,21 +628,6 @@ const ChildEnroll = () => {
             <p className="security-note">
               🔒 Your session is encrypted and secure
             </p>
-          </div>
-        </div>
-
-        <div className="fun-facts">
-          <div className="fact-card">
-            <span className="fact-icon">🌟</span>
-            <p className="fact-text">Learning is an adventure!</p>
-          </div>
-          <div className="fact-card">
-            <span className="fact-icon">📚</span>
-            <p className="fact-text">Every day is a new discovery</p>
-          </div>
-          <div className="fact-card">
-            <span className="fact-icon">🎨</span>
-            <p className="fact-text">Be creative, be yourself</p>
           </div>
         </div>
       </div>

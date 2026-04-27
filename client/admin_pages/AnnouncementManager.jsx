@@ -10,6 +10,7 @@ const AnnouncementManager = () => {
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
   const [priority, setPriority] = useState("Low");
+  const [endDate, setEndDate] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -59,9 +60,10 @@ const AnnouncementManager = () => {
 
     try {
       const newAnnouncement = {
-        title: title.trim(),
-        message: message.trim(),
+        title,
+        message,
         priority,
+        endDate: endDate ? new Date(endDate) : null,
         posted_by: teacherName
       };
 
@@ -71,6 +73,7 @@ const AnnouncementManager = () => {
       setTitle("");
       setMessage("");
       setPriority("Low");
+      setEndDate("");
       fetchAnnouncements();
       
       setTimeout(() => setSuccess(""), 3000);
@@ -143,6 +146,16 @@ const AnnouncementManager = () => {
                 <option value="Medium">🟠 Medium (Important)</option>
                 <option value="High">🔴 High (Urgent)</option>
               </select>
+            </div>
+
+            <div className="form-group">
+              <label>Auto-Remove Date (Optional)</label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                min={new Date().toISOString().split('T')[0]}
+              />
             </div>
 
             <button type="submit" className="submit-btn" disabled={isSubmitting}>

@@ -50,7 +50,10 @@ const NoticeBoard = () => {
         {error && <div className="alert alert-error">⚠️ {error}</div>}
 
         {loading ? (
-          <div className="loading-spinner">Loading notices...</div>
+          <div className="spinner-container">
+            <div className="spinner"></div>
+            <p>Loading notices...</p>
+          </div>
         ) : announcements.length === 0 ? (
           <div className="empty-state">
             <div className="icon">🌱</div>

@@ -6,8 +6,8 @@ const AuthCheck = ({ children }) => {
   const navigate = useNavigate();
   
   useEffect(() => {
-    const childData = localStorage.getItem("currentChild");
-    const teacherData = localStorage.getItem("currentTeacher");
+    const childData = localStorage.getItem("currentChild") || sessionStorage.getItem("currentChild");
+    const teacherData = localStorage.getItem("currentTeacher") || sessionStorage.getItem("currentTeacher");
     
     if (childData) {
       // If already logged in as child, redirect to child dashboard

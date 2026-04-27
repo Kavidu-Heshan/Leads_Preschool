@@ -64,6 +64,7 @@ const NavigationBar = () => {
   const navItems = [
     { path: '/adminhome', name: 'Dashboard', icon: '📊' },
     { path: '/announcements', name: 'Notice Board', icon: '📢' },
+    { path: '/adminassignments', name: 'Assignments', icon: '📝' },
     { path: '/adminaddchild', name: 'Add Child', icon: '👶' },
     { path: '/adminteachermanagement', name: 'Teachers', icon: '👩‍🏫' },
     { path: '/admindaycaredashboard', name: 'Daycare', icon: '🧸' },

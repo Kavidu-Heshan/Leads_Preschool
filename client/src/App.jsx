@@ -32,6 +32,8 @@ import WorksheetUpload from "../admin_pages/WorksheetUpload";
 import StudentWorksheets from "../pages/StudentWorksheets";
 import AnnouncementManager from "../admin_pages/AnnouncementManager";
 import NoticeBoard from "../pages/NoticeBoard";
+import AssignmentManager from "../admin_pages/AssignmentManager";
+import StudentAssignments from "../pages/StudentAssignments";
 
 function App() {
   return (
@@ -130,6 +132,14 @@ function App() {
               </ProtectedRoute>
             } 
           />
+          <Route 
+            path="/studentassignments" 
+            element={
+              <ProtectedRoute allowedUserTypes={["child"]}>
+                <StudentAssignments />
+              </ProtectedRoute>
+            } 
+          />
           
           {/* Teacher/Admin Protected Routes */}
           <Route 
@@ -137,6 +147,14 @@ function App() {
             element={
               <ProtectedRoute allowedUserTypes={["teacher"]}>
                 <AdminHome />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/adminassignments" 
+            element={
+              <ProtectedRoute allowedUserTypes={["teacher"]}>
+                <AssignmentManager />
               </ProtectedRoute>
             } 
           />

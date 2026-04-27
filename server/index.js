@@ -24,6 +24,7 @@ const app = express();
 
 // --- ADD WORKSHEET ROUTES ---
 const worksheetRoutes = require("./routes/worksheets");
+const assignmentRoutes = require("./routes/assignments");
 // --- UPDATED MIDDLEWARE ---
 // Increased limit to 50mb to allow for Base64 profile photo uploads
 app.use(express.json({ limit: '50mb' }));
@@ -31,6 +32,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cors());
 
 app.use("/worksheets", worksheetRoutes);
+app.use("/assignments", assignmentRoutes);
 
 // --- MONGODB CONNECTION ---
 mongoose

@@ -5,6 +5,14 @@ import '../css/AdminNavbar.css';
 const NavigationBar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState(null);
+
+  const toggleDropdown = (name, e) => {
+    e.stopPropagation();
+    if (window.innerWidth <= 768) {
+      setOpenDropdown(openDropdown === name ? null : name);
+    }
+  };
   
   // FIX: Use lazy initialization to read from localStorage immediately
   // This prevents the cascading render error and removes the need for the useEffect
@@ -147,12 +155,18 @@ const NavigationBar = () => {
               {navItems.map((item, index) => (
                 <li key={item.name} className={`nav-item ${item.dropdown ? 'has-dropdown' : ''}`}>
                   {item.dropdown ? (
-                    <div className="nav-link dropdown-trigger" style={{ animationDelay: `${index * 0.05}s` }}>
-                      <span className="nav-icon">{item.icon}</span>
-                      <span className="nav-name">{item.name}</span>
-                      <span className="dropdown-arrow-icon" style={{marginLeft: '4px', fontSize: '10px'}}>▼</span>
+                    <>
+                      <div 
+                        className={`nav-link dropdown-trigger ${openDropdown === item.name ? 'mobile-open' : ''}`}
+                        style={{ animationDelay: `${index * 0.05}s` }}
+                        onClick={(e) => toggleDropdown(item.name, e)}
+                      >
+                        <span className="nav-icon">{item.icon}</span>
+                        <span className="nav-name">{item.name}</span>
+                        <span className="dropdown-arrow-icon" style={{marginLeft: '4px', fontSize: '10px'}}>▼</span>
+                      </div>
                       
-                      <div className="nav-dropdown-content">
+                      <div className={`nav-dropdown-content ${openDropdown === item.name ? 'mobile-open' : ''}`}>
                         {item.dropdown.map(subItem => (
                           <Link
                             key={subItem.path}
@@ -165,7 +179,7 @@ const NavigationBar = () => {
                           </Link>
                         ))}
                       </div>
-                    </div>
+                    </>
                   ) : (
                     <Link
                       to={item.path}

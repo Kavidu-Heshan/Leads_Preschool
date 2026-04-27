@@ -11,7 +11,10 @@
   --primary-dark: #16a34a;         
   --text-main: #1e293b;            
   --text-muted: #64748b;           
-  --input-bg: #f8fafc;             
+  --input-bg: #f8fafc;
+  --light-green: #e6f4ea;
+  --primary-green: #34a853;
+  --text-secondary: #5f6368;
 }
 
 body {
@@ -195,5 +198,37 @@ body {
 
 .toggle-icon {
   font-size: 1.2rem;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .enroll-card {
+    max-width: 100%;
+    border-radius: 24px;
+  }
+  .enroll-header {
+    padding: 30px 20px 15px;
+  }
+  .enroll-form {
+    padding: 0 20px 20px;
+  }
+  .enroll-header h1 {
+    font-size: 1.7rem;
+  }
+  .fun-facts {
+    flex-direction: column;
+    align-items: center;
+  }
+  .fact-card {
+    width: 100%;
+    justify-content: center;
+  }
+  .login-type-toggle {
+    flex-direction: column;
+    border-radius: 16px;
+  }
+  .toggle-btn {
+    padding: 1rem;
+  }
 }
 

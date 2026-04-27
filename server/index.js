@@ -18,6 +18,7 @@ const DaycareAttendanceModel = require("./models/DaycareAttendance.js");
 const EventPhotoModel = require("./models/EventPhoto.js");
 const Attendance = require("./models/Attendance");
 const Worksheet = require("./models/Worksheet");
+const AnnouncementModel = require("./models/Announcement.js");
 
 const app = express();
 
@@ -3261,6 +3262,47 @@ app.get("/student-details/:childId", async (req, res) => {
       success: false, 
       error: "Failed to fetch student details" 
     });
+  }
+});
+
+/* ================================
+   ANNOUNCEMENTS API
+================================ */
+
+// 1. CREATE ANNOUNCEMENT
+app.post("/announcements", async (req, res) => {
+  try {
+    const newAnnouncement = new AnnouncementModel(req.body);
+    await newAnnouncement.save();
+    res.status(201).json({ success: true, message: "Announcement created successfully", data: newAnnouncement });
+  } catch (err) {
+    console.error("Error creating announcement:", err);
+    res.status(500).json({ success: false, error: "Failed to create announcement" });
+  }
+});
+
+// 2. GET ALL ANNOUNCEMENTS
+app.get("/announcements", async (req, res) => {
+  try {
+    const announcements = await AnnouncementModel.find().sort({ createdAt: -1 });
+    res.json(announcements);
+  } catch (err) {
+    console.error("Error fetching announcements:", err);
+    res.status(500).json({ error: "Failed to fetch announcements" });
+  }
+});
+
+// 3. DELETE ANNOUNCEMENT
+app.delete("/announcements/:id", async (req, res) => {
+  try {
+    const deletedAnnouncement = await AnnouncementModel.findByIdAndDelete(req.params.id);
+    if (!deletedAnnouncement) {
+      return res.status(404).json({ success: false, error: "Announcement not found" });
+    }
+    res.json({ success: true, message: "Announcement deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting announcement:", err);
+    res.status(500).json({ success: false, error: "Failed to delete announcement" });
   }
 });
 

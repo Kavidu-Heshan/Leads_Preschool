@@ -30,6 +30,8 @@ import AdminStudentManagement from "../admin_pages/AdminStudentManagement";
 import QRCodeGenerator from "../admin_pages/QRCodeGenerator";
 import WorksheetUpload from "../admin_pages/WorksheetUpload";
 import StudentWorksheets from "../pages/StudentWorksheets";
+import AnnouncementManager from "../admin_pages/AnnouncementManager";
+import NoticeBoard from "../pages/NoticeBoard";
 
 function App() {
   return (
@@ -117,6 +119,14 @@ function App() {
             element={
               <ProtectedRoute allowedUserTypes={["child"]}>
                 <PhotoDownload />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/noticeboard" 
+            element={
+              <ProtectedRoute allowedUserTypes={["child"]}>
+                <NoticeBoard />
               </ProtectedRoute>
             } 
           />
@@ -223,6 +233,14 @@ function App() {
             element={
               <ProtectedRoute allowedUserTypes={["teacher"]}>
                 <AdminStudentManagement />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/announcements" 
+            element={
+              <ProtectedRoute allowedUserTypes={["teacher"]}>
+                <AnnouncementManager />
               </ProtectedRoute>
             } 
           />

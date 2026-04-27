@@ -1,4 +1,4 @@
-/* ChildDashboard.css */
+/* ChildDashboard.css - Complete Responsive Design */
 
 /* Root Variables */
 :root {
@@ -20,22 +20,32 @@
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Wrapper to handle navbar spacing */
+.child-dashboard-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.child-dashboard-wrapper .dashboard-container {
+  flex: 1;
+  margin-top: 80px;
+  position: relative;
+  overflow-x: hidden;
+}
+
 /* Main Container */
 .dashboard-container {
   position: relative;
-  min-height: 100vh;
+  min-height: calc(100vh - 80px);
   background: linear-gradient(135deg, #f0f7f0 0%, #e8f0e8 100%);
   overflow-x: hidden;
   animation: fadeIn 0.6s ease-out;
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* Nature Background Elements */
@@ -67,15 +77,9 @@
 .leaf-8 { bottom: 60%; left: 45%; animation-duration: 30s; animation-delay: 4.5s; }
 
 @keyframes leafFloat {
-  0%, 100% {
-    transform: translateY(0) rotate(0deg);
-  }
-  25% {
-    transform: translateY(-20px) rotate(5deg);
-  }
-  75% {
-    transform: translateY(20px) rotate(-5deg);
-  }
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-20px) rotate(5deg); }
+  75% { transform: translateY(20px) rotate(-5deg); }
 }
 
 /* Floating Circles */
@@ -116,12 +120,8 @@
 }
 
 @keyframes floatCircle {
-  0%, 100% {
-    transform: translateY(0) scale(1);
-  }
-  50% {
-    transform: translateY(-30px) scale(1.05);
-  }
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-30px) scale(1.05); }
 }
 
 /* Dashboard Content */
@@ -138,18 +138,11 @@
   text-align: center;
   margin-bottom: 60px;
   animation: slideDown 0.6s ease-out;
-  height: 350px;
 }
 
 @keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-30px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .welcome-icon {
@@ -166,12 +159,8 @@
 }
 
 @keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
 .welcome-emoji {
@@ -204,7 +193,7 @@
   margin-bottom: 60px;
 }
 
-/* Dashboard Card - Responsive */
+/* Dashboard Card */
 .dashboard-card {
   background: var(--white);
   border-radius: 24px;
@@ -227,10 +216,7 @@
 }
 
 @keyframes cardFadeIn {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .dashboard-card:hover {
@@ -267,12 +253,8 @@
 }
 
 @keyframes pulseGlow {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.2);
-  }
-  50% {
-    box-shadow: 0 0 0 10px rgba(76, 175, 80, 0.1);
-  }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.2); }
+  50% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0.1); }
 }
 
 .dashboard-card:hover .card-icon-wrapper {
@@ -336,14 +318,8 @@
 }
 
 @keyframes lineExpand {
-  from {
-    width: 0;
-    opacity: 0;
-  }
-  to {
-    width: 100px;
-    opacity: 1;
-  }
+  from { width: 0; opacity: 0; }
+  to { width: 100px; opacity: 1; }
 }
 
 /* Quote Container */
@@ -359,14 +335,8 @@
 }
 
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .quote-text {
@@ -404,23 +374,12 @@
   animation: dotPulse 1.5s infinite;
 }
 
-.dot:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.dot:nth-child(3) {
-  animation-delay: 0.4s;
-}
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
 
 @keyframes dotPulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 0.5;
-  }
-  50% {
-    transform: scale(1.5);
-    opacity: 1;
-  }
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.5); opacity: 1; }
 }
 
 .footer-text {
@@ -432,9 +391,31 @@
   gap: 8px;
 }
 
-/* Responsive Design - Enhanced */
-@media (max-width: 1200px) {
+/* ==================== */
+/* FULL RESPONSIVE DESIGN */
+/* ==================== */
+
+/* Large Desktops (max-width: 1400px) */
+@media (max-width: 1400px) {
+  .dashboard-content {
+    max-width: 1200px;
+    padding: 40px 30px;
+  }
+  
   .cards-grid {
+    gap: 25px;
+  }
+}
+
+/* Desktops (max-width: 1200px) */
+@media (max-width: 1200px) {
+  .dashboard-content {
+    max-width: 1100px;
+    padding: 35px 25px;
+  }
+  
+  .cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 25px;
   }
   
@@ -456,14 +437,22 @@
   }
 }
 
-@media (max-width: 1024px) {
+/* Small Desktops & Tablets (max-width: 992px) */
+@media (max-width: 992px) {
+  .child-dashboard-wrapper .dashboard-container {
+    margin-top: 70px;
+  }
+  
+  .dashboard-container {
+    min-height: calc(100vh - 70px);
+  }
+  
   .dashboard-content {
     padding: 30px 20px;
   }
   
-  .cards-grid {
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
+  .welcome-section {
+    margin-bottom: 50px;
   }
   
   .welcome-section h1 {
@@ -474,12 +463,52 @@
     font-size: 16px;
   }
   
+  .cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 50px;
+  }
+  
+  .dashboard-card {
+    padding: 22px;
+  }
+  
+  .card-icon-wrapper {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .card-icon {
+    font-size: 35px;
+  }
+  
+  .card-title {
+    font-size: 19px;
+  }
+  
+  .card-description {
+    font-size: 13px;
+  }
+  
   .quote-text {
     font-size: 18px;
   }
+  
+  .quote-container {
+    padding: 30px;
+  }
 }
 
+/* Tablets (max-width: 768px) */
 @media (max-width: 768px) {
+  .child-dashboard-wrapper .dashboard-container {
+    margin-top: 60px;
+  }
+  
+  .dashboard-container {
+    min-height: calc(100vh - 60px);
+  }
+  
   .dashboard-content {
     padding: 20px 15px;
   }
@@ -508,6 +537,7 @@
   .cards-grid {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 20px;
+    margin-bottom: 40px;
   }
   
   .dashboard-card {
@@ -515,20 +545,21 @@
   }
   
   .card-icon-wrapper {
-    width: 70px;
-    height: 70px;
+    width: 65px;
+    height: 65px;
   }
   
   .card-icon {
-    font-size: 35px;
+    font-size: 32px;
   }
   
   .card-title {
     font-size: 18px;
+    margin: 12px 0 8px;
   }
   
   .card-description {
-    font-size: 13px;
+    font-size: 12px;
     margin-bottom: 15px;
   }
   
@@ -537,35 +568,60 @@
     font-size: 11px;
   }
   
+  .card-badge span {
+    font-size: 12px;
+  }
+  
+  .decorative-line {
+    width: 80px;
+    margin-bottom: 30px;
+  }
+  
   .quote-text {
     font-size: 16px;
   }
   
-  .quote-container {
-    padding: 25px;
-  }
-}
-
-@media (max-width: 640px) {
-  .cards-grid {
-    grid-template-columns: 1fr;
-    gap: 20px;
+  .quote-author {
+    font-size: 13px;
   }
   
-  .dashboard-card {
-    max-width: 100%;
-    margin: 0 auto;
+  .quote-container {
+    padding: 25px;
+    margin-bottom: 30px;
+  }
+  
+  .footer-text {
+    font-size: 12px;
+  }
+  
+  /* Hide some leaves on tablets for cleaner look */
+  .leaf-4, .leaf-5, .leaf-6, .leaf-7, .leaf-8 {
+    display: none;
   }
 }
 
-@media (max-width: 480px) {
+/* Mobile Landscape (max-width: 576px) */
+@media (max-width: 576px) {
+  .child-dashboard-wrapper .dashboard-container {
+    margin-top: 55px;
+  }
+  
+  .dashboard-container {
+    min-height: calc(100vh - 55px);
+  }
+  
   .dashboard-content {
-    padding: 15px;
+    padding: 15px 12px;
+  }
+  
+  .welcome-section {
+    margin-bottom: 30px;
   }
   
   .welcome-icon {
     width: 60px;
     height: 60px;
+    margin-bottom: 15px;
   }
   
   .welcome-emoji {
@@ -581,25 +637,29 @@
   }
   
   .cards-grid {
+    grid-template-columns: 1fr;
     gap: 15px;
+    margin-bottom: 30px;
   }
   
   .dashboard-card {
-    padding: 20px;
+    padding: 18px;
+    border-radius: 20px;
   }
   
   .card-icon-wrapper {
-    width: 60px;
-    height: 60px;
+    width: 55px;
+    height: 55px;
+    margin-bottom: 15px;
   }
   
   .card-icon {
-    font-size: 30px;
+    font-size: 28px;
   }
   
   .card-title {
-    font-size: 18px;
-    margin: 10px 0 8px;
+    font-size: 17px;
+    margin: 10px 0 6px;
   }
   
   .card-description {
@@ -610,10 +670,21 @@
   .card-badge {
     padding: 5px 12px;
     font-size: 10px;
+    gap: 5px;
   }
   
   .card-badge span {
-    font-size: 12px;
+    font-size: 11px;
+  }
+  
+  .decorative-line {
+    width: 60px;
+    margin-bottom: 25px;
+  }
+  
+  .quote-container {
+    padding: 20px;
+    border-radius: 20px;
   }
   
   .quote-text {
@@ -624,19 +695,97 @@
     font-size: 12px;
   }
   
-  .quote-container {
-    padding: 20px;
+  .footer-decoration {
+    gap: 6px;
+  }
+  
+  .dot {
+    width: 5px;
+    height: 5px;
   }
   
   .footer-text {
+    font-size: 11px;
+    gap: 6px;
+  }
+  
+  /* Hide more leaves on mobile */
+  .leaf-1, .leaf-2, .leaf-3, .leaf-4, .leaf-5, .leaf-6, .leaf-7, .leaf-8 {
+    display: none;
+  }
+  
+  /* Hide circles on mobile for better performance */
+  .floating-circle {
+    display: none;
+  }
+}
+
+/* Extra Small Phones (max-width: 375px) */
+@media (max-width: 375px) {
+  .dashboard-content {
+    padding: 12px 10px;
+  }
+  
+  .welcome-icon {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .welcome-emoji {
+    font-size: 25px;
+  }
+  
+  .welcome-section h1 {
+    font-size: 20px;
+  }
+  
+  .welcome-subtitle {
     font-size: 12px;
+  }
+  
+  .dashboard-card {
+    padding: 15px;
+  }
+  
+  .card-icon-wrapper {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .card-icon {
+    font-size: 25px;
+  }
+  
+  .card-title {
+    font-size: 16px;
+  }
+  
+  .card-description {
+    font-size: 11px;
+  }
+  
+  .card-badge {
+    padding: 4px 10px;
+    font-size: 9px;
+  }
+  
+  .quote-container {
+    padding: 15px;
+  }
+  
+  .quote-text {
+    font-size: 13px;
+  }
+  
+  .decorative-line {
+    width: 50px;
   }
 }
 
 /* Landscape Mode for Mobile */
 @media (max-width: 768px) and (orientation: landscape) {
   .cards-grid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 15px;
   }
   
@@ -655,7 +804,7 @@
   
   .card-title {
     font-size: 16px;
-    margin: 10px 0 5px;
+    margin: 8px 0 5px;
   }
   
   .card-description {
@@ -664,36 +813,46 @@
   }
   
   .welcome-section {
-    margin-bottom: 30px;
+    margin-bottom: 25px;
   }
   
   .welcome-icon {
-    width: 50px;
-    height: 50px;
+    width: 55px;
+    height: 55px;
   }
   
   .welcome-emoji {
-    font-size: 25px;
+    font-size: 28px;
   }
   
   .welcome-section h1 {
-    font-size: 22px;
+    font-size: 24px;
+  }
+  
+  .quote-container {
+    padding: 15px;
+  }
+  
+  .quote-text {
+    font-size: 14px;
   }
 }
 
-/* High Resolution Screens */
+/* High Resolution Screens (min-width: 1600px) */
 @media (min-width: 1600px) {
   .dashboard-content {
     max-width: 1600px;
+    padding: 50px 40px;
   }
   
   .cards-grid {
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
     gap: 35px;
   }
   
   .dashboard-card {
     padding: 35px;
+    border-radius: 28px;
   }
   
   .card-icon-wrapper {
@@ -702,7 +861,7 @@
   }
   
   .card-icon {
-    font-size: 45px;
+    font-size: 48px;
   }
   
   .card-title {
@@ -712,9 +871,26 @@
   .card-description {
     font-size: 15px;
   }
+  
+  .card-badge {
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+  
+  .welcome-section h1 {
+    font-size: 42px;
+  }
+  
+  .welcome-subtitle {
+    font-size: 20px;
+  }
+  
+  .quote-text {
+    font-size: 22px;
+  }
 }
 
-/* Accessibility */
+/* Accessibility - Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -725,7 +901,30 @@
   }
 }
 
-/* Hover Effects for Cards */
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .dashboard-card:hover {
+    transform: none;
+  }
+  
+  .dashboard-card:active {
+    transform: scale(0.98);
+    transition: transform 0.05s;
+  }
+  
+  .card-badge {
+    pointer-events: none;
+  }
+}
+
+/* Hover Effects for Cards (only on devices that support hover) */
+@media (hover: hover) {
+  .dashboard-card:hover {
+    transform: translateY(-8px);
+  }
+}
+
+/* Dashboard Card Active Effect */
 .dashboard-card {
   position: relative;
   overflow: hidden;
@@ -750,25 +949,15 @@
   height: 300px;
 }
 
-/* Touch Device Optimizations */
-@media (hover: none) and (pointer: coarse) {
-  .dashboard-card:hover {
-    transform: none;
-  }
-  
-  .dashboard-card:active {
-    transform: scale(0.98);
-  }
-  
-  .card-badge {
-    pointer-events: none;
-  }
-}
-
 /* Print Styles */
 @media print {
+  .child-dashboard-wrapper .dashboard-container {
+    margin-top: 0;
+  }
+  
   .dashboard-container {
     background: white;
+    padding: 0;
   }
   
   .nature-bg,
@@ -782,51 +971,52 @@
     break-inside: avoid;
     box-shadow: none;
     border: 1px solid #ddd;
+    page-break-inside: avoid;
   }
   
   .card-badge {
     background: #f5f5f5;
     color: #333;
   }
+  
+  .welcome-section h1 {
+    -webkit-text-fill-color: var(--primary-dark);
+    background: none;
+    color: var(--primary-dark);
+  }
+  
+  .quote-container {
+    border: 1px solid #ddd;
+    box-shadow: none;
+  }
 }
 
-/* Add this at the beginning of your ChildDashboard.css file */
-
-/* Wrapper to handle navbar spacing */
-.child-dashboard-wrapper {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
 }
 
-.child-dashboard-wrapper .dashboard-container {
-  flex: 1;
-  margin-top: 80px; /* Adjust this value based on your navbar height */
-  position: relative;
-  overflow-x: hidden;
+::-webkit-scrollbar-track {
+  background: var(--very-light-green);
+  border-radius: 10px;
 }
 
-/* If your navbar has a different height, adjust accordingly */
-/* For example, if navbar height is 70px, use margin-top: 70px */
-
-/* Rest of your existing CSS below */
-.dashboard-container {
-  position: relative;
-  min-height: calc(100vh - 80px);
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  overflow-x: hidden;
-  padding: 20px;
+::-webkit-scrollbar-thumb {
+  background: var(--primary-green);
+  border-radius: 10px;
 }
 
-/* Keep all your existing styles below this line */
-.nature-bg {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-dark);
 }
 
-/* ... rest of your existing CSS ... */
+/* Selection Color */
+::selection {
+  background: var(--primary-green);
+  color: white;
+}
+
+::-moz-selection {
+  background: var(--primary-green);
+  color: white;
+}

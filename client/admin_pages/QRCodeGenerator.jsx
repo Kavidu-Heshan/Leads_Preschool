@@ -30,7 +30,7 @@ const QRCodeGenerator = () => {
     setLoading(true);
     setError("");
     try {
-      const response = await axios.get('http://localhost:3002/admin/students');
+      const response = await axios.get('https://leadspreschool-production.up.railway.app//admin/students');
       console.log("Full API Response:", response.data);
       
       if (response.data.success) {

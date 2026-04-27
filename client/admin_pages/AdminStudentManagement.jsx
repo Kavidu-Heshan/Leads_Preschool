@@ -46,7 +46,7 @@ const AdminStudentManagement = () => {
   const fetchStudents = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:3002/admin/students');
+      const response = await axios.get('https://leadspreschool-production.up.railway.app//admin/students');
       if (response.data.success) {
         setStudents(response.data.students);
       } else {
@@ -251,7 +251,7 @@ const AdminStudentManagement = () => {
     }
 
     try {
-      const response = await axios.delete(`http://localhost:3002/admin/students/${selectedStudent.childId}`);
+      const response = await axios.delete(`https://leadspreschool-production.up.railway.app//admin/students/${selectedStudent.childId}`);
       if (response.data.success) {
         setSuccess('Student deleted successfully!');
         setShowModal(false);
@@ -384,7 +384,7 @@ const AdminStudentManagement = () => {
         contactNumbers: formData.contactNumbers ? formData.contactNumbers.split(',').map(p => p.trim()) : []
       };
 
-      const response = await axios.put(`http://localhost:3002/admin/students/${selectedStudent.childId}`, submissionData);
+      const response = await axios.put(`https://leadspreschool-production.up.railway.app//admin/students/${selectedStudent.childId}`, submissionData);
 
       if (response.data.success) {
         setSuccess('Student profile updated successfully!');

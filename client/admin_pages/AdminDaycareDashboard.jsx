@@ -23,8 +23,8 @@ const AdminDaycareDashboard = () => {
     try {
       // Fetch all eligible students AND today's attendance simultaneously
       const [eligibleRes, todayRes] = await Promise.all([
-        axios.get('http://localhost:3002/daycare/eligible'),
-        axios.get('http://localhost:3002/daycare/today')
+        axios.get('https://leadspreschool-production.up.railway.app//daycare/eligible'),
+        axios.get('https://leadspreschool-production.up.railway.app//daycare/today')
       ]);
       
       console.log('Eligible students response:', eligibleRes.data);

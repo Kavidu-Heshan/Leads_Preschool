@@ -204,7 +204,7 @@ const ChildEnroll = () => {
     setSuccess("");
 
     try {
-      const response = await axios.post("http://localhost:3002/child-enroll", {
+      const response = await axios.post("https://leadspreschool-production.up.railway.app//child-enroll", {
         childId: childId.trim(),
         childName: childName.trim()
       });
@@ -289,7 +289,7 @@ const ChildEnroll = () => {
     setSuccess("");
 
     try {
-      const response = await axios.post("http://localhost:3002/teacher-login", {
+      const response = await axios.post("https://leadspreschool-production.up.railway.app//teacher-login", {
         username: username.trim(),
         password: password.trim()
       });

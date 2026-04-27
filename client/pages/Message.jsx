@@ -40,7 +40,7 @@ const Message = () => {
 
   const fetchMessages = async () => {
     try {
-      const response = await axios.get('http://localhost:3002/messages');
+      const response = await axios.get('https://leadspreschool-production.up.railway.app//messages');
       setMessages(response.data);
       setError('');
     } catch (err) {
@@ -146,7 +146,7 @@ const Message = () => {
         delete submitData.rating;
       }
 
-      const response = await axios.post('http://localhost:3002/messages', submitData);
+      const response = await axios.post('https://leadspreschool-production.up.railway.app//messages', submitData);
 
       if (response.data.success) {
         setSuccess('Thank you for your message! We appreciate your feedback.');

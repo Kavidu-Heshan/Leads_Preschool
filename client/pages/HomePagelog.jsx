@@ -19,7 +19,7 @@ const HomePagelog = () => {
 
   const fetchRecentFeedbacks = async () => {
     try {
-      const response = await axios.get('http://localhost:3002/messages');
+      const response = await axios.get('https://leadspreschool-production.up.railway.app//messages');
       // Filter only feedback type messages and get the 2 most recent
       const feedbacks = response.data
         .filter(msg => msg.messageType === 'feedback' && msg.status === 'reviewed')

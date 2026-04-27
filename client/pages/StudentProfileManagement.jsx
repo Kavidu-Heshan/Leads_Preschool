@@ -56,7 +56,7 @@ const StudentProfileManagement = () => {
 
   var fetchProfileData = async function(id) {
     try {
-      var response = await fetch('http://localhost:3002/student-profile/' + id);
+      var response = await fetch('https://leadspreschool-production.up.railway.app//student-profile/' + id);
       var data = await response.json();
 
       if (response.ok) {
@@ -285,7 +285,7 @@ const StudentProfileManagement = () => {
         contactNumbers: formData.contactNumbers ? formData.contactNumbers.split(',').map(function(p) { return p.trim(); }) : []
       };
 
-      var response = await fetch('http://localhost:3002/student-profile/' + childId, {
+      var response = await fetch('https://leadspreschool-production.up.railway.app//student-profile/' + childId, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

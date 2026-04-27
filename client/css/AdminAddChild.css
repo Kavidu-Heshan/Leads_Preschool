@@ -1,3 +1,4 @@
+/* AdminAddChild.css - Complete Responsive CSS */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
 
@@ -412,6 +413,7 @@ body {
 .table-container {
   overflow-x: auto;
   border-radius: 20px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .children-table {
@@ -468,6 +470,7 @@ body {
   display: flex;
   align-items: center;
   gap: 15px;
+  flex-wrap: wrap;
 }
 
 .child-avatar {
@@ -482,6 +485,7 @@ body {
   font-weight: 700;
   font-size: 1.1rem;
   transition: transform 0.3s;
+  flex-shrink: 0;
 }
 
 .children-table tbody tr:hover .child-avatar {
@@ -499,6 +503,7 @@ body {
   color: var(--text-muted);
   font-weight: 500;
   font-size: 0.85rem;
+  white-space: nowrap;
 }
 
 /* ========== DELETE BUTTON ========== */
@@ -836,6 +841,11 @@ body {
     font-size: 1.8rem;
     opacity: 0.1;
   }
+  
+  /* Hide some leaves on tablets */
+  .leaf-4, .leaf-5 {
+    display: none;
+  }
 }
 
 /* Mobile Landscape (max-width: 576px) */
@@ -848,6 +858,7 @@ body {
   .dashboard-header {
     margin-bottom: 20px;
     padding: 15px;
+    border-radius: 20px;
   }
 
   .header-content h1 {
@@ -883,6 +894,57 @@ body {
 
   .dashboard-content {
     gap: 20px;
+  }
+
+  /* Form container inline styles override */
+  .dashboard-content > div:first-child {
+    padding: 20px 15px !important;
+    border-radius: 16px !important;
+  }
+  
+  .dashboard-content > div:first-child > div:first-child {
+    margin-bottom: 20px !important;
+  }
+  
+  .dashboard-content > div:first-child > div:first-child > div:first-child {
+    width: 50px !important;
+    height: 50px !important;
+    padding: 12px !important;
+  }
+  
+  .dashboard-content > div:first-child > div:first-child > div:first-child svg {
+    width: 28px !important;
+    height: 28px !important;
+  }
+  
+  .dashboard-content > div:first-child > div:first-child > div:last-child {
+    flex-direction: column !important;
+    text-align: center !important;
+    gap: 10px !important;
+    padding-bottom: 15px !important;
+  }
+  
+  .dashboard-content > div:first-child > div:first-child > div:last-child h2 {
+    font-size: 22px !important;
+  }
+  
+  .dashboard-content > div:first-child > div:first-child > div:last-child p {
+    padding-left: 0 !important;
+    border-left: none !important;
+    font-size: 13px !important;
+  }
+  
+  /* Form grid */
+  .dashboard-content > div:first-child form > div:first-child {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+    margin-bottom: 25px !important;
+  }
+  
+  /* Submit button */
+  .dashboard-content > div:first-child form button {
+    padding: 12px !important;
+    font-size: 16px !important;
   }
 
   .form-card, .list-card {
@@ -945,6 +1007,11 @@ body {
     font-size: 0.8rem;
   }
 
+  /* Table responsive */
+  .table-container {
+    margin: 0 -5px;
+  }
+  
   .children-table th {
     padding: 10px 8px;
     font-size: 0.7rem;
@@ -973,6 +1040,8 @@ body {
 
   .date-badge {
     font-size: 0.7rem;
+    white-space: normal;
+    word-break: keep-all;
   }
 
   .delete-button {
@@ -1006,6 +1075,11 @@ body {
 
   .empty-state p {
     font-size: 0.8rem;
+  }
+  
+  /* Hide all leaves on mobile */
+  .leaf {
+    display: none;
   }
 }
 
@@ -1053,6 +1127,76 @@ body {
     font-size: 0.65rem;
     padding: 2px 4px;
   }
+  
+  .date-badge {
+    font-size: 0.65rem;
+  }
+}
+
+/* Extra Small (max-width: 320px) */
+@media (max-width: 320px) {
+  .dashboard-header {
+    padding: 12px;
+  }
+  
+  .header-content h1 {
+    font-size: 1.2rem;
+  }
+  
+  .stat-value {
+    font-size: 1rem;
+  }
+  
+  .children-table th,
+  .children-table td {
+    padding: 6px 4px;
+  }
+  
+  .child-name {
+    font-size: 0.7rem;
+  }
+  
+  .delete-button {
+    padding: 3px 4px;
+    font-size: 8px;
+    max-width: 48px;
+  }
+}
+
+/* Landscape Mode for Mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+  .admin-add-child-wrapper .admin-dashboard {
+    padding-top: calc(10px + var(--navbar-height));
+  }
+  
+  .dashboard-header {
+    padding: 12px 20px;
+  }
+  
+  .stat-item {
+    padding: 6px 15px;
+  }
+  
+  .stat-value {
+    font-size: 1.3rem;
+  }
+  
+  .dashboard-content {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .form-card, .list-card {
+    padding: 15px;
+  }
+  
+  .table-container {
+    overflow-x: auto;
+  }
+  
+  .children-table {
+    min-width: 550px;
+  }
 }
 
 /* Touch Device Optimizations */
@@ -1071,6 +1215,25 @@ body {
   .submit-button:active,
   .download-pdf-button:active {
     transform: scale(0.98);
+  }
+  
+  .dashboard-card:active {
+    transform: scale(0.99);
+  }
+}
+
+/* Accessibility - Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .leaf {
+    animation: none !important;
   }
 }
 
@@ -1099,4 +1262,39 @@ body {
   .children-table {
     border: 1px solid #ddd;
   }
+  
+  .dashboard-header {
+    break-inside: avoid;
+  }
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--primary-soft);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-dark);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+/* Selection Color */
+::selection {
+  background: var(--primary);
+  color: white;
+}
+
+::-moz-selection {
+  background: var(--primary);
+  color: white;
 }

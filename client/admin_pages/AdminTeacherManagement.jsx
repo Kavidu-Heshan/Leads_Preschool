@@ -1,4 +1,4 @@
-  import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
   import jsPDF from 'jspdf';
   import autoTable from 'jspdf-autotable';
   import '../css/AdminTeacherManagement.css';
@@ -192,12 +192,10 @@
     // Fetch teachers on component mount
     useEffect(() => {
       fetchTeachers();
-      fetchClassSummary();
       
       // Auto-refresh every 5 minutes
       const intervalId = setInterval(() => {
         fetchTeachers();
-        fetchClassSummary();
         setLastUpdated(new Date());
       }, 300000);
 
@@ -210,6 +208,11 @@
         fetchTeachers();
       }
     }, [filterStatus, filterClass]);
+
+    // NEW: Automatically update the class summary whenever 'teachers' state changes
+    useEffect(() => {
+      generateClassSummary(teachers);
+    }, [teachers]);
 
     // Handle select all
     useEffect(() => {
@@ -257,20 +260,70 @@
       }
     };
 
-    const fetchClassSummary = async () => {
-      try {
-        const res = await fetch('https://leadspreschool-production.up.railway.app/teachers/class-summary');
-        if (res.ok) {
-          const data = await res.json();
-          setClassSummary(data.summary || []);
-        }
-      } catch (err) {
-        console.error('Error fetching class summary:', err);
+    // Generate class summary dynamically from the teachers array
+    const generateClassSummary = (teachersData) => {
+      if (!teachersData || teachersData.length === 0) {
+        setClassSummary([]);
+        return;
       }
+
+      const summaryMap = {};
+
+      teachersData.forEach((teacher) => {
+        // Skip if the teacher has no assigned classes
+        if (!teacher.assignedClasses || teacher.assignedClasses.length === 0) return;
+
+        teacher.assignedClasses.forEach((assignment) => {
+          const cName = assignment.className;
+          const secName = assignment.section || 'No Section';
+
+          // 1. Initialize the Class group if it doesn't exist
+          if (!summaryMap[cName]) {
+            summaryMap[cName] = {
+              className: cName,
+              uniqueTeachers: new Set(), // Set prevents counting the same teacher twice
+              classTeachersCount: 0,
+              sectionsMap: {}
+            };
+          }
+
+          // 2. Initialize the Section group if it doesn't exist
+          if (!summaryMap[cName].sectionsMap[secName]) {
+            summaryMap[cName].sectionsMap[secName] = {
+              section: secName,
+              teachersList: [],
+              classTeachersList: []
+            };
+          }
+
+          // 3. Populate data
+          summaryMap[cName].uniqueTeachers.add(teacher.teacherId);
+          summaryMap[cName].sectionsMap[secName].teachersList.push(teacher.teacherName);
+
+          if (assignment.isClassTeacher) {
+            summaryMap[cName].sectionsMap[secName].classTeachersList.push(teacher.teacherName);
+            summaryMap[cName].classTeachersCount += 1;
+          }
+        });
+      });
+
+      // Convert the map into the array format required by your UI
+      const summaryArray = Object.values(summaryMap).map(classData => ({
+        className: classData.className,
+        totalTeachers: classData.uniqueTeachers.size,
+        classTeachers: classData.classTeachersCount,
+        sections: Object.values(classData.sectionsMap).map(secData => ({
+          section: secData.section,
+          teacherCount: secData.teachersList.length,
+          classTeacher: secData.classTeachersList.length > 0 ? secData.classTeachersList.join(', ') : 'None',
+          teachers: secData.teachersList
+        })).sort((a, b) => a.section.localeCompare(b.section)) // Sort sections alphabetically
+      })).sort((a, b) => a.className.localeCompare(b.className)); // Sort classes alphabetically
+
+      setClassSummary(summaryArray);
     };
 
     // PDF Export Function
-  // PDF Export Function
   const exportToPDF = () => {
     if (filteredTeachers.length === 0) {
       setError('No teachers to export');
@@ -617,7 +670,6 @@
           setShowDeleteModal(false);
           setTeacherToDelete(null);
           fetchTeachers();
-          fetchClassSummary();
           setTimeout(() => setSuccess(''), 3000);
         } else {
           setError(data.error || 'Failed to delete teacher');
@@ -662,7 +714,6 @@
           setSelectedTeacher(null);
           resetClassAssignment();
           fetchTeachers();
-          fetchClassSummary();
           setTimeout(() => setSuccess(''), 3000);
         } else {
           setError(data.error || 'Failed to assign classes');
@@ -706,7 +757,6 @@
           setSelectedTeacher(null);
           setClassToRemove(null);
           fetchTeachers();
-          fetchClassSummary();
           setTimeout(() => setSuccess(''), 3000);
         } else {
           setError(data.error || 'Failed to remove class');
@@ -758,7 +808,6 @@
           setSelectedSectionForBulk('');
           setSelectAll(false);
           fetchTeachers();
-          fetchClassSummary();
           setTimeout(() => setSuccess(''), 3000);
         } else {
           setError(data.error || 'Failed to assign teachers');
@@ -880,7 +929,6 @@
           resetForm();
           setShowForm(false);
           fetchTeachers();
-          fetchClassSummary();
           setLastUpdated(new Date());
           setTimeout(() => setSuccess(''), 3000);
         } else {
@@ -984,13 +1032,13 @@
                 <span className="toggle-icon">👥</span>
                 Teachers View
               </button>
-              {/* <button
+              <button
                 className={`toggle-btn ${activeView === 'classes' ? 'active' : ''}`}
                 onClick={() => setActiveView('classes')}
               >
                 <span className="toggle-icon">📋</span>
                 Class Summary View
-              </button> */}
+              </button>
             </div>
 
             {activeView === 'teachers' ? (

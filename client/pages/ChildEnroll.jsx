@@ -7,7 +7,7 @@ import UserNavbar from "../components/UserNavbar";
 const ChildEnroll = () => {
   const navigate = useNavigate();
   
-  const [loginType, setLoginType] = useState("child"); // "child" or "teacher"
+  const [loginType, setLoginType] = useState("child");
   const [childId, setChildId] = useState("");
   const [childName, setChildName] = useState("");
   const [username, setUsername] = useState("");
@@ -29,31 +29,50 @@ const ChildEnroll = () => {
     password: false
   });
 
-  // Clear any existing sessions when reaching login page (but preserve rememberMe preference)
+  // Clear existing sessions when reaching login page
   useEffect(() => {
-    // Store rememberMe preference if it exists
-    const savedRememberMe = localStorage.getItem("rememberMePreference");
-    if (savedRememberMe === "true") {
-      setRememberMe(true);
+    // Only clear if coming from logout or fresh page load
+    const shouldClear = sessionStorage.getItem("justLoggedOut") === "true" || !sessionStorage.getItem("hasReloaded");
+    
+    if (shouldClear) {
+      localStorage.removeItem("currentChild");
+      localStorage.removeItem("currentTeacher");
+      sessionStorage.clear();
+      sessionStorage.setItem("hasReloaded", "true");
+      sessionStorage.removeItem("justLoggedOut");
     }
     
-    // Clear all existing sessions to prevent conflicts with new logins
-    localStorage.removeItem("currentChild");
-    localStorage.removeItem("currentTeacher");
-    sessionStorage.clear();
-    
-    // Mark that we're on login page to prevent redirect loops
-    sessionStorage.setItem("onLoginPage", "true");
-    
-    return () => {
-      sessionStorage.removeItem("onLoginPage");
-    };
-  }, []);
+    // Check for existing valid session
+    const currentChild = localStorage.getItem("currentChild") || sessionStorage.getItem("currentChild");
+    if (currentChild) {
+      try {
+        const session = JSON.parse(currentChild);
+        if (new Date(session.expiresAt) > new Date()) {
+          // Valid session exists, redirect to dashboard
+          if (!session.hasChangedPassword) {
+            navigate("/changepwd");
+          } else {
+            navigate("/childdashboard");
+          }
+        }
+      } catch (e) {
+        console.error("Session parse error:", e);
+      }
+    }
+  }, [navigate]);
 
   // Save rememberMe preference
   useEffect(() => {
     localStorage.setItem("rememberMePreference", rememberMe);
   }, [rememberMe]);
+
+  // Load rememberMe preference on mount
+  useEffect(() => {
+    const savedRememberMe = localStorage.getItem("rememberMePreference");
+    if (savedRememberMe === "true") {
+      setRememberMe(true);
+    }
+  }, []);
 
   useEffect(() => {
     if (error || success) {
@@ -65,96 +84,64 @@ const ChildEnroll = () => {
     }
   }, [error, success]);
 
-  // Child validation functions
+  // Validation functions
   const validateChildId = (id) => {
-    if (!id || id.trim() === "") {
-      return "Child ID is required";
-    }
-    if (id.trim().length < 3) {
-      return "Child ID must be at least 3 characters";
-    }
-    if (!/^[a-zA-Z0-9]+$/.test(id.trim())) {
-      return "Child ID can only contain letters and numbers";
-    }
+    if (!id || id.trim() === "") return "Child ID is required";
+    if (id.trim().length < 3) return "Child ID must be at least 3 characters";
+    if (!/^[a-zA-Z0-9]+$/.test(id.trim())) return "Child ID can only contain letters and numbers";
     return "";
   };
 
   const validateChildName = (name) => {
-    if (!name || name.trim() === "") {
-      return "Password is required";
-    }
-    if (name.trim().length < 2) {
-      return "Password must be at least 2 characters";
-    }
+    if (!name || name.trim() === "") return "Password is required";
+    if (name.trim().length < 2) return "Password must be at least 2 characters";
     return "";
   };
 
-  // Teacher validation functions
   const validateUsername = (user) => {
-    if (!user || user.trim() === "") {
-      return "Username is required";
-    }
-    if (user.trim().length < 3) {
-      return "Username must be at least 3 characters";
-    }
-    if (user.trim().length > 50) {
-      return "Username must be less than 50 characters";
-    }
+    if (!user || user.trim() === "") return "Username is required";
+    if (user.trim().length < 3) return "Username must be at least 3 characters";
+    if (user.trim().length > 50) return "Username must be less than 50 characters";
     return "";
   };
 
   const validatePassword = (pwd) => {
-    if (!pwd || pwd.trim() === "") {
-      return "Password is required";
-    }
-    if (pwd.trim().length < 6) {
-      return "Password must be at least 6 characters";
-    }
-    if (pwd.trim().length > 100) {
-      return "Password must be less than 100 characters";
-    }
+    if (!pwd || pwd.trim() === "") return "Password is required";
+    if (pwd.trim().length < 6) return "Password must be at least 6 characters";
+    if (pwd.trim().length > 100) return "Password must be less than 100 characters";
     return "";
   };
 
-  // Child input handlers
+  // Input handlers
   const handleIdChange = (e) => {
     const value = e.target.value;
     setChildId(value);
-    if (touched.childId) {
-      setIdError(validateChildId(value));
-    }
+    if (touched.childId) setIdError(validateChildId(value));
     setError(""); 
   };
 
   const handleNameChange = (e) => {
     const value = e.target.value;
     setChildName(value);
-    if (touched.childName) {
-      setNameError(validateChildName(value));
-    }
+    if (touched.childName) setNameError(validateChildName(value));
     setError(""); 
   };
 
-  // Teacher input handlers
   const handleUsernameChange = (e) => {
     const value = e.target.value;
     setUsername(value);
-    if (touched.username) {
-      setUsernameError(validateUsername(value));
-    }
+    if (touched.username) setUsernameError(validateUsername(value));
     setError("");
   };
 
   const handlePasswordChange = (e) => {
     const value = e.target.value;
     setPassword(value);
-    if (touched.password) {
-      setPasswordError(validatePassword(value));
-    }
+    if (touched.password) setPasswordError(validatePassword(value));
     setError("");
   };
 
-  // Child blur handlers
+  // Blur handlers
   const handleIdBlur = () => {
     setTouched({ ...touched, childId: true });
     setIdError(validateChildId(childId));
@@ -165,7 +152,6 @@ const ChildEnroll = () => {
     setNameError(validateChildName(childName));
   };
 
-  // Teacher blur handlers
   const handleUsernameBlur = () => {
     setTouched({ ...touched, username: true });
     setUsernameError(validateUsername(username));
@@ -180,7 +166,6 @@ const ChildEnroll = () => {
     setLoginType(type);
     setError("");
     setSuccess("");
-    // Reset form fields
     setChildId("");
     setChildName("");
     setUsername("");
@@ -199,7 +184,6 @@ const ChildEnroll = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     if (loginType === "child") {
       await handleChildLogin();
     } else {
@@ -214,9 +198,7 @@ const ChildEnroll = () => {
     setIdError(idValidationError);
     setNameError(nameValidationError);
 
-    if (idValidationError || nameValidationError) {
-      return;
-    }
+    if (idValidationError || nameValidationError) return;
 
     setIsSubmitting(true);
     setError("");
@@ -229,66 +211,52 @@ const ChildEnroll = () => {
       });
 
       if (response.data.success) {
-        setSuccess("✓ Successfully logged in! Redirecting to dashboard...");
+        setSuccess("✓ Successfully logged in! Redirecting...");
         
-        // Store session with timestamp and expiry
         const sessionData = {
           childId: response.data.child.childId,
           childName: response.data.child.childName,
           enrolledAt: new Date().toISOString(),
-          expiresAt: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(), // 8 hours expiry
+          expiresAt: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(),
           hasChangedPassword: response.data.hasChangedPassword || false,
           userType: "child",
-          lastActivity: new Date().toISOString()
+          lastActivity: new Date().toISOString(),
+          childData: response.data.child // Store complete child data
         };
         
-        // Store session based on remember me preference
+        // Store session based on remember me
         if (rememberMe) {
           localStorage.setItem("currentChild", JSON.stringify(sessionData));
         } else {
           sessionStorage.setItem("currentChild", JSON.stringify(sessionData));
         }
         
-        // Store additional security info (always in sessionStorage)
         sessionStorage.setItem("childSession", JSON.stringify({
           childId: response.data.child.childId,
           loginTime: new Date().toISOString()
         }));
 
-        // Clear the onLoginPage flag
-        sessionStorage.removeItem("onLoginPage");
+        // IMPORTANT: Store the hasChangedPassword status for change password page
+        sessionStorage.setItem("requirePasswordChange", !response.data.hasChangedPassword);
 
         setTimeout(() => {
-          // Check if password needs to be changed
           if (!response.data.hasChangedPassword) {
-            navigate("/changepwd");
+            navigate("/changepwd", { state: { childId: response.data.child.childId } });
           } else {
             navigate("/childdashboard");
           }
-        }, 2000);
+        }, 1500);
       }
     } catch (err) {
       console.error("Enrollment error:", err);
-      
       if (err.response) {
         switch (err.response.status) {
-          case 401:
-            setError("❌ Invalid Child ID or Password. Please try again.");
-            break;
-          case 403:
-            setError("❌ Account is locked. Please contact administrator.");
-            break;
-          case 404:
-            setError("❌ Child not found. Please check your credentials.");
-            break;
-          case 429:
-            setError("❌ Too many login attempts. Please try again later.");
-            break;
-          case 500:
-            setError("❌ Server error. Please try again later.");
-            break;
-          default:
-            setError(err.response.data.error || "❌ Login failed. Please try again.");
+          case 401: setError("❌ Invalid Child ID or Password. Please try again."); break;
+          case 403: setError("❌ Account is locked. Please contact administrator."); break;
+          case 404: setError("❌ Child not found. Please check your credentials."); break;
+          case 429: setError("❌ Too many login attempts. Please try again later."); break;
+          case 500: setError("❌ Server error. Please try again later."); break;
+          default: setError(err.response.data.error || "❌ Login failed. Please try again.");
         }
       } else if (err.request) {
         setError("❌ Cannot connect to server. Please check your connection.");
@@ -307,9 +275,7 @@ const ChildEnroll = () => {
     setUsernameError(usernameValidationError);
     setPasswordError(passwordValidationError);
 
-    if (usernameValidationError || passwordValidationError) {
-      return;
-    }
+    if (usernameValidationError || passwordValidationError) return;
 
     setIsSubmitting(true);
     setError("");
@@ -322,9 +288,8 @@ const ChildEnroll = () => {
       });
 
       if (response.data.success) {
-        setSuccess("✓ Welcome back, " + response.data.teacher.teacherName + "! Redirecting to dashboard...");
+        setSuccess("✓ Welcome back, " + response.data.teacher.teacherName + "!");
         
-        // Store session with timestamp and expiry
         const sessionData = {
           teacherId: response.data.teacher.teacherId,
           teacherName: response.data.teacher.teacherName,
@@ -334,55 +299,38 @@ const ChildEnroll = () => {
           status: response.data.teacher.status,
           lastLogin: response.data.lastLogin,
           loginTime: new Date().toISOString(),
-          expiresAt: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(), // 8 hours expiry
+          expiresAt: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(),
           userType: "teacher",
           lastActivity: new Date().toISOString(),
           permissions: response.data.teacher.permissions || ["view", "edit"]
         };
         
-        // Store session based on remember me preference
         if (rememberMe) {
           localStorage.setItem("currentTeacher", JSON.stringify(sessionData));
         } else {
           sessionStorage.setItem("currentTeacher", JSON.stringify(sessionData));
         }
         
-        // Store additional security info (always in sessionStorage)
         sessionStorage.setItem("teacherSession", JSON.stringify({
           teacherId: response.data.teacher.teacherId,
           username: response.data.teacher.username,
           loginTime: new Date().toISOString()
         }));
 
-        // Clear the onLoginPage flag
-        sessionStorage.removeItem("onLoginPage");
-
         setTimeout(() => {
           navigate("/adminhome");
-        }, 2000);
+        }, 1500);
       }
     } catch (err) {
       console.error("Teacher login error:", err);
-      
       if (err.response) {
         switch (err.response.status) {
-          case 401:
-            setError("❌ Invalid username or password. Please try again.");
-            break;
-          case 403:
-            setError("❌ Account is disabled or locked. Please contact administrator.");
-            break;
-          case 404:
-            setError("❌ Teacher account not found.");
-            break;
-          case 429:
-            setError("❌ Too many login attempts. Please try again later.");
-            break;
-          case 500:
-            setError("❌ Server error. Please try again later.");
-            break;
-          default:
-            setError(err.response.data.error || "❌ Login failed. Please try again.");
+          case 401: setError("❌ Invalid username or password. Please try again."); break;
+          case 403: setError("❌ Account is disabled or locked. Please contact administrator."); break;
+          case 404: setError("❌ Teacher account not found."); break;
+          case 429: setError("❌ Too many login attempts. Please try again later."); break;
+          case 500: setError("❌ Server error. Please try again later."); break;
+          default: setError(err.response.data.error || "❌ Login failed. Please try again.");
         }
       } else if (err.request) {
         setError("❌ Cannot connect to server. Please check your connection.");
@@ -402,7 +350,6 @@ const ChildEnroll = () => {
     }
   };
 
-  // Handle Enter key press
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !isSubmitting) {
       handleSubmit(e);
@@ -434,7 +381,6 @@ const ChildEnroll = () => {
             </p>
           </div>
 
-          {/* Login Type Toggle */}
           <div className="login-type-toggle">
             <button
               type="button"
@@ -534,7 +480,7 @@ const ChildEnroll = () => {
                   </div>
                   {nameError && <span className="error-text">{nameError}</span>}
                   <small className="input-hint">
-                    {touched.childName && !childName ? "Enter your password" : "Enter your password (case-sensitive)"}
+                    Enter your password (case-sensitive)
                   </small>
                 </div>
               </>

@@ -37,26 +37,74 @@ const StudentProfileForm = () => {
     dob: ""
   });
 
-  useEffect(() => {
-    const storedChild = localStorage.getItem("currentChild");
+  // Get child data from both localStorage and sessionStorage
+  const getChildData = () => {
+    let storedChild = localStorage.getItem("currentChild");
+    if (!storedChild) {
+      storedChild = sessionStorage.getItem("currentChild");
+    }
+    
     if (storedChild) {
-      const parsedChild = JSON.parse(storedChild);
-      setChildId(parsedChild.childId);
-      checkExistingProfile(parsedChild.childId);
-      fetchChildName(parsedChild.childId);
+      try {
+        return JSON.parse(storedChild);
+      } catch (e) {
+        console.error("Error parsing child data:", e);
+        return null;
+      }
+    }
+    return null;
+  };
+
+  // Update child session in both storages
+  const updateChildSession = (updatedData) => {
+    // Update localStorage
+    const storedChildLocal = localStorage.getItem("currentChild");
+    if (storedChildLocal) {
+      const currentSession = JSON.parse(storedChildLocal);
+      const updatedSession = { ...currentSession, ...updatedData };
+      localStorage.setItem("currentChild", JSON.stringify(updatedSession));
+    }
+    
+    // Update sessionStorage
+    const storedChildSession = sessionStorage.getItem("currentChild");
+    if (storedChildSession) {
+      const currentSession = JSON.parse(storedChildSession);
+      const updatedSession = { ...currentSession, ...updatedData };
+      sessionStorage.setItem("currentChild", JSON.stringify(updatedSession));
+    }
+  };
+
+  useEffect(() => {
+    const childData = getChildData();
+    if (childData) {
+      setChildId(childData.childId);
+      checkExistingProfile(childData.childId);
+      fetchChildName(childData.childId);
     } else {
-      navigate("/child-enroll");
+      setError("Session expired. Please login again.");
+      setTimeout(() => {
+        navigate("/child-enroll");
+      }, 2000);
     }
   }, [navigate]);
 
   const checkExistingProfile = async (id) => {
     try {
-      const response = await axios.get(`https://leadspreschool-production.up.railway.app/heck-profile/${id}`);
+      // Fixed API endpoint: changed "heck-profile" to "check-profile"
+      const response = await axios.get(`https://leadspreschool-production.up.railway.app/check-profile/${id}`);
       if (response.data.exists) {
-        navigate("/childdashboard");
+        // Profile already exists, redirect to dashboard
+        setSuccess("Profile already completed. Redirecting to dashboard...");
+        setTimeout(() => {
+          navigate("/childdashboard");
+        }, 2000);
       }
     } catch (err) {
-      console.error(err);
+      console.error("Error checking profile:", err);
+      // If profile check fails (404 means no profile), that's fine - we can continue
+      if (err.response?.status !== 404) {
+        setError("Unable to verify profile status. Please try again.");
+      }
     } finally {
       setCheckingProfile(false);
     }
@@ -64,14 +112,19 @@ const StudentProfileForm = () => {
 
   const fetchChildName = async (id) => {
     try {
-      const response = await axios.get(`https://leadspreschool-production.up.railway.app/hild-name/${id}`);
-      setChildName(response.data.childName);
-      setFormData(prev => ({
-        ...prev,
-        fullName: response.data.childName
-      }));
+      // Fixed API endpoint: changed "hild-name" to "child-name"
+      const response = await axios.get(`https://leadspreschool-production.up.railway.app/child-name/${id}`);
+      if (response.data.childName) {
+        setChildName(response.data.childName);
+        setFormData(prev => ({
+          ...prev,
+          fullName: response.data.childName
+        }));
+      }
     } catch (err) {
       console.error("Error fetching child name:", err);
+      // If can't fetch, allow manual entry
+      setError("Could not fetch child name. You can enter it manually.");
     }
   };
 
@@ -92,13 +145,19 @@ const StudentProfileForm = () => {
     
     if (age === 3) {
       classes = ["Daycare"];
-      setFormData(prev => ({ ...prev, class: "Daycare", includeDaycare: false }));
+      setFormData(prev => ({ 
+        ...prev, 
+        class: "Daycare", 
+        includeDaycare: false 
+      }));
     } else if (age === 4) {
       classes = ["Daycare", "LKG"];
-      setFormData(prev => ({ ...prev, class: "" }));
+      // Don't auto-select, let user choose
+      if (!formData.class || formData.class === "Daycare") {
+        // Keep existing selection or default to empty
+      }
     } else if (age === 5) {
       classes = ["Daycare", "UKG"];
-      setFormData(prev => ({ ...prev, class: "" }));
     } else {
       classes = [];
       setFormData(prev => ({ ...prev, class: "" }));
@@ -145,6 +204,7 @@ const StudentProfileForm = () => {
     } else {
       setFormData({ ...formData, [name]: value });
     }
+    setError("");
   };
 
   const handleContactChange = (index, value) => {
@@ -198,32 +258,53 @@ const StudentProfileForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    const phoneValid = contactNumbers.every(num => /^0\d{9}$/.test(num));
+    // Validate all phone numbers
+    const phoneValid = contactNumbers.every(num => {
+      if (num.trim() === "") return false;
+      return validatePhoneNumber(num.trim());
+    });
+    
     if (!phoneValid) {
       setError("All phone numbers must be 10 digits starting with 0");
       return;
     }
     
+    // Validate age
     if (formData.age < 3 || formData.age > 5) {
       setError("Child must be between 3 and 5 years old");
       return;
     }
 
+    // Validate class selection
     if (!formData.class) {
       setError("Please select a class");
       return;
     }
 
-    if (formData.age === 4 && formData.class === "LKG" && !formData.includeDaycare) {
-      // LKG without daycare is allowed
-    }
-
-    if (formData.age === 5 && formData.class === "UKG" && !formData.includeDaycare) {
-      // UKG without daycare is allowed
-    }
-
+    // Validate email
     if (!validateEmail(formData.email)) {
       setError("Please enter a valid email address");
+      return;
+    }
+
+    // Validate required fields
+    if (!formData.fullName) {
+      setError("Full name is required");
+      return;
+    }
+
+    if (!formData.gender) {
+      setError("Gender is required");
+      return;
+    }
+
+    if (!formData.bloodType) {
+      setError("Blood type is required");
+      return;
+    }
+
+    if (!formData.guardianName) {
+      setError("Guardian name is required");
       return;
     }
 
@@ -234,30 +315,33 @@ const StudentProfileForm = () => {
     const validContacts = contactNumbers.filter(num => num.trim() !== "");
 
     try {
+      // Fixed API endpoint: changed "tudent-profile" to "student-profile"
       const submissionData = {
         ...formData,
         childId: childId,
         contactNumbers: validContacts,
-        profilePhoto: profilePhoto
+        profilePhoto: profilePhoto,
+        childName: childName
       };
 
-      const response = await axios.post("https://leadspreschool-production.up.railway.app/tudent-profile", submissionData);
+      const response = await axios.post("https://leadspreschool-production.up.railway.app/student-profile", submissionData);
 
       if (response.data.success) {
         setSuccess("✓ Profile Saved! Redirecting to dashboard...");
         
-        const storedChild = JSON.parse(localStorage.getItem("currentChild"));
-        const classDisplay = formData.includeDaycare ? 
+        const classDisplay = formData.includeDaycare && (formData.class === "LKG" || formData.class === "UKG") ? 
           `${formData.class} + Daycare` : formData.class;
         
-        localStorage.setItem("currentChild", JSON.stringify({
-          ...storedChild,
+        // Update session with profile info
+        updateChildSession({
           profilePhoto: profilePhoto,
           gender: formData.gender,
           fullName: formData.fullName,
           class: classDisplay,
-          profileCompleted: true
-        }));
+          profileCompleted: true,
+          hasChangedPassword: true,
+          lastActivity: new Date().toISOString()
+        });
         
         setTimeout(() => {
           navigate("/childdashboard");
@@ -265,7 +349,13 @@ const StudentProfileForm = () => {
       }
     } catch (err) {
       console.error("Profile submission error:", err);
-      setError(err.response?.data?.error || "Failed to save profile.");
+      if (err.response) {
+        setError(err.response.data?.error || "Failed to save profile. Please try again.");
+      } else if (err.request) {
+        setError("Cannot connect to server. Please check your connection.");
+      } else {
+        setError("An unexpected error occurred.");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -330,7 +420,7 @@ const StudentProfileForm = () => {
                 fontWeight: '500',
                 fontSize: '1.1rem'
               }}>
-                {childName}
+                {childName || formData.fullName}
               </p>
               <p style={{
                 marginTop: '5px',
@@ -363,6 +453,7 @@ const StudentProfileForm = () => {
                   type="text" 
                   value={childId} 
                   readOnly 
+                  style={{ backgroundColor: '#F5F5F5' }}
                 />
               </div>
             </div>

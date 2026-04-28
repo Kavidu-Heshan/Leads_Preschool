@@ -29,6 +29,31 @@ const ChildEnroll = () => {
     password: false
   });
 
+  // Clear any existing sessions when reaching login page (but preserve rememberMe preference)
+  useEffect(() => {
+    // Store rememberMe preference if it exists
+    const savedRememberMe = localStorage.getItem("rememberMePreference");
+    if (savedRememberMe === "true") {
+      setRememberMe(true);
+    }
+    
+    // Clear all existing sessions to prevent conflicts with new logins
+    localStorage.removeItem("currentChild");
+    localStorage.removeItem("currentTeacher");
+    sessionStorage.clear();
+    
+    // Mark that we're on login page to prevent redirect loops
+    sessionStorage.setItem("onLoginPage", "true");
+    
+    return () => {
+      sessionStorage.removeItem("onLoginPage");
+    };
+  }, []);
+
+  // Save rememberMe preference
+  useEffect(() => {
+    localStorage.setItem("rememberMePreference", rememberMe);
+  }, [rememberMe]);
 
   useEffect(() => {
     if (error || success) {
@@ -217,17 +242,21 @@ const ChildEnroll = () => {
           lastActivity: new Date().toISOString()
         };
         
+        // Store session based on remember me preference
         if (rememberMe) {
           localStorage.setItem("currentChild", JSON.stringify(sessionData));
         } else {
           sessionStorage.setItem("currentChild", JSON.stringify(sessionData));
         }
         
-        // Also store in sessionStorage for additional security
+        // Store additional security info (always in sessionStorage)
         sessionStorage.setItem("childSession", JSON.stringify({
           childId: response.data.child.childId,
           loginTime: new Date().toISOString()
         }));
+
+        // Clear the onLoginPage flag
+        sessionStorage.removeItem("onLoginPage");
 
         setTimeout(() => {
           // Check if password needs to be changed
@@ -311,18 +340,22 @@ const ChildEnroll = () => {
           permissions: response.data.teacher.permissions || ["view", "edit"]
         };
         
+        // Store session based on remember me preference
         if (rememberMe) {
           localStorage.setItem("currentTeacher", JSON.stringify(sessionData));
         } else {
           sessionStorage.setItem("currentTeacher", JSON.stringify(sessionData));
         }
         
-        // Also store in sessionStorage for additional security
+        // Store additional security info (always in sessionStorage)
         sessionStorage.setItem("teacherSession", JSON.stringify({
           teacherId: response.data.teacher.teacherId,
           username: response.data.teacher.username,
           loginTime: new Date().toISOString()
         }));
+
+        // Clear the onLoginPage flag
+        sessionStorage.removeItem("onLoginPage");
 
         setTimeout(() => {
           navigate("/adminhome");
@@ -364,7 +397,6 @@ const ChildEnroll = () => {
   const handleForgotCredentials = () => {
     if (loginType === "child") {
       setError("Please contact your administrator or parent to retrieve your Child ID and reset your password.");
-      // Optionally, you can show a modal with contact information
     } else {
       setError("Please contact your system administrator to reset your password.");
     }
@@ -381,7 +413,13 @@ const ChildEnroll = () => {
     <div className="child-enroll-wrapper">
       <UserNavbar />
       <div className="enroll-container">
-
+        <div className="nature-bg">
+          <div className="leaf leaf-1">🌿</div>
+          <div className="leaf leaf-2">🍃</div>
+          <div className="leaf leaf-3">🌱</div>
+          <div className="leaf leaf-4">🌿</div>
+          <div className="leaf leaf-5">🍂</div>
+        </div>
 
         <div className="enroll-card">
           <div className="enroll-header">
@@ -577,7 +615,9 @@ const ChildEnroll = () => {
                 onChange={(e) => setRememberMe(e.target.checked)}
                 style={{ width: '18px', height: '18px', cursor: 'pointer', margin: 0, padding: 0 }}
               />
-              <label htmlFor="rememberMe" style={{ margin: 0, cursor: 'pointer', fontWeight: 500, fontSize: '0.95rem' }}>Remember me</label>
+              <label htmlFor="rememberMe" style={{ margin: 0, cursor: 'pointer', fontWeight: 500, fontSize: '0.95rem' }}>
+                Remember me
+              </label>
             </div>
 
             <button 
@@ -628,6 +668,21 @@ const ChildEnroll = () => {
             <p className="security-note">
               🔒 Your session is encrypted and secure
             </p>
+          </div>
+        </div>
+
+        <div className="fun-facts">
+          <div className="fact-card">
+            <span className="fact-icon">🌟</span>
+            <p className="fact-text">Learning is an adventure!</p>
+          </div>
+          <div className="fact-card">
+            <span className="fact-icon">📚</span>
+            <p className="fact-text">Every day is a new discovery</p>
+          </div>
+          <div className="fact-card">
+            <span className="fact-icon">🎨</span>
+            <p className="fact-text">Be creative, be yourself</p>
           </div>
         </div>
       </div>

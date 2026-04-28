@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "../css/ChangePassword.css";
 import UserNavbar from '../components/UserNavbar';
 
 const ChangePassword = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   
   const [childData, setChildData] = useState(null);
   const [currentPassword, setCurrentPassword] = useState("");
@@ -35,21 +36,53 @@ const ChangePassword = () => {
   });
 
   useEffect(() => {
-    // Get child data from localStorage
-    const storedChild = localStorage.getItem("currentChild");
-    if (storedChild) {
-      const child = JSON.parse(storedChild);
-      setChildData(child);
+    // Get child data from localStorage OR sessionStorage (depending on remember me)
+    const getChildData = () => {
+      // First check localStorage
+      let storedChild = localStorage.getItem("currentChild");
+      if (!storedChild) {
+        // Then check sessionStorage
+        storedChild = sessionStorage.getItem("currentChild");
+      }
       
-      // Check if the child has already changed password
-      checkPasswordStatus(child.childId);
-    } else {
-      // Redirect to enroll if no child data
-      navigate("/child-enroll");
-    }
-  }, [navigate]);
+      if (storedChild) {
+        try {
+          const child = JSON.parse(storedChild);
+          setChildData(child);
+          
+          // Check if the child has already changed password from backend
+          checkPasswordStatus(child.childId);
+          return true;
+        } catch (e) {
+          console.error("Error parsing child data:", e);
+        }
+      }
+      
+      // Also check if childId was passed via navigation state
+      if (location.state?.childId) {
+        const childId = location.state.childId;
+        setChildData({ childId: childId });
+        checkPasswordStatus(childId);
+        return true;
+      }
+      
+      // No child data found, redirect to login
+      setError("Session expired. Please login again.");
+      setTimeout(() => {
+        navigate("/child-enroll");
+      }, 2000);
+      return false;
+    };
+    
+    getChildData();
+  }, [navigate, location]);
 
   const checkPasswordStatus = async (childId) => {
+    if (!childId) {
+      setLoading(false);
+      return;
+    }
+    
     try {
       const response = await axios.post("https://leadspreschool-production.up.railway.app/check-password-status", {
         childId: childId
@@ -63,6 +96,7 @@ const ChangePassword = () => {
       }
     } catch (err) {
       console.error("Error checking password status:", err);
+      setError("Unable to verify password status. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -74,16 +108,23 @@ const ChangePassword = () => {
       
       if (response.data.exists) {
         // Profile exists, go to dashboard
-        navigate("/childdashboard");
+        setSuccess("Password already changed. Redirecting to dashboard...");
+        setTimeout(() => {
+          navigate("/childdashboard");
+        }, 2000);
       } else {
-        // Profile doesn't exist, show message and then go to profile form
-        setError("You have already changed your password. Please complete your profile.");
+        // Profile doesn't exist, go to profile form
+        setError("Password already changed. Please complete your profile.");
         setTimeout(() => {
           navigate("/studentprofileform");
-        }, 3000);
+        }, 2000);
       }
     } catch (err) {
       console.error("Error checking profile status:", err);
+      // If can't check profile, still go to dashboard
+      setTimeout(() => {
+        navigate("/childdashboard");
+      }, 2000);
     }
   };
 
@@ -111,7 +152,7 @@ const ChangePassword = () => {
     if (value.trim().length < 3) {
       return "Password must be at least 3 characters long";
     }
-    if (value.trim().toLowerCase() === currentPassword.trim().toLowerCase()) {
+    if (currentPassword && value.trim().toLowerCase() === currentPassword.trim().toLowerCase()) {
       return "New password cannot be the same as current password";
     }
     return "";
@@ -195,6 +236,23 @@ const ChangePassword = () => {
     });
   };
 
+  const updateChildSession = (updatedData) => {
+    // Update both localStorage and sessionStorage
+    const storedChild = localStorage.getItem("currentChild");
+    if (storedChild) {
+      const currentSession = JSON.parse(storedChild);
+      const updatedSession = { ...currentSession, ...updatedData };
+      localStorage.setItem("currentChild", JSON.stringify(updatedSession));
+    }
+    
+    const sessionStoredChild = sessionStorage.getItem("currentChild");
+    if (sessionStoredChild) {
+      const currentSession = JSON.parse(sessionStoredChild);
+      const updatedSession = { ...currentSession, ...updatedData };
+      sessionStorage.setItem("currentChild", JSON.stringify(updatedSession));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -233,13 +291,18 @@ const ChangePassword = () => {
       if (response.data.success) {
         setSuccess("✓ " + response.data.message);
         
-        // Update localStorage to indicate password has been changed
-        const updatedChildData = {
-          ...childData,
+        // Update session data to indicate password has been changed
+        const updatedData = {
           hasChangedPassword: true,
-          passwordChangedAt: new Date().toISOString()
+          passwordChangedAt: new Date().toISOString(),
+          lastActivity: new Date().toISOString()
         };
-        localStorage.setItem("currentChild", JSON.stringify(updatedChildData));
+        
+        updateChildSession(updatedData);
+        
+        // Also update local state
+        setChildData(prev => ({ ...prev, ...updatedData }));
+        setHasChangedPassword(true);
         
         // Clear form
         setCurrentPassword("");
@@ -251,7 +314,7 @@ const ChangePassword = () => {
           confirmNewPassword: false
         });
         
-        // Check profile status and redirect accordingly
+        // Check profile status and redirect
         setTimeout(() => {
           checkProfileStatus(childData.childId);
         }, 2000);
@@ -291,7 +354,10 @@ const ChangePassword = () => {
       <div className="change-password-wrapper">
         <UserNavbar />
         <div className="password-change-container">
-          <div className="loading-spinner">Loading...</div>
+          <div className="loading-spinner">
+            <div className="spinner"></div>
+            <p>Loading...</p>
+          </div>
         </div>
       </div>
     );
@@ -312,9 +378,10 @@ const ChangePassword = () => {
               <p className="header-subtitle">
                 You have already changed your password. Password can only be changed once.
               </p>
-              <p className="redirect-message">
-                Checking your profile status...
-              </p>
+              <div className="redirect-message">
+                <p>Redirecting to complete your profile...</p>
+                <div className="small-spinner"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -400,6 +467,9 @@ const ChangePassword = () => {
                 )}
               </div>
               {errors.currentPassword && <span className="error-text">{errors.currentPassword}</span>}
+              <small className="input-hint">
+                Enter your name as the current password
+              </small>
             </div>
 
             <div className="form-group">

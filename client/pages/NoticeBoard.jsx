@@ -17,12 +17,25 @@ const NoticeBoard = () => {
   const fetchAnnouncements = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_URL}/announcements`);
+      // Get token from localStorage
+      const token = localStorage.getItem("token");
+      
+      // Make request with Authorization header
+      const res = await axios.get(`${API_URL}/announcements`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
       setAnnouncements(res.data);
       setError("");
     } catch (err) {
       console.error("Error fetching announcements:", err);
-      setError("Failed to load the notice board. Please try again later.");
+      if (err.response?.status === 401) {
+        setError("Session expired. Please login again.");
+      } else {
+        setError("Failed to load the notice board. Please try again later.");
+      }
     } finally {
       setLoading(false);
     }

@@ -21,6 +21,8 @@ const AnnouncementManager = () => {
   useEffect(() => {
     // Check authentication
     const teacherData = localStorage.getItem("currentTeacher");
+    const adminData = localStorage.getItem("currentAdmin");
+    
     if (teacherData) {
       try {
         const parsed = JSON.parse(teacherData);
@@ -28,6 +30,10 @@ const AnnouncementManager = () => {
       } catch (err) {
         setTeacherName("Teacher");
       }
+    } else if (adminData) {
+      setTeacherName("Admin");
+    } else {
+      setTeacherName("Admin");
     }
 
     fetchAnnouncements();
@@ -64,7 +70,7 @@ const AnnouncementManager = () => {
         message,
         priority,
         endDate: endDate ? new Date(endDate) : null,
-        posted_by: teacherName
+        posted_by: teacherName || "Admin"
       };
 
       await axios.post(`${API_URL}/announcements`, newAnnouncement);

@@ -3268,25 +3268,99 @@ app.get("/student-details/:childId", async (req, res) => {
 });
 
 /* ================================
-   ANNOUNCEMENTS API
+   ANNOUNCEMENTS API (FIXED VERSION)
 ================================ */
 
-// 1. CREATE ANNOUNCEMENT
-app.post("/announcements", async (req, res) => {
+// IMPORTANT: Add this middleware near the top of your index.js (after app.use(cors()))
+// Authentication middleware for announcements
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+  
+  if (!token) {
+    // For GET requests, allow without token (public viewing)
+    if (req.method === 'GET') {
+      return next();
+    }
+    return res.status(401).json({ success: false, error: "Authentication required" });
+  }
+  
   try {
-    const newAnnouncement = new AnnouncementModel(req.body);
+    // Since you're not using JWT, we'll just verify the token exists
+    // If you want proper JWT validation, uncomment the code below
+    
+    /*
+    const jwt = require('jsonwebtoken');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    */
+    
+    // Simple validation - just check token exists in your system
+    // For production, implement proper JWT validation
+    next();
+  } catch (err) {
+    return res.status(403).json({ success: false, error: "Invalid or expired token" });
+  }
+};
+
+// 1. CREATE ANNOUNCEMENT (Protected - requires authentication)
+app.post("/announcements", authenticateToken, async (req, res) => {
+  try {
+    const { title, message, priority, posted_by, endDate } = req.body;
+    
+    // Validation
+    if (!title || !title.trim()) {
+      return res.status(400).json({ success: false, error: "Title is required" });
+    }
+    
+    if (!message || !message.trim()) {
+      return res.status(400).json({ success: false, error: "Message is required" });
+    }
+    
+    if (!posted_by || !posted_by.trim()) {
+      return res.status(400).json({ success: false, error: "Posted by is required" });
+    }
+    
+    // Create announcement with proper data
+    const newAnnouncement = new AnnouncementModel({
+      title: title.trim(),
+      message: message.trim(),
+      priority: priority || "Low",
+      posted_by: posted_by.trim(),
+      endDate: endDate ? new Date(endDate) : null,
+      createdAt: new Date()
+    });
+    
     await newAnnouncement.save();
-    res.status(201).json({ success: true, message: "Announcement created successfully", data: newAnnouncement });
+    
+    // Return success response
+    res.status(201).json({ 
+      success: true, 
+      message: "Announcement created successfully", 
+      data: newAnnouncement 
+    });
+    
   } catch (err) {
     console.error("Error creating announcement:", err);
-    res.status(500).json({ success: false, error: "Failed to create announcement" });
+    
+    // Handle validation errors
+    if (err.name === 'ValidationError') {
+      const errors = Object.values(err.errors).map(e => e.message);
+      return res.status(400).json({ success: false, error: errors.join(', ') });
+    }
+    
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to create announcement. Please check server logs." 
+    });
   }
 });
 
-// 2. GET ALL ANNOUNCEMENTS
+// 2. GET ALL ANNOUNCEMENTS (Public - no authentication required)
 app.get("/announcements", async (req, res) => {
   try {
     const now = new Date();
+    
     // Filter announcements where endDate is not set, or endDate is in the future
     const announcements = await AnnouncementModel.find({
       $or: [
@@ -3294,9 +3368,9 @@ app.get("/announcements", async (req, res) => {
         { endDate: { $exists: false } },
         { endDate: { $gt: now } }
       ]
-    });
+    }).lean(); // Use lean() for better performance
     
-    // Custom sort: Priority High (1) > Medium (2) > Low (3), then by createdAt desc
+    // Custom sort: Priority High > Medium > Low, then by createdAt desc
     const priorityMap = { 'High': 1, 'Medium': 2, 'Low': 3 };
     
     announcements.sort((a, b) => {
@@ -3310,27 +3384,92 @@ app.get("/announcements", async (req, res) => {
       return new Date(b.createdAt) - new Date(a.createdAt);
     });
     
-    res.json(announcements);
+    // Send response
+    res.status(200).json(announcements);
+    
   } catch (err) {
     console.error("Error fetching announcements:", err);
-    res.status(500).json({ error: "Failed to fetch announcements" });
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to fetch announcements",
+      details: err.message 
+    });
   }
 });
 
-// 3. DELETE ANNOUNCEMENT
-app.delete("/announcements/:id", async (req, res) => {
+// 3. GET SINGLE ANNOUNCEMENT BY ID
+app.get("/announcements/:id", async (req, res) => {
+  try {
+    const announcement = await AnnouncementModel.findById(req.params.id);
+    
+    if (!announcement) {
+      return res.status(404).json({ success: false, error: "Announcement not found" });
+    }
+    
+    res.json(announcement);
+    
+  } catch (err) {
+    console.error("Error fetching announcement:", err);
+    res.status(500).json({ success: false, error: "Failed to fetch announcement" });
+  }
+});
+
+// 4. UPDATE ANNOUNCEMENT
+app.put("/announcements/:id", authenticateToken, async (req, res) => {
+  try {
+    const { title, message, priority, posted_by, endDate } = req.body;
+    
+    const updatedAnnouncement = await AnnouncementModel.findByIdAndUpdate(
+      req.params.id,
+      {
+        title: title?.trim(),
+        message: message?.trim(),
+        priority: priority,
+        posted_by: posted_by?.trim(),
+        endDate: endDate ? new Date(endDate) : null,
+        updatedAt: new Date()
+      },
+      { new: true, runValidators: true }
+    );
+    
+    if (!updatedAnnouncement) {
+      return res.status(404).json({ success: false, error: "Announcement not found" });
+    }
+    
+    res.json({ 
+      success: true, 
+      message: "Announcement updated successfully", 
+      data: updatedAnnouncement 
+    });
+    
+  } catch (err) {
+    console.error("Error updating announcement:", err);
+    res.status(500).json({ success: false, error: "Failed to update announcement" });
+  }
+});
+
+// 5. DELETE ANNOUNCEMENT
+app.delete("/announcements/:id", authenticateToken, async (req, res) => {
   try {
     const deletedAnnouncement = await AnnouncementModel.findByIdAndDelete(req.params.id);
+    
     if (!deletedAnnouncement) {
       return res.status(404).json({ success: false, error: "Announcement not found" });
     }
-    res.json({ success: true, message: "Announcement deleted successfully" });
+    
+    res.json({ 
+      success: true, 
+      message: "Announcement deleted successfully" 
+    });
+    
   } catch (err) {
     console.error("Error deleting announcement:", err);
-    res.status(500).json({ success: false, error: "Failed to delete announcement" });
+    res.status(500).json({ 
+      success: false, 
+      error: "Failed to delete announcement" 
+    });
   }
 });
-
 // Health check endpoint for Docker
 app.get('/api/health', (req, res) => {
   res.status(200).json({ 

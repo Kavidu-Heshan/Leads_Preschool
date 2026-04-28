@@ -7,7 +7,7 @@ import UserNavbar from "../components/UserNavbar";
 const ChildEnroll = () => {
   const navigate = useNavigate();
   
-  const [loginType, setLoginType] = useState("child");
+  const [loginType, setLoginType] = useState("child"); // "child" or "teacher"
   const [childId, setChildId] = useState("");
   const [childName, setChildName] = useState("");
   const [username, setUsername] = useState("");
@@ -29,50 +29,6 @@ const ChildEnroll = () => {
     password: false
   });
 
-  // Clear existing sessions when reaching login page
-  useEffect(() => {
-    // Only clear if coming from logout or fresh page load
-    const shouldClear = sessionStorage.getItem("justLoggedOut") === "true" || !sessionStorage.getItem("hasReloaded");
-    
-    if (shouldClear) {
-      localStorage.removeItem("currentChild");
-      localStorage.removeItem("currentTeacher");
-      sessionStorage.clear();
-      sessionStorage.setItem("hasReloaded", "true");
-      sessionStorage.removeItem("justLoggedOut");
-    }
-    
-    // Check for existing valid session
-    const currentChild = localStorage.getItem("currentChild") || sessionStorage.getItem("currentChild");
-    if (currentChild) {
-      try {
-        const session = JSON.parse(currentChild);
-        if (new Date(session.expiresAt) > new Date()) {
-          // Valid session exists, redirect to dashboard
-          if (!session.hasChangedPassword) {
-            navigate("/changepwd");
-          } else {
-            navigate("/childdashboard");
-          }
-        }
-      } catch (e) {
-        console.error("Session parse error:", e);
-      }
-    }
-  }, [navigate]);
-
-  // Save rememberMe preference
-  useEffect(() => {
-    localStorage.setItem("rememberMePreference", rememberMe);
-  }, [rememberMe]);
-
-  // Load rememberMe preference on mount
-  useEffect(() => {
-    const savedRememberMe = localStorage.getItem("rememberMePreference");
-    if (savedRememberMe === "true") {
-      setRememberMe(true);
-    }
-  }, []);
 
   useEffect(() => {
     if (error || success) {
@@ -84,64 +40,96 @@ const ChildEnroll = () => {
     }
   }, [error, success]);
 
-  // Validation functions
+  // Child validation functions
   const validateChildId = (id) => {
-    if (!id || id.trim() === "") return "Child ID is required";
-    if (id.trim().length < 3) return "Child ID must be at least 3 characters";
-    if (!/^[a-zA-Z0-9]+$/.test(id.trim())) return "Child ID can only contain letters and numbers";
+    if (!id || id.trim() === "") {
+      return "Child ID is required";
+    }
+    if (id.trim().length < 3) {
+      return "Child ID must be at least 3 characters";
+    }
+    if (!/^[a-zA-Z0-9]+$/.test(id.trim())) {
+      return "Child ID can only contain letters and numbers";
+    }
     return "";
   };
 
   const validateChildName = (name) => {
-    if (!name || name.trim() === "") return "Password is required";
-    if (name.trim().length < 2) return "Password must be at least 2 characters";
+    if (!name || name.trim() === "") {
+      return "Password is required";
+    }
+    if (name.trim().length < 2) {
+      return "Password must be at least 2 characters";
+    }
     return "";
   };
 
+  // Teacher validation functions
   const validateUsername = (user) => {
-    if (!user || user.trim() === "") return "Username is required";
-    if (user.trim().length < 3) return "Username must be at least 3 characters";
-    if (user.trim().length > 50) return "Username must be less than 50 characters";
+    if (!user || user.trim() === "") {
+      return "Username is required";
+    }
+    if (user.trim().length < 3) {
+      return "Username must be at least 3 characters";
+    }
+    if (user.trim().length > 50) {
+      return "Username must be less than 50 characters";
+    }
     return "";
   };
 
   const validatePassword = (pwd) => {
-    if (!pwd || pwd.trim() === "") return "Password is required";
-    if (pwd.trim().length < 6) return "Password must be at least 6 characters";
-    if (pwd.trim().length > 100) return "Password must be less than 100 characters";
+    if (!pwd || pwd.trim() === "") {
+      return "Password is required";
+    }
+    if (pwd.trim().length < 6) {
+      return "Password must be at least 6 characters";
+    }
+    if (pwd.trim().length > 100) {
+      return "Password must be less than 100 characters";
+    }
     return "";
   };
 
-  // Input handlers
+  // Child input handlers
   const handleIdChange = (e) => {
     const value = e.target.value;
     setChildId(value);
-    if (touched.childId) setIdError(validateChildId(value));
+    if (touched.childId) {
+      setIdError(validateChildId(value));
+    }
     setError(""); 
   };
 
   const handleNameChange = (e) => {
     const value = e.target.value;
     setChildName(value);
-    if (touched.childName) setNameError(validateChildName(value));
+    if (touched.childName) {
+      setNameError(validateChildName(value));
+    }
     setError(""); 
   };
 
+  // Teacher input handlers
   const handleUsernameChange = (e) => {
     const value = e.target.value;
     setUsername(value);
-    if (touched.username) setUsernameError(validateUsername(value));
+    if (touched.username) {
+      setUsernameError(validateUsername(value));
+    }
     setError("");
   };
 
   const handlePasswordChange = (e) => {
     const value = e.target.value;
     setPassword(value);
-    if (touched.password) setPasswordError(validatePassword(value));
+    if (touched.password) {
+      setPasswordError(validatePassword(value));
+    }
     setError("");
   };
 
-  // Blur handlers
+  // Child blur handlers
   const handleIdBlur = () => {
     setTouched({ ...touched, childId: true });
     setIdError(validateChildId(childId));
@@ -152,6 +140,7 @@ const ChildEnroll = () => {
     setNameError(validateChildName(childName));
   };
 
+  // Teacher blur handlers
   const handleUsernameBlur = () => {
     setTouched({ ...touched, username: true });
     setUsernameError(validateUsername(username));
@@ -166,6 +155,7 @@ const ChildEnroll = () => {
     setLoginType(type);
     setError("");
     setSuccess("");
+    // Reset form fields
     setChildId("");
     setChildName("");
     setUsername("");
@@ -184,6 +174,7 @@ const ChildEnroll = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
     if (loginType === "child") {
       await handleChildLogin();
     } else {
@@ -198,7 +189,9 @@ const ChildEnroll = () => {
     setIdError(idValidationError);
     setNameError(nameValidationError);
 
-    if (idValidationError || nameValidationError) return;
+    if (idValidationError || nameValidationError) {
+      return;
+    }
 
     setIsSubmitting(true);
     setError("");
@@ -211,52 +204,62 @@ const ChildEnroll = () => {
       });
 
       if (response.data.success) {
-        setSuccess("✓ Successfully logged in! Redirecting...");
+        setSuccess("✓ Successfully logged in! Redirecting to dashboard...");
         
+        // Store session with timestamp and expiry
         const sessionData = {
           childId: response.data.child.childId,
           childName: response.data.child.childName,
           enrolledAt: new Date().toISOString(),
-          expiresAt: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(),
+          expiresAt: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(), // 8 hours expiry
           hasChangedPassword: response.data.hasChangedPassword || false,
           userType: "child",
-          lastActivity: new Date().toISOString(),
-          childData: response.data.child // Store complete child data
+          lastActivity: new Date().toISOString()
         };
         
-        // Store session based on remember me
         if (rememberMe) {
           localStorage.setItem("currentChild", JSON.stringify(sessionData));
         } else {
           sessionStorage.setItem("currentChild", JSON.stringify(sessionData));
         }
         
+        // Also store in sessionStorage for additional security
         sessionStorage.setItem("childSession", JSON.stringify({
           childId: response.data.child.childId,
           loginTime: new Date().toISOString()
         }));
 
-        // IMPORTANT: Store the hasChangedPassword status for change password page
-        sessionStorage.setItem("requirePasswordChange", !response.data.hasChangedPassword);
-
         setTimeout(() => {
+          // Check if password needs to be changed
           if (!response.data.hasChangedPassword) {
-            navigate("/changepwd", { state: { childId: response.data.child.childId } });
+            navigate("/changepwd");
           } else {
             navigate("/childdashboard");
           }
-        }, 1500);
+        }, 2000);
       }
     } catch (err) {
       console.error("Enrollment error:", err);
+      
       if (err.response) {
         switch (err.response.status) {
-          case 401: setError("❌ Invalid Child ID or Password. Please try again."); break;
-          case 403: setError("❌ Account is locked. Please contact administrator."); break;
-          case 404: setError("❌ Child not found. Please check your credentials."); break;
-          case 429: setError("❌ Too many login attempts. Please try again later."); break;
-          case 500: setError("❌ Server error. Please try again later."); break;
-          default: setError(err.response.data.error || "❌ Login failed. Please try again.");
+          case 401:
+            setError("❌ Invalid Child ID or Password. Please try again.");
+            break;
+          case 403:
+            setError("❌ Account is locked. Please contact administrator.");
+            break;
+          case 404:
+            setError("❌ Child not found. Please check your credentials.");
+            break;
+          case 429:
+            setError("❌ Too many login attempts. Please try again later.");
+            break;
+          case 500:
+            setError("❌ Server error. Please try again later.");
+            break;
+          default:
+            setError(err.response.data.error || "❌ Login failed. Please try again.");
         }
       } else if (err.request) {
         setError("❌ Cannot connect to server. Please check your connection.");
@@ -275,7 +278,9 @@ const ChildEnroll = () => {
     setUsernameError(usernameValidationError);
     setPasswordError(passwordValidationError);
 
-    if (usernameValidationError || passwordValidationError) return;
+    if (usernameValidationError || passwordValidationError) {
+      return;
+    }
 
     setIsSubmitting(true);
     setError("");
@@ -288,8 +293,9 @@ const ChildEnroll = () => {
       });
 
       if (response.data.success) {
-        setSuccess("✓ Welcome back, " + response.data.teacher.teacherName + "!");
+        setSuccess("✓ Welcome back, " + response.data.teacher.teacherName + "! Redirecting to dashboard...");
         
+        // Store session with timestamp and expiry
         const sessionData = {
           teacherId: response.data.teacher.teacherId,
           teacherName: response.data.teacher.teacherName,
@@ -299,7 +305,7 @@ const ChildEnroll = () => {
           status: response.data.teacher.status,
           lastLogin: response.data.lastLogin,
           loginTime: new Date().toISOString(),
-          expiresAt: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(),
+          expiresAt: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(), // 8 hours expiry
           userType: "teacher",
           lastActivity: new Date().toISOString(),
           permissions: response.data.teacher.permissions || ["view", "edit"]
@@ -311,6 +317,7 @@ const ChildEnroll = () => {
           sessionStorage.setItem("currentTeacher", JSON.stringify(sessionData));
         }
         
+        // Also store in sessionStorage for additional security
         sessionStorage.setItem("teacherSession", JSON.stringify({
           teacherId: response.data.teacher.teacherId,
           username: response.data.teacher.username,
@@ -319,18 +326,30 @@ const ChildEnroll = () => {
 
         setTimeout(() => {
           navigate("/adminhome");
-        }, 1500);
+        }, 2000);
       }
     } catch (err) {
       console.error("Teacher login error:", err);
+      
       if (err.response) {
         switch (err.response.status) {
-          case 401: setError("❌ Invalid username or password. Please try again."); break;
-          case 403: setError("❌ Account is disabled or locked. Please contact administrator."); break;
-          case 404: setError("❌ Teacher account not found."); break;
-          case 429: setError("❌ Too many login attempts. Please try again later."); break;
-          case 500: setError("❌ Server error. Please try again later."); break;
-          default: setError(err.response.data.error || "❌ Login failed. Please try again.");
+          case 401:
+            setError("❌ Invalid username or password. Please try again.");
+            break;
+          case 403:
+            setError("❌ Account is disabled or locked. Please contact administrator.");
+            break;
+          case 404:
+            setError("❌ Teacher account not found.");
+            break;
+          case 429:
+            setError("❌ Too many login attempts. Please try again later.");
+            break;
+          case 500:
+            setError("❌ Server error. Please try again later.");
+            break;
+          default:
+            setError(err.response.data.error || "❌ Login failed. Please try again.");
         }
       } else if (err.request) {
         setError("❌ Cannot connect to server. Please check your connection.");
@@ -345,11 +364,13 @@ const ChildEnroll = () => {
   const handleForgotCredentials = () => {
     if (loginType === "child") {
       setError("Please contact your administrator or parent to retrieve your Child ID and reset your password.");
+      // Optionally, you can show a modal with contact information
     } else {
       setError("Please contact your system administrator to reset your password.");
     }
   };
 
+  // Handle Enter key press
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !isSubmitting) {
       handleSubmit(e);
@@ -360,13 +381,7 @@ const ChildEnroll = () => {
     <div className="child-enroll-wrapper">
       <UserNavbar />
       <div className="enroll-container">
-        <div className="nature-bg">
-          <div className="leaf leaf-1">🌿</div>
-          <div className="leaf leaf-2">🍃</div>
-          <div className="leaf leaf-3">🌱</div>
-          <div className="leaf leaf-4">🌿</div>
-          <div className="leaf leaf-5">🍂</div>
-        </div>
+
 
         <div className="enroll-card">
           <div className="enroll-header">
@@ -381,6 +396,7 @@ const ChildEnroll = () => {
             </p>
           </div>
 
+          {/* Login Type Toggle */}
           <div className="login-type-toggle">
             <button
               type="button"
@@ -480,7 +496,7 @@ const ChildEnroll = () => {
                   </div>
                   {nameError && <span className="error-text">{nameError}</span>}
                   <small className="input-hint">
-                    Enter your password (case-sensitive)
+                    {touched.childName && !childName ? "Enter your password" : "Enter your password (case-sensitive)"}
                   </small>
                 </div>
               </>
@@ -561,9 +577,7 @@ const ChildEnroll = () => {
                 onChange={(e) => setRememberMe(e.target.checked)}
                 style={{ width: '18px', height: '18px', cursor: 'pointer', margin: 0, padding: 0 }}
               />
-              <label htmlFor="rememberMe" style={{ margin: 0, cursor: 'pointer', fontWeight: 500, fontSize: '0.95rem' }}>
-                Remember me
-              </label>
+              <label htmlFor="rememberMe" style={{ margin: 0, cursor: 'pointer', fontWeight: 500, fontSize: '0.95rem' }}>Remember me</label>
             </div>
 
             <button 
@@ -614,21 +628,6 @@ const ChildEnroll = () => {
             <p className="security-note">
               🔒 Your session is encrypted and secure
             </p>
-          </div>
-        </div>
-
-        <div className="fun-facts">
-          <div className="fact-card">
-            <span className="fact-icon">🌟</span>
-            <p className="fact-text">Learning is an adventure!</p>
-          </div>
-          <div className="fact-card">
-            <span className="fact-icon">📚</span>
-            <p className="fact-text">Every day is a new discovery</p>
-          </div>
-          <div className="fact-card">
-            <span className="fact-icon">🎨</span>
-            <p className="fact-text">Be creative, be yourself</p>
           </div>
         </div>
       </div>

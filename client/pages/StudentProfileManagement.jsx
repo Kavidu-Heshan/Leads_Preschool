@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import '../css/StudentProfileManagement.css';
 import UserNavbar from '../components/UserNavbar';
@@ -6,7 +7,6 @@ import UserNavbar from '../components/UserNavbar';
 const StudentProfileManagement = () => {
   const navigate = useNavigate();
   
-  // Get the logged-in child's ID from localStorage
   const [childId, setChildId] = useState('');
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -32,48 +32,84 @@ const StudentProfileManagement = () => {
   const [originalData, setOriginalData] = useState({});
   const [availableClasses, setAvailableClasses] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
-  
-  // Photo upload states
-  // eslint-disable-next-line no-unused-vars
   const [profilePhotoFile, setProfilePhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState('');
   const [showPhotoUpload, setShowPhotoUpload] = useState(false);
 
-  // Get logged-in user from localStorage
-  useEffect(function() {
-    var storedChild = localStorage.getItem('currentChild');
+  // Get child data from both localStorage and sessionStorage
+  const getChildData = () => {
+    let storedChild = localStorage.getItem("currentChild");
+    if (!storedChild) {
+      storedChild = sessionStorage.getItem("currentChild");
+    }
+    
     if (storedChild) {
-      var parsedChild = JSON.parse(storedChild);
-      setChildId(parsedChild.childId);
-      fetchProfileData(parsedChild.childId);
+      try {
+        return JSON.parse(storedChild);
+      } catch (e) {
+        console.error("Error parsing child data:", e);
+        return null;
+      }
+    }
+    return null;
+  };
+
+  // Update child session in both storages
+  const updateChildSession = (updatedData) => {
+    const storedChildLocal = localStorage.getItem("currentChild");
+    if (storedChildLocal) {
+      const currentSession = JSON.parse(storedChildLocal);
+      const updatedSession = { ...currentSession, ...updatedData };
+      localStorage.setItem("currentChild", JSON.stringify(updatedSession));
+    }
+    
+    const storedChildSession = sessionStorage.getItem("currentChild");
+    if (storedChildSession) {
+      const currentSession = JSON.parse(storedChildSession);
+      const updatedSession = { ...currentSession, ...updatedData };
+      sessionStorage.setItem("currentChild", JSON.stringify(updatedSession));
+    }
+  };
+
+  useEffect(() => {
+    const child = getChildData();
+    if (child && child.childId) {
+      setChildId(child.childId);
+      fetchProfileData(child.childId);
     } else {
       setError("No logged-in user found. Please login first.");
-      setTimeout(function() {
+      setTimeout(() => {
         navigate('/child-enroll');
       }, 2000);
     }
   }, [navigate]);
 
-  var fetchProfileData = async function(id) {
+  const fetchProfileData = async (id) => {
     try {
-      var response = await fetch('https://leadspreschool-production.up.railway.app/student-profile/' + id);
-      var data = await response.json();
-
-      if (response.ok) {
+      setLoading(true);
+      const response = await axios.get(`https://leadspreschool-production.up.railway.app/student-profile/${id}`);
+      
+      if (response.data) {
+        const data = response.data;
+        
         // Format date for the input field (YYYY-MM-DD)
-        var formattedDob = data.dob ? new Date(data.dob).toISOString().split('T')[0] : '';
+        let formattedDob = '';
+        if (data.dob) {
+          const dobDate = new Date(data.dob);
+          formattedDob = dobDate.toISOString().split('T')[0];
+        }
         
         // Convert contact numbers array to comma-separated string
-        var contactStr = data.contactNumbers ? data.contactNumbers.join(', ') : '';
+        const contactStr = data.contactNumbers ? data.contactNumbers.join(', ') : '';
         
-        var profileData = {
-          childId: data.childId,
+        const profileData = {
+          childId: data.childId || id,
           fullName: data.fullName || '',
           gender: data.gender || 'Male',
           class: data.class || 'Daycare',
           includeDaycare: data.includeDaycare || false,
           dob: formattedDob,
-          age: data.age || '',
+          age: data.age || calculateAge(formattedDob),
           bloodType: data.bloodType || '',
           guardianName: data.guardianName || '',
           contactNumbers: contactStr,
@@ -90,25 +126,26 @@ const StudentProfileManagement = () => {
           setPhotoPreview(data.profilePhoto);
         }
         
-        updateAvailableClasses(data.age);
+        updateAvailableClasses(data.age || calculateAge(formattedDob));
         setError('');
-      } else {
-        setError("Profile not found. Please complete your profile first.");
-        setTimeout(function() {
-          navigate('/complete-profile');
-        }, 2000);
       }
     } catch (err) {
-      console.error("Connection error:", err);
-      setError("Failed to connect to server.");
+      console.error("Error fetching profile:", err);
+      if (err.response && err.response.status === 404) {
+        setError("Profile not found. Please complete your profile first.");
+        setTimeout(() => {
+          navigate('/studentprofileform');
+        }, 2000);
+      } else {
+        setError("Failed to load profile. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle profile photo upload
-  var handlePhotoUpload = function(e) {
-    var file = e.target.files[0];
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files[0];
     if (file) {
       // Check file type
       if (!file.type.match('image.*')) {
@@ -125,42 +162,36 @@ const StudentProfileManagement = () => {
       setProfilePhotoFile(file);
       
       // Create preview
-      var reader = new FileReader();
-      reader.onloadend = function() {
+      const reader = new FileReader();
+      reader.onloadend = () => {
         setPhotoPreview(reader.result);
-        // Update formData with new photo
-        setFormData(function(prev) {
-          return {
-            ...prev,
-            profilePhoto: reader.result
-          };
-        });
+        setFormData(prev => ({
+          ...prev,
+          profilePhoto: reader.result
+        }));
       };
       reader.readAsDataURL(file);
     }
   };
 
-  var removePhoto = function() {
+  const removePhoto = () => {
     setProfilePhotoFile(null);
     setPhotoPreview("");
-    // Reset to emoji based on gender
-    var emojiPhoto = formData.gender === 'Male' ? '👦' : '👧';
-    setFormData(function(prev) {
-      return {
-        ...prev,
-        profilePhoto: emojiPhoto
-      };
-    });
+    const emojiPhoto = formData.gender === 'Male' ? '👦' : '👧';
+    setFormData(prev => ({
+      ...prev,
+      profilePhoto: emojiPhoto
+    }));
     // Reset file input
-    var input = document.getElementById('profile-photo-input-edit');
+    const input = document.getElementById('profile-photo-input-edit');
     if (input) {
       input.value = '';
     }
   };
 
-  var updateAvailableClasses = function(age) {
-    var ageNum = parseInt(age);
-    var classes = [];
+  const updateAvailableClasses = (age) => {
+    const ageNum = parseInt(age);
+    let classes = [];
     
     if (ageNum === 3) {
       classes = ["Daycare"];
@@ -171,15 +202,20 @@ const StudentProfileManagement = () => {
     }
     
     setAvailableClasses(classes);
+    
+    // Auto-select class for age 3
+    if (ageNum === 3) {
+      setFormData(prev => ({ ...prev, class: "Daycare", includeDaycare: false }));
+    }
   };
 
-  var calculateAge = function(dobString) {
+  const calculateAge = (dobString) => {
     if (!dobString) return "";
-    var birthDate = new Date(dobString);
-    var today = new Date();
+    const birthDate = new Date(dobString);
+    const today = new Date();
     
-    var ageCalc = today.getFullYear() - birthDate.getFullYear();
-    var m = today.getMonth() - birthDate.getMonth();
+    let ageCalc = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
     
     if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
       ageCalc--;
@@ -187,51 +223,45 @@ const StudentProfileManagement = () => {
     return ageCalc;
   };
 
-  var validatePhoneNumber = function(phone) {
-    var phoneRegex = /^0\d{9}$/;
+  const validatePhoneNumber = (phone) => {
+    const phoneRegex = /^0\d{9}$/;
     return phoneRegex.test(phone);
   };
 
-  var validateEmail = function(email) {
-    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
-  var handleChange = function(e) {
-    var name = e.target.name;
-    var value = e.target.value;
-    var type = e.target.type;
-    var checked = e.target.checked;
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
     
     if (type === 'checkbox') {
-      setFormData(function(prev) {
-        return { ...prev, [name]: checked };
-      });
+      setFormData(prev => ({ ...prev, [name]: checked }));
     } else if (name === 'dob') {
-      var calculatedAge = calculateAge(value);
-      setFormData(function(prev) {
-        return { ...prev, dob: value, age: calculatedAge };
-      });
+      const calculatedAge = calculateAge(value);
+      setFormData(prev => ({ 
+        ...prev, 
+        dob: value, 
+        age: calculatedAge 
+      }));
       updateAvailableClasses(calculatedAge);
     } else {
-      setFormData(function(prev) {
-        return { ...prev, [name]: value };
-      });
+      setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
 
-  var handleEdit = function() {
+  const handleEdit = () => {
     setIsEditing(true);
     setShowPhotoUpload(true);
     setError('');
     setSuccess('');
-    // Set photo preview if exists
     if (formData.profilePhoto && formData.profilePhoto.startsWith('data:image')) {
       setPhotoPreview(formData.profilePhoto);
     }
   };
 
-  var handleCancel = function() {
+  const handleCancel = () => {
     setFormData(originalData);
     setIsEditing(false);
     setShowPhotoUpload(false);
@@ -240,14 +270,14 @@ const StudentProfileManagement = () => {
     setSuccess('');
   };
 
-  var handleSubmit = async function(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     // Validate phone numbers
     if (formData.contactNumbers) {
-      var phones = formData.contactNumbers.split(',').map(function(p) { return p.trim(); });
-      for (var i = 0; i < phones.length; i++) {
-        var phone = phones[i];
+      const phones = formData.contactNumbers.split(',').map(p => p.trim());
+      for (let i = 0; i < phones.length; i++) {
+        const phone = phones[i];
         if (phone && !validatePhoneNumber(phone)) {
           setError("All phone numbers must be 10 digits starting with 0 (e.g., 0771234567)");
           return;
@@ -279,59 +309,56 @@ const StudentProfileManagement = () => {
 
     try {
       // Prepare data for submission
-      var submissionData = {
+      const submissionData = {
         ...formData,
-        childId: childId, // Ensure childId is included
-        contactNumbers: formData.contactNumbers ? formData.contactNumbers.split(',').map(function(p) { return p.trim(); }) : []
+        childId: childId,
+        contactNumbers: formData.contactNumbers ? formData.contactNumbers.split(',').map(p => p.trim()) : []
       };
 
-      var response = await fetch('https://leadspreschool-production.up.railway.app/student-profile/' + childId, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(submissionData),
-      });
+      const response = await axios.put(`https://leadspreschool-production.up.railway.app/student-profile/${childId}`, submissionData);
 
-      var data = await response.json();
-
-      if (response.ok && data.success) {
+      if (response.data.success) {
         setSuccess("Profile updated successfully!");
         
         // Update localStorage with new data
-        var storedChild = JSON.parse(localStorage.getItem('currentChild'));
-        var classDisplay = formData.includeDaycare ? 
-          formData.class + ' + Daycare' : formData.class;
+        const classDisplay = formData.includeDaycare ? 
+          `${formData.class} + Daycare` : formData.class;
         
-        localStorage.setItem('currentChild', JSON.stringify({
-          ...storedChild,
+        updateChildSession({
           fullName: formData.fullName,
           gender: formData.gender,
           profilePhoto: formData.profilePhoto,
-          class: classDisplay
-        }));
+          class: classDisplay,
+          lastActivity: new Date().toISOString()
+        });
         
         setOriginalData(formData);
         setIsEditing(false);
         setShowPhotoUpload(false);
         
-        setTimeout(function() {
+        setTimeout(() => {
           setSuccess('');
         }, 3000);
       } else {
-        setError(data.error || "Failed to update profile.");
+        setError(response.data.error || "Failed to update profile.");
       }
     } catch (err) {
       console.error("Connection error:", err);
-      setError("Failed to connect to server.");
+      if (err.response) {
+        setError(err.response.data?.error || "Failed to update profile.");
+      } else if (err.request) {
+        setError("Cannot connect to server. Please check your connection.");
+      } else {
+        setError("An unexpected error occurred.");
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  var formatDate = function(dateString) {
+  const formatDate = (dateString) => {
     if (!dateString) return "";
-    var date = new Date(dateString);
+    const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
@@ -376,7 +403,6 @@ const StudentProfileManagement = () => {
         <div className="floating-circle circle-3"></div>
 
         <div className="profile-card">
-          {/* All content is inside profile-card */}
           <div className="profile-header">
             <div className="header-icon">
               <span className="profile-icon">
@@ -443,7 +469,7 @@ const StudentProfileManagement = () => {
 
                 <div className="info-item">
                   <label>Blood Type</label>
-                  <p className="info-value">{formData.bloodType}</p>
+                  <p className="info-value">{formData.bloodType || 'Not specified'}</p>
                 </div>
 
                 <div className="info-item">
@@ -476,7 +502,7 @@ const StudentProfileManagement = () => {
                 <div className="info-item full-width">
                   <label>Contact Numbers</label>
                   <div className="contact-list">
-                    {formData.contactNumbers.split(',').map(function(num, index) {
+                    {formData.contactNumbers && formData.contactNumbers.split(',').map((num, index) => {
                       return num.trim() && (
                         <p key={index} className="info-value contact-item">
                           📞 {num.trim()}
@@ -503,7 +529,7 @@ const StudentProfileManagement = () => {
                   Edit My Profile
                 </button>
                 <button 
-                  onClick={function() { navigate('/childdashboard'); }}
+                  onClick={() => navigate('/childdashboard')}
                   className="back-button"
                 >
                   <span className="button-icon">←</span>
@@ -651,13 +677,11 @@ const StudentProfileManagement = () => {
                       required
                     >
                       <option value="">Select Class</option>
-                      {availableClasses.map(function(className) {
-                        return (
-                          <option key={className} value={className}>
-                            {className}
-                          </option>
-                        );
-                      })}
+                      {availableClasses.map((className) => (
+                        <option key={className} value={className}>
+                          {className}
+                        </option>
+                      ))}
                     </select>
                   )}
                   
@@ -731,7 +755,7 @@ const StudentProfileManagement = () => {
               <div className="action-buttons">
                 <button 
                   type="submit" 
-                  className={"save-button " + (isSubmitting ? 'submitting' : '')}
+                  className={`save-button ${isSubmitting ? 'submitting' : ''}`}
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (

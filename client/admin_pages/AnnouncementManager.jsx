@@ -73,7 +73,11 @@ const AnnouncementManager = () => {
         posted_by: teacherName || "Admin"
       };
 
-      await axios.post(`${API_URL}/announcements`, newAnnouncement);
+      await axios.post(`${API_URL}/announcements`, newAnnouncement, {
+        headers: {
+          Authorization: `Bearer admin-token`
+        }
+      });
 
       setSuccess("Announcement posted successfully! 📢");
       setTitle("");
@@ -97,7 +101,11 @@ const AnnouncementManager = () => {
     }
 
     try {
-      await axios.delete(`${API_URL}/announcements/${id}`);
+      await axios.delete(`${API_URL}/announcements/${id}`, {
+        headers: {
+          Authorization: `Bearer admin-token`
+        }
+      });
       setSuccess("Announcement deleted.");
       fetchAnnouncements();
       
